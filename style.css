@@ -1,4 +1,4 @@
 h1{
     text-align: center;
-    color:red, blue;
+    background: radial-gradient(circle, #001effef, #ff0000f1);
 }
