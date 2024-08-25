@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Layout</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+        .container {
+            position: relative;
+            width: 400px; /* Container size remains unchanged */
+            height: 500px; /* Container size remains unchanged */
+        }
+        .item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+        }
+        .eyebrows {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    top: 10px; /* Positioning above the eyes */
+    padding: 0 20px; /* Added padding to ensure eyebrows are centered */
+}
+
+.eyebrow {
+    width: 120px; /* Width of eyebrow */
+    height: 20px; /* Height of eyebrow */
+    background-color: #000; /* Eyebrow color */
+    border-radius: 10px; /* Rounded edges */
+}
+
+.eyes {
+    position: absolute;
+    top: 40px; /* Adjusted position */
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px; /* Added padding to ensure eyes are centered */
+}
+
+.eye {
+    width: 100px; /* Increased size */
+    height: 100px; /* Increased size */
+    border: 4px solid #000; /* Increased border width */
+    border-radius: 50%;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px; /* Increased font size */
+    animation: blink 4s infinite; /* Apply animation */
+    overflow: hidden; /* Ensure the eye content is clipped */
+}
+
+@keyframes blink {
+    25%, 80% {
+        height: 0px; /* Eye open */
+    }
+    50% {
+        height: 100px; /* Eye closed completely */
+    }
+}
+
+        .nose {
+            position: absolute;
+            top: 290px; /* Adjusted position */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 60px solid transparent; /* Increased size */
+            border-right: 60px solid transparent; /* Increased size */
+            border-bottom: 60px solid #000; /* Increased size */
+        }
+        .hexagon {
+            position: absolute;
+            top: 160px; /* Adjusted position */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px; /* Increased size */
+            height: 120px; /* Increased size */
+            background: #ccc;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px; /* Increased font size */
+        }
+        .mouth {
+            position: absolute;
+            bottom: -400px; /* Adjusted position */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px; /* Increased width */
+            height: 120px; /* Decreased height */
+            border: 2px solid #000; /* Border width */
+            border-radius: 60px; /* Adjusted border radius */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            position: relative;
+        }
+        .teeth {
+            display: flex;
+            justify-content: space-between;
+            width: 80%; /* Adjusted width to fit within mouth */
+            position: relative;
+        }
+        .tooth {
+            width: 30px;
+            height: 50px;
+            background: #fff;
+            border: 2px solid #ccc;
+            border-radius: 5px 5px 0 0; /* Rounded top corners */
+            box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2); /* Subtle shadow for 3D effect */
+        }
+        .circle {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #000;
+            border-radius: 50%;
+            background-color: #f00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="eyebrows">
+            <div class="eyebrow">Link 1</div>
+            <div class="eyebrow">Link 2</div>
+        </div>
+        <div class="eyes">
+            <div class="eye" style="font-size: small; text-align: center; background-color: rgb(34, 0, 255); color:white">My name is optimus prime</div>
+            <div class="eye" style="font-size: small; text-align: center; background-color: rgb(255, 0, 0); color:white">I am going to take over the world</div>
+        </div>
+        <div class="hexagon">Img</div>
+        <div class="nose"></div>
+        <div class="mouth">
+            <div class="teeth">
+                <div class="tooth"></div>
+                <div class="tooth"></div>
+                <div class="tooth"></div>
+                <div class="tooth"></div>
+                <div class="tooth"></div>
+            </div>
+        </div>
+    </div>
+    <a href="index.html" class="circle">Home</a>
+</body>
+</html>
