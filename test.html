@@ -75,16 +75,43 @@
     }
 }
 
-        .nose {
+.nose {
             position: absolute;
-            top: 290px; /* Adjusted position */
+            top: 240px; /* Positioned to accommodate image */
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 60px solid transparent; /* Increased size */
-            border-right: 60px solid transparent; /* Increased size */
-            border-bottom: 60px solid #000; /* Increased size */
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-bottom: 100px solid transparent;
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .nose::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-bottom: 100px solid #000;
+            z-index: 1;
+        }
+        .nose img {
+            position: absolute;
+            width: 100px; /* Adjusted size */
+            height: 100px; /* Ensure it fits within the nose */
+            object-fit: cover; /* Ensures image covers the div */
+            top: 50%; /* Center image vertically */
+            left: 50%; /* Center image horizontally */
+            transform: translate(-50%, -50%); /* Adjust position to center */
+            z-index: 2;
         }
         .hexagon {
             position: absolute;
@@ -93,7 +120,8 @@
             transform: translateX(-50%);
             width: 120px; /* Increased size */
             height: 120px; /* Increased size */
-            background: #ccc;
+            background: transparent
+            color: transparent
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             display: flex;
             justify-content: center;
@@ -101,50 +129,79 @@
             font-size: 24px; /* Increased font size */
         }
         .mouth {
-            position: absolute;
-            bottom: -400px; /* Adjusted position */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 320px; /* Increased width */
-            height: 120px; /* Decreased height */
-            border: 2px solid #000; /* Border width */
-            border-radius: 60px; /* Adjusted border radius */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #fff;
-            position: relative;
-        }
-        .teeth {
-            display: flex;
-            justify-content: space-between;
-            width: 80%; /* Adjusted width to fit within mouth */
-            position: relative;
-        }
-        .tooth {
-            width: 30px;
-            height: 50px;
-            background: #fff;
-            border: 2px solid #ccc;
-            border-radius: 5px 5px 0 0; /* Rounded top corners */
-            box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2); /* Subtle shadow for 3D effect */
-        }
-        .circle {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            border: 2px solid #000;
-            border-radius: 50%;
-            background-color: #f00;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-decoration: none;
-            color: #fff;
-            font-size: 18px;
-        }
+    position: absolute;
+    bottom: -50px; /* Adjust as needed */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    height: 120px;
+    border: 2px solid #000;
+    border-radius: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: red;
+    overflow: hidden; /* To ensure teeth fit inside the mouth */
+}
+
+.teeth {
+    display: flex;
+    flex-direction: column; /* Stack teeth in rows */
+    justify-content: space-between; /* Space between rows */
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding: 5px; /* Padding for spacing */
+}
+
+.row {
+    display: flex;
+    justify-content: space-between; /* Space teeth horizontally */
+    width: 100%;
+}
+
+/* Normal (Pointing Up) Teeth */
+.tooth {
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent; /* Triangle width */
+    border-right: 20px solid transparent; /* Triangle width */
+    border-bottom: 40px solid; /* Triangle height and color */
+    margin: 0 5px; /* Space between teeth */
+}
+
+/* Flipped (Pointing Down) Teeth */
+.toothflipped {
+    border-bottom: 0%; /* Remove bottom border */
+    border-top: 40px solid; /* Top border to form a downward triangle */
+    border-left: 20px solid transparent; /* Triangle width */
+    border-right: 20px solid transparent; /* Triangle width */
+}
+
+/* Optional: Adjust positioning of rows */
+.row:first-child {
+    margin-bottom: 20px; /* Space between rows */
+}
+
+
+
+.circle {
+    position: fixed; /* Fixes the button position relative to the viewport */
+    bottom: 20px; /* Distance from the bottom edge of the viewport */
+    right: 20px; /* Distance from the right edge of the viewport */
+    width: 50px;
+    height: 50px;
+    border: 2px solid #000;
+    border-radius: 50%;
+    background-color: #f00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: #fff;
+    font-size: 18px;
+    z-index: 1000; /* Ensures the button is above other content */
+}
     </style>
 </head>
 <body>
@@ -155,20 +212,36 @@
         </div>
         <div class="eyes">
             <div class="eye" style="font-size: small; text-align: center; background-color: rgb(34, 0, 255); color:white">My name is optimus prime</div>
-            <div class="eye" style="font-size: small; text-align: center; background-color: rgb(255, 0, 0); color:white">I am going to take over the world</div>
+            <div class="eye" style="font-size: small; text-align: center; background-color: rgb(255, 0, 0); color:white"> And I am going to take over the world</div>
         </div>
         <div class="hexagon">Img</div>
-        <div class="nose"></div>
+        <div class="nose">
+            <img src="https://news.tfw2005.com/wp-content/uploads/sites/10/2021/12/3Z-DLX-ROTF-Prime-61.jpg" alt="Nose Image">
+        </div>
         <div class="mouth">
             <div class="teeth">
-                <div class="tooth"></div>
-                <div class="tooth"></div>
-                <div class="tooth"></div>
-                <div class="tooth"></div>
-                <div class="tooth"></div>
+                <div class="row">
+                    <div class="toothflipped"></div>
+                    <div class="toothflipped"></div>
+                    <div class="toothflipped"></div>
+                    <div class="toothflipped"></div>
+                    <div class="toothflipped"></div>
+                    <div class="toothflipped"></div>
+                    <!-- Add more teeth if needed -->
+                </div>
+                <div class="row">
+                    <div class="tooth"></div>
+                    <div class="tooth"></div>
+                    <div class="tooth"></div>
+                    <div class="tooth"></div>
+                    <div class="tooth"></div>
+                    <div class="tooth"></div>
+                    <!-- Add more teeth if needed -->
+                </div>
             </div>
         </div>
-    </div>
-    <a href="index.html" class="circle">Home</a>
+        
+        
+    <a href="index.html" class="circle" >Home</a>
 </body>
 </html>
