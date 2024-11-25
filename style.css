@@ -1,11 +1,15 @@
 #Martin{
     text-align: center;
-    background: radial-gradient(circle, #001effef, #ff0000f1);
-    color: greenyellow;
+    background: radial-gradient(circle,rgb(2, 77, 45),rgb(0, 255, 89), #001effef, #ff0000f1);
+    color: rgb(246, 255, 0);
+    text-shadow: 4px 2px 1px rgba(0, 0, 0, 0.5);
 }
 h2{
-    color: rgb(0, 222, 148);
+    color: rgb(255, 0, 0);
 }
-#Stem{
-    Color
+h3{
+    Color: #b300ff
+}
+#Line_number_1{
+    color: radial-gradient(#001effef, #ff0000f1);
 }
