@@ -1,6 +1,6 @@
 #Martin{
     text-align: center;
-    background: radial-gradient(circle,rgb(2, 77, 45),rgb(0, 255, 89), #001effef, #ff0000f1);
+    background: radial-gradient(circle, rgb(2, 77, 45),rgb(0, 255, 89), #001effef, #ff0000f1);
     color: rgb(246, 255, 0);
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 0.5);
 }
@@ -13,8 +13,13 @@ h3{
 #Line_number_1{
     color: radial-gradient(#001effef, #ff0000f1);
 }
-#test{
-    text-align: center;
-    background: radial-gradient(circle, rgb(34, 255, 0), rgb(0, 0, 0));   
+#test {
+    display: inline-block; /* Make it behave like a block for margin control */
+    margin: 0 auto; /* Center horizontally */
+    text-align: center; /* Center text inside the <a> */
+    background: radial-gradient(circle, rgb(2, 77, 45), rgb(0, 255, 89), #001effef, #ff0000f1);
     color: red;
+    padding: 10px 20px; /* Optional: Add some padding for better appearance */
+    text-decoration: none; /* Optional: Remove underline */
+    border-radius: 5px; /* Optional: Add rounded corners */
 }
