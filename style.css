@@ -20,10 +20,11 @@ h3{
     text-align: center; 
     background: radial-gradient(rgb(0, 0, 0), rgb(255, 0, 0), #0fe41d, #0d00ff);
     color: rgb(255, 255, 255);
-    padding: 120px 20px; 
+    padding: 100px 12px; 
     text-decoration: none;
     border-radius: 30px;
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
+    font-size: 15px;
 }
 #copyright{
     position: fixed;
