@@ -32,3 +32,20 @@ h3{
     left: 20px;
     text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
 }
+#Home {
+    position: fixed; /* Fixes the button position relative to the viewport */
+    bottom: 20px; /* Distance from the bottom edge of the viewport */
+    right: 20px; /* Distance from the right edge of the viewport */
+    width: 50px;
+    height: 50px;
+    border: 2px solid #000000;
+    border-radius: 50%;
+    background-color: rgb(255, 0, 0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: #fff;
+    font-size: 18px;
+    z-index: 1000; /* Ensures the button is above other content */
+}
