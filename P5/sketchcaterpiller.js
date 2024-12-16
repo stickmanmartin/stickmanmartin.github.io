@@ -1,6 +1,6 @@
 // Set variables to draw the racetrack.
 let startLine = 30;
-let finishLine = 1100;
+let finishLine = 2500;
 
 // Set variables for the caterpillar.
 let spacing = 20;
@@ -16,7 +16,7 @@ let caterpillarEnds = [];
 let isRacing = false;
 
 function setup() {
-  createCanvas(1300, 800);
+  createCanvas(2600, 800);
  
   // Set a slow frame rate.
   frameRate(3);
@@ -113,7 +113,7 @@ function moveCaterpillars() {
   for (let i = 0; i < numCaterpillars; i += 1) {
     // Give each caterpillar a random
     // speed once the race has started.
-    let move = round(random(5, 30));
+    let move = round(random(10, 70));
    
     // Update caterpillars' x-coordinates
     caterpillarEnds[i] += move;
@@ -132,7 +132,7 @@ function checkWinner() {
       noStroke();
 
       // Display the message.
-      text("")
+      text(clear)
       text(`Caterpillar ${i + 1} wins!`,width/2,height/2);
 
       // end race by stopping draw() from running
