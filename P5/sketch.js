@@ -1,5 +1,5 @@
 function setup() {
-  createCanvas(750, 789);
+  createCanvas(1050, 800);
 }
 function draw() {
   //when mouse button is pressed, circles turn black
