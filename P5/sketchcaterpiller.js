@@ -132,6 +132,7 @@ function checkWinner() {
       noStroke();
 
       // Display the message.
+      text("")
       text(`Caterpillar ${i + 1} wins!`,width/2,height/2);
 
       // end race by stopping draw() from running
