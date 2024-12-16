@@ -1,6 +1,6 @@
 // Set variables to draw the racetrack.
 let startLine = 30;
-let finishLine = 2500;
+let finishLine = 4400;
 
 // Set variables for the caterpillar.
 let spacing = 20;
@@ -16,7 +16,7 @@ let caterpillarEnds = [];
 let isRacing = false;
 
 function setup() {
-  createCanvas(2600, 800);
+  createCanvas(4500, 800);
  
   // Set a slow frame rate.
   frameRate(3);
