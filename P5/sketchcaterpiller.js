@@ -113,8 +113,8 @@ function moveCaterpillars() {
   for (let i = 0; i < numCaterpillars; i += 1) {
     // Give each caterpillar a random
     // speed once the race has started.
-    let move = round(random(10, 70));
-   
+    let move = round(random(46, 143));
+
     // Update caterpillars' x-coordinates
     caterpillarEnds[i] += move;
   }
