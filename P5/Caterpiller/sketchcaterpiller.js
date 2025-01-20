@@ -59,12 +59,12 @@ function draw() {
 function writeStart() {
   // Style the text.
   textSize(24);
-  textAlign(CENTER);
+
   fill(255);
   noStroke();
 
   // Display the message.
-  text("🏁 Click to start!", width / 2, height / 2);
+  text("🏁 Click to start!", width / 16, height / 2);
 }
 
 // Draw one caterpillar.
@@ -127,13 +127,12 @@ function checkWinner() {
     if (caterpillarEnds[i] >= finishLine) {
       // Style the text.
       textSize(24);
-      textAlign(CENTER);
       fill(255);
       noStroke();
 
       // Display the message.
       text(clear)
-      text(`Caterpillar ${i + 1} wins!`,width/2,height/2);
+      text(`Caterpillar ${i + 1} wins!`,width /1,height/2);
 
       // end race by stopping draw() from running
       noLoop();
