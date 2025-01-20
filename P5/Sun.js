@@ -13,7 +13,7 @@ function setup() {
 }
 function draw(){
   //fill background based on custom variables
-  background(400-mouseY, 200-mouseY, 100-mouseY);
+  background(500-mouseY, 200-mouseY, 100-mouseY);
   sunHeight = mouseY
 
   let x = frameCount % 100;
@@ -71,4 +71,22 @@ function draw(){
  
   // reduce sunHeight by 2 until it reaches 13
    
+function tree(x,y,size) {
+    fill(80,30,20);
+    rect(x-size,y,size*2,size*6);
+    fill(20,130,5);
+    triangle(x-size*3,y,x,y-size*8,x+size*3,y)
+  }
+  
+  //A function that draws many trees 
+  //using treeLine() and tree() functions
+  function trees() {
+    // First tree
+    let x = mouseX;
+    let y = mouseY;
+    tree(x, y, 5);
+  }
+  function mousePressed(){
+    tree(mouseX, mouseY,5);
+  }
 }
