@@ -132,7 +132,7 @@ function checkWinner() {
 
       // Display the message.
       text(clear)
-      text(`Caterpillar ${i + 1} wins!`,width /1,height/2);
+      text(`Caterpillar ${i + 1} wins!`,width - width /16,height/2);
 
       // end race by stopping draw() from running
       noLoop();

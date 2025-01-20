@@ -68,7 +68,7 @@ function draw(){
   fill(120, 80, 50);
   stroke("white")
   triangle(200, 400, 450, 250, 300, 400);
- 
+ }
   // reduce sunHeight by 2 until it reaches 13
    
 function tree(x,y,size) {
@@ -89,4 +89,3 @@ function tree(x,y,size) {
   function mousePressed(){
     tree(mouseX, mouseY,5);
   }
-}
