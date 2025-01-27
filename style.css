@@ -118,3 +118,16 @@ h3{
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
     font-size: 15px;
 }
+#Crazy {
+    position: fixed;
+    bottom: 415px;
+    right: 265px;
+    text-align: center; 
+    background: radial-gradient(rgb(0, 0, 0), rgb(255, 0, 0), #e0e40f, #0d00ff);
+    color: rgb(255, 255, 255);
+    padding: 60px 86px; 
+    text-decoration: none;
+    border-radius: 30px;
+    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
+    font-size: 15px;
+}
