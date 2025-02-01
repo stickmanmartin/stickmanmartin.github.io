@@ -8,7 +8,7 @@ let segmentSize = 30;
 let eyeSize = 15;
 
 // Set variables for the race.
-let numCaterpillars = 8;
+let numCaterpillars = 10;
 let caterpillarEnds = [];
 
 // Set a default state
