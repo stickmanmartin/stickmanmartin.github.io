@@ -1,83 +1,65 @@
-//
-// Weekly Creative Coding Challenge Topic 'Pottery'
-//
+let m;
+let s;
 
-// Check the challenge page if you would like to join:
-// https://openprocessing.org/curation/78544 
+let angulo=0;
+let vel=0;
 
+let c1=33;
+let c2=88;
+let acc=0.01;
 
-let _backLayer;
-let _midLayer;
-let _frontLayer;
-
-let _colorSet;
-
-async function setup() {
-  createCanvas(windowWidth, windowHeight);
-	describe('This work randomly assembles different easing curves to create a pot shape and then uses stroke dots for an overall aesthetic style.');
-	
-  _backLayer = createGraphics(width, height);
-  _midLayer = createGraphics(width, height);
-  _frontLayer = createGraphics(width, height);
+function setup() {
+  createCanvas(700, 1000);
   
-  _backLayer.colorMode(HSB);
-  _midLayer.colorMode(HSB);
-  _frontLayer.colorMode(HSB);
-  colorMode(HSB);
+  noStroke();
+  s=width/99;
+  m=height/66;
+}
 
-  // get color
-  _colorSet = GetColorSet();
-  _backLayer.background(_colorSet.bgColor.h, _colorSet.bgColor.s, _colorSet.bgColor.b);
+function draw() {
+  
+  push();
+  translate(-width/6,height/6);
+  
+  background(0,10);
 
-  let padding = 0.15 * min(width, height);
+  let l0 = map(cos(angulo),-1,1,1*width/3,2*width/3);
+  let l1 = map(sin(angulo),-1,1,1*width/3,2*height/3);
+  
+  translate(width/2,height/2);
+  rotate(angulo);
+  
+  for (i=0;i<c1;i++){
+    push();
+    rotate(i*TWO_PI/c1);
+    translate(l0,0);
 
-  // bg part
-  let baseHeight = padding + 0.85 * (height - 2 * padding);
+    fill(255);
+    ellipse(0,0,s*2);
+    rotate(-angulo);
+    
+    for (j=0;j<c2;j++){
+      push();
+      rotate(j*TWO_PI/c2);
+      translate(l1,0);
 
-  let bgHeight = 0.06 * height;
-  let xCount = width * random(0.6, 1.2);
-
-  for (let x = 0; x < xCount; x++) {
-    let yDotCount = bgHeight * dotDensity * 0.6;
-
-    for (let y = 0; y < yDotCount; y++) {
-      let t = tan(random(TWO_PI));
-
-      let nowX = x * (width / (xCount - 1));
-      let nowY = baseHeight - bgHeight * t - 0.2 * height;
-
-      // _backLayer.noStroke();
-      _backLayer.noFill();
-      _backLayer.stroke(_colorSet.bgDotColor.h, _colorSet.bgDotColor.s, _colorSet.bgDotColor.b);
-      _backLayer.circle(nowX, nowY, random(0, 2));
+      fill(200);
+      ellipse(0,0,s/3);
+      pop();
     }
+    pop();
   }
-  UpdateLayers();
-
-
-  let potCount = int(random(6, 18));
-  // let potCount = 17;
-  let potWidth = (width - padding * 2) / potCount;
-
-  for (let i = 0; i < potCount; i++) {
-    let potX = padding + (i + 0.5) * potWidth;
-    let potY = baseHeight;
-
-    let potHeight = random(0.4, 2.0) * potWidth;
-    let newPot = new PotData(potX, potY, potWidth / 2, potHeight);
-
-    await drawPot(newPot);
-  }
-  UpdateLayers();
-}
-
-function UpdateLayers () {
-  background(0, 0, 100);
-  image(_backLayer, 0, 0);
-  image(_midLayer, 0, 0);
-  image(_frontLayer, 0, 0);
-}
-// async sleep
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  
+  angulo=vel;
+  vel+=acc;
+  pop();
+  
+  fill(150);
+  textAlign(RIGHT);
+  textSize(m/2);
+  text('A H-ILE DAD \n ALLES \n ALT \n BCI \n СÈ ШТО \n EVERYTHING \n DENA \n GACH RUD \n KAIKKI \n KÕIK \n KOLLOX \n MINDEN \n POPETH \n QUALUNQUE COSA \n SVE \n τα παντα \n TODO \n TOT \n TOUT \n TUDO \n TUKUY \n VISKAS \n VISS \n VSE \n VŠECHNO \n WSZYSTKO \n ҳама \n YCE \n Барысы да \n баары \n бүх зүйл  \n எல்லாம் \n 一切 \n すべて \n 모두 \n ସବୁକିଛି \n सबै \n সব \n ప్రతిదీ \n සියල්ල \n ทุกอย่าง \n سب کچھ \n ھەممە نەرسە \n هرڅه \n ਸਭ ਕੁਝ \n အားလုံး \n  सर्वकाही \n സകലതും \n ທຸກສິ່ງທຸກຢ່າງ \n អ្វីគ្រប់យ៉ាង \n ಎಲ್ಲವನ್ನೂ \n બધું \n ყველაფერი \n ամեն ինչ \n אַלץ ',width-m,m);
+  
+  describe(
+  "A black canvas with a set of white circles turning around a void, while thousands of little circles creates an algorithmic coreography in the other way. The canvas shows at the right corner written in lots of languages the word 'everything' ");
+ 
 }
