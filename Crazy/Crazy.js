@@ -1,19 +1,36 @@
-
-
+// Array of flowers.
+let flowers = [];
 
 function setup() {
   createCanvas(1300, 900);
-  frameRate(1);
+  frameRate(10);
+  flowerPower();
+
+  // Generate 20 flowers.
+  
 }
 function draw() {
-  background("yellowgreen");  
-    Draw_Flower()
-    Draw_Flower()
-    Draw_Flower()
-
+  flowerPower();
+  background("lightblue");
+  // For each flower in the array of flowers.
+  for (let flower of flowers) {
+    drawFlower(flower);
+  }
+  flowers=[];
 }
 
-function Draw_Flower() {
+// Function to create 20 flowers.
+function flowerPower() {
+  for (let i = 0; i < 20; i += 1 ) {
+    // Create a flower in a random location.
+    let flower = createFlower();
+    // Add the flower to the flowers array.
+    flowers.push(flower);
+  }
+}
+
+// ... createFlower() and drawFlower()
+function drawFlower() {
   // Create flower object.
   let myFlower = createFlower();
 
