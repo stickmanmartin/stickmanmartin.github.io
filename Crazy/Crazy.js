@@ -75,7 +75,7 @@ function drawFlower() {
 }
 function createFlower() {
   let flower = {
-    x: random(80, 820),
+    x: random(80, 1220),
     y: random(80,820),
     size: random(20,75),
     lifespan: random(255,300),
