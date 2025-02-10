@@ -120,7 +120,7 @@ h3{
 }
 #Crazy {
     position: fixed;
-    bottom: 415px;
+    bottom: 570px;
     right: 265px;
     text-align: center; 
     background: radial-gradient(rgb(0, 0, 0), rgb(208, 255, 0), #ffaa00,#ffee00, #ff0000, #ff0000);
@@ -145,3 +145,4 @@ h3{
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
     font-size: 15px;
 }
+
