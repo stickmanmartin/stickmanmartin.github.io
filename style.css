@@ -20,7 +20,7 @@ h3{
     text-align: center; 
     background: radial-gradient(rgb(0, 0, 0), rgb(34, 255, 0), #5d0fe4, #0073ff);
     color: rgb(255, 255, 255);
-    padding: 100px 12px; 
+    padding: 100px 71px; 
     text-decoration: none;
     border-radius: 30px;
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
@@ -57,7 +57,7 @@ h3{
     text-align: center; 
     background: radial-gradient(rgb(0, 0, 0), rgb(0, 81, 255), #00ff62, #00ff00);
     color: rgb(255, 255, 255);
-    padding: 100px 28px; 
+    padding: 100px 88px; 
     text-decoration: none;
     border-radius: 30px;
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
@@ -112,7 +112,7 @@ h3{
     text-align: center; 
     background: radial-gradient(rgb(0, 0, 0), rgb(0, 255, 225), #88e40f, #ff6200);
     color: rgb(255, 255, 255);
-    padding: 60px 99px; 
+    padding: 60px 100px; 
     text-decoration: none;
     border-radius: 30px;
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
@@ -126,6 +126,20 @@ h3{
     background: radial-gradient(rgb(0, 0, 0), rgb(208, 255, 0), #ffaa00,#ffee00, #ff0000, #ff0000);
     color: rgb(255, 255, 255);
     padding: 60px 86px; 
+    text-decoration: none;
+    border-radius: 30px;
+    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
+    font-size: 15px;
+}
+
+#Crazy2{
+    position: fixed;
+    bottom: 570px;
+    right: 20px;
+    text-align: center; 
+    background: radial-gradient(rgb(0, 0, 0), rgb(0, 255, 183), #40ff00,#8e7d7d, #5e5e5e, #000000);
+    color: rgb(255, 255, 255);
+    padding: 60px 81px; 
     text-decoration: none;
     border-radius: 30px;
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
