@@ -1,6 +1,7 @@
 // Array of flowers.
 let flowers = [];
 
+
 function setup() {
   createCanvas(1300, 900);
   frameRate(5);
