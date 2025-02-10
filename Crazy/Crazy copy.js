@@ -1,6 +1,6 @@
 // Array of flowers.
 let flowers = [];
-let emoji = ['💩', '☠️', '👻', '👑', '💥', '🌏']
+let emoji = ['💩', '☠️', '👻', '🤑', '💥', '🌏', '', '🐲']
 
 
 function setup() {
