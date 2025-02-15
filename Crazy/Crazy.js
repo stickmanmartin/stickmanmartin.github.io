@@ -4,7 +4,7 @@ let flowers = [];
 
 function setup() {
   createCanvas(1300, 900);
-  frameRate(5);
+  frameRate(10);
   flowerPower();
 
   // Generate 20 flowers.
