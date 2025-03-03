@@ -13,7 +13,7 @@ h3{
 #Line_number_1{
     color: radial-gradient(#001effef, #ff0000f1);
 }
-#test{
+#Test{
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -50,7 +50,7 @@ h3{
     z-index: 1000; /* Ensures the button is above other content */
 }
 /* Style for the joke page */
-#jokes {
+#Jokes {
     position: fixed;
     bottom: 20px;
     right: 265px;
@@ -79,7 +79,7 @@ h3{
     background-color: #ff0000;
 }
 
-#circles{
+#Circles{
     position: fixed;
     bottom: 255px;
     right: 20px;
@@ -92,7 +92,7 @@ h3{
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
     font-size: 15px;
 }
-#caterpiller {
+#Caterpiller {
     position: fixed;
     bottom: 415px;
     right: 20px;
@@ -146,14 +146,14 @@ h3{
     font-size: 15px;
 }
 
-#Crazy2{
+#Flower{
     position: fixed;
-    bottom: 570px;
-    right: 20px;
+    bottom: 415px;
+    right: 265px;
     text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(0, 255, 183), #40ff00,#8e7d7d, #5e5e5e, #000000);
+    background: radial-gradient(rgb(0, 0, 0), rgb(255, 0, 0), #a200ff,#00ff62, #00ffe5, #001eff);
     color: rgb(255, 255, 255);
-    padding: 69px 81px; 
+    padding: 60px 92px; 
     text-decoration: none;
     border-radius: 30px;
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
