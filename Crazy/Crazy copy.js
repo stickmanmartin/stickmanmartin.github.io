@@ -1,7 +1,7 @@
 // Array of flowers.
 let flowers = [];
 let emoji = ['💩', '☠️', '👻', '🤑', '🌏', '', '🐲', '💸', '😎']
-let numberofflowers = [1]
+let numberofflowers = 1
 
 function setup() {
   createCanvas(1300, 900);
@@ -53,9 +53,9 @@ function mousePressed() {
   
   // reassign y to be mouseY
   flower.y = mouseY;
-
+  flowers.push(flower);
   // add the flower to the flowers array
-  numberofflowers += 1
+  numberofflowers += 3
 }
 
 
