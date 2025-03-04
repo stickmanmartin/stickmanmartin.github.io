@@ -1,6 +1,11 @@
+let emoji = "⭐️"
+let emojitwo = "🌏"
+let emojithree = "🪐"
+
 function setup() {
     createCanvas(800, 800);
     background(0);
+    frameRate(20)
 }
 
 function draw() {
@@ -34,9 +39,39 @@ function draw() {
     noStroke();
     fill(255, 255, 255, 70);
     circle(f, j, 16);
-    let r = randomGaussian(400, 100);
-    let d = randomGaussian(400, 100);
+    let r = randomGaussian(400, 300);
+    let d = randomGaussian(400, 300);
     noStroke();
-    fill(0, 0, 0, 70);
+    fill(0, 0, 0, 150);
     circle(r, d, 16);
+    stroke(255, 0, 0);
+    fill(0, 0, 0);
+    circle(400, 400, 50);
+    noStroke()
+    fill(138, 0, 196);
+    circle(400, 400, 35);
+    fill(129, 133, 137);
+    circle(400, 300, 30);
+    circle(400, 500, 30);
+    fill(255, 255, 255);
+    circle(400, 400, 30);
+    circle(400, 300, 20);
+    circle(400, 500, 20);
+    fill(0, 255, 0);
+    circle(330, 450, 30);
+    fill(255, 0, 0);
+    circle(470, 350, 30);
+    fill(255, 102, 0);
+    circle(500, 400, 30);
+    fill(255, 255, 0);
+    circle(470, 450, 30);
+    fill(0, 100, 255);
+    circle(300, 400, 30);
+    fill(138, 0, 196);
+    circle(330, 350, 30);
+    textSize(20)
+    text(emoji, 390, 407)
+    textSize(15)
+    text(emojitwo, 393, 305.5)
+    text(emojithree, 393, 505.5)
 }
