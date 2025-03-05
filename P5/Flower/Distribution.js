@@ -5,7 +5,7 @@ let emojithree = "🪐"
 function setup() {
     createCanvas(800, 800);
     background(0);
-    frameRate(20)
+    frameRate(30)
 }
 
 function draw() {
