@@ -58,17 +58,17 @@ function draw() {
     circle(400, 300, 20);
     circle(400, 500, 20);
     fill(0, 255, 0);
-    circle(330, 450, 30);
+    circle(329, 470, 30);
     fill(255, 0, 0);
-    circle(470, 350, 30);
+    circle(471, 330, 30);
     fill(255, 102, 0);
     circle(500, 400, 30);
     fill(255, 255, 0);
-    circle(470, 450, 30);
+    circle(471, 470, 30);
     fill(0, 100, 255);
     circle(300, 400, 30);
     fill(138, 0, 196);
-    circle(330, 350, 30);
+    circle(330, 330, 30);
     textSize(20)
     text(emoji, 390, 407)
     textSize(15)
