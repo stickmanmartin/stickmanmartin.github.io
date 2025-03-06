@@ -70,7 +70,7 @@ function draw() {
     fill(138, 0, 196);
     circle(330, 330, 30);
     textSize(27)
-    text(emoji, 387, 409)
+    text(emoji, 386.5, 410)
     textSize(15)
     text(emojitwo, 393, 305.5)
     text(emojithree, 393, 505.5)
