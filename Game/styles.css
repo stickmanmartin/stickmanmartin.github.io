@@ -1,0 +1,28 @@
+body {
+    font-family: monospace, Arial;
+    text-align:center;
+    background-color: black;
+    color:white;
+}
+
+
+button:hover{
+    background-color: #777;
+}
+
+#enemy-hp {
+    display: inline-block;
+}
+
+@keyframes shake {
+    0% {transform: translateX(0);}
+    25% {transform: translateX(-50px);transform: translateY(50px);}
+    50% {transform: translateX(50px);transform: translateY(-50px);}
+    75% {transform: translateX(-50px);transform: translateY(50px);}
+    100% {transform: translateX(0);transform: translateY(50px);}
+}
+
+
+.hit-effect {
+    animation: shake 0.5s ease-in-out;
+}
