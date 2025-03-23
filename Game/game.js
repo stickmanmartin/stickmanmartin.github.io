@@ -21,22 +21,33 @@ const body = document.getElementById("game")
 const restartBtn = document.getElementById("restart-btn")
 
 attackBtn.addEventListener("click", () => {
-    const playerDamage = Math.floor(Math.random()*player.attack);
-    const enemyDamage = Math.floor(Math.random()*enemy.attack);
+    let playerDamage = Math.floor(Math.random()*player.attack);
+    const enemyAction = Math.random() < 0.5 ? "attack" : "defend";
+    let enemyDamage = Math.floor(Math.random()*enemy.attack);
+    message.innerHTML = "";
 
-// shop.addEventListener("click", ()=> {
-    
-// }
-// )
+    if(enemyAction === "defend"){
+        playerDamage = Math.floor(Math.random()*playerDamage-1);
+        message.innerHTML += "Enemy partially blocked your attack! <br>";
+    }
+
+    else if (Math.random() < 0.1){
+        playerDamage *=2;
+        message.innerHTML = "CRITICAL HIT! you dealt double the damage! <br>";
+    }
+    else if (Math.random() < 0.1){
+        playerDamage *=0;
+        message.innerHTML = "You missed your attak! <br>";
+    }
+    message.innerHTML += 
+        `you dealt ${playerDamage} damage! <br>
+        Enemy dealt ${enemyDamage} damage!`;
 
     // body.classList.add("hit-effect");
     // setTimeout(() => body.classList.remove("hit-effect"), 600);
     player.hp = player.hp - enemyDamage;
     enemy.hp = enemy.hp - playerDamage;
 
-    message.innerHTML = 
-    `you dealt ${playerDamage} damage! <br>
-    Enemy dealt ${enemyDamage} damage!`;
 
     playerHpText.textContent = Math.max(player.hp, 0);
     enemyHpText.textContent = Math.max(enemy.hp, 0);
