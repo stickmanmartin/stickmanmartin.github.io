@@ -8,7 +8,7 @@ const player = {
 
 const enemy = {
     hp: 100,
-    attack: 15,
+    attack: 17,
     wins: 0
 }
 
@@ -16,12 +16,18 @@ const playerHpText = document.getElementById("player-hp")
 const enemyHpText = document.getElementById("enemy-hp")
 const message = document.getElementById("message")
 const attackBtn = document.getElementById("attack-btn")
+const shop = document.getElementById("shop")
 const body = document.getElementById("game")
 const restartBtn = document.getElementById("restart-btn")
 
 attackBtn.addEventListener("click", () => {
     const playerDamage = Math.floor(Math.random()*player.attack);
     const enemyDamage = Math.floor(Math.random()*enemy.attack);
+
+// shop.addEventListener("click", ()=> {
+    
+// }
+// )
 
     // body.classList.add("hit-effect");
     // setTimeout(() => body.classList.remove("hit-effect"), 600);
@@ -40,6 +46,7 @@ attackBtn.addEventListener("click", () => {
         attackBtn.disabled = true;
         restartBtn.style.display = "block";
         enemy.wins += 1;
+        shop.style.display = "block";
     }
 
     if(player.hp <= 0){
@@ -47,6 +54,7 @@ attackBtn.addEventListener("click", () => {
         attackBtn.disabled = true;
         restartBtn.style.display = "block";
         player.wins += 1;
+        shop.style.display = "block";
     }
 }
 )

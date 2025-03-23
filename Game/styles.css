@@ -14,6 +14,17 @@ button:hover{
     display: inline-block;
 }
 
+#restart-btn {
+    display: block;
+    margin: 20px auto;
+}
+
+#shop {
+    display: block;
+    margin: 20px auto;
+}
+
+
 @keyframes shake {
     0% {transform: translateX(0);}
     25% {transform: translateX(-50px);transform: translateY(50px);}
@@ -26,3 +37,21 @@ button:hover{
 .hit-effect {
     animation: shake 0.5s ease-in-out;
 }
+
+#Home {
+    position: fixed; /* Fixes the button position relative to the viewport */
+    bottom: 20px; /* Distance from the bottom edge of the viewport */
+    right: 20px; /* Distance from the right edge of the viewport */
+    width: 50px;
+    height: 50px;
+    border: 2px solid #000000;
+    border-radius: 50%;
+    background-color: rgb(255, 0, 0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: #fff;
+    font-size: 18px;
+    z-index: 1000;
+  }

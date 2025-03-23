@@ -159,3 +159,17 @@ h3{
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
     font-size: 15px;
 }
+
+#Game{
+    position: fixed;
+    bottom: 20px;
+    right: 507px;
+    text-align: center; 
+    background: radial-gradient(rgb(0, 0, 0), rgb(76, 62, 62), #df0000, #fb00ff);
+    color: rgb(255, 255, 255);
+    padding: 100px 91px; 
+    text-decoration: none;
+    border-radius: 30px;
+    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
+    font-size: 15px;
+}
