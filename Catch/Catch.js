@@ -119,7 +119,7 @@
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const diesound = document.getElementById("coolsound")
+const diesound = document.getElementById("coolsound");
 
 
 let basket = {
@@ -219,7 +219,7 @@ function update(){
         ctx.font = "50px Arial";
         ctx.fillText("Game Over!",canvas.width/2-120, canvas.height/2);
         drawR();
-        diesound();
+        diesound.play();
 
 
         return;
