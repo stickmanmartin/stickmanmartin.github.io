@@ -133,7 +133,7 @@ let basket = {
 let objects = [];
 let waves = -1;
 let lives = 500;
-let maxwaves = 33;
+let maxwaves = 47;
 
 function createObject(speed){
     let object = {
@@ -141,7 +141,7 @@ function createObject(speed){
         y: 0,
         width: 20,
         height: 20,
-        speed: 2 + Math.random()*3 + speed,
+        speed: 1 + Math.random()*3 ,
     }
     objects.push(object)
 }

@@ -19,7 +19,7 @@ function setup() {
   createCanvas(4500, 800);
  
   // Set a slow frame rate.
-  frameRate(3);
+  frameRate(6);
 
   for (let i=0;i<numCaterpillars;i++) {
     caterpillarEnds.push(startLine)
@@ -131,6 +131,7 @@ function checkWinner() {
       noStroke();
 
       // Display the message.
+      draw();
       text(clear)
       text(`Caterpillar ${i + 1} wins!`,width - width /16,height/2);
 
