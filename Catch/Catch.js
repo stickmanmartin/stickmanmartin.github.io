@@ -119,7 +119,7 @@
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const diesound = document.getElementById("cool sound")
+const diesound = document.getElementById("coolsound")
 
 
 let basket = {
