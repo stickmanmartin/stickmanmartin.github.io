@@ -120,7 +120,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const diesound = document.getElementById("coolsound");
-
+const punch = document.getElementById("punch");
 
 let basket = {
     x: 175,
@@ -179,6 +179,7 @@ document.addEventListener("keydown", (event) => {
         waves = -1;
         objects = [];
         update();
+        punch.play();
     }
 });
 
@@ -193,7 +194,8 @@ function update(){
         obj.y += obj.speed;
         if (obj.y + obj.height >= basket.y && obj.x >= basket.x && obj.x <= basket.x+basket.width){
             objects.splice(index,1)
-            lives -= 100;
+            lives -= 10;
+            punch.play();
         }
 
         if(obj.y > canvas.height){

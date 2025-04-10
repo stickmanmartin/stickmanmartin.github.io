@@ -112,7 +112,7 @@ h3{
     text-align: center; 
     background: radial-gradient(rgb(0, 0, 0), rgb(0, 255, 225), #88e40f, #ff6200);
     color: rgb(255, 255, 255);
-    padding: 60px 100px; 
+    padding: 60px 99.5px; 
     text-decoration: none;
     border-radius: 30px;
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
@@ -163,7 +163,7 @@ h3{
 #Game{
     position: fixed;
     bottom: 20px;
-    right: 507px;
+    right: 509px;
     text-align: center; 
     background: radial-gradient(rgb(0, 0, 0), rgb(76, 62, 62), #df0000, #fb00ff);
     color: rgb(255, 255, 255);
@@ -177,7 +177,7 @@ h3{
 #Catch{
     position: fixed;
     bottom: 255px;
-    right: 507px;
+    right: 509px;
     text-align: center; 
     background: radial-gradient(rgb(0, 0, 0), rgb(255, 0, 0), #03ffff, #6200ff);
     color: rgb(255, 255, 255);
