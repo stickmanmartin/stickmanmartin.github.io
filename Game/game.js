@@ -8,7 +8,7 @@ const player = {
 
 const enemy = {
     hp: 100,
-    attack: 17,
+    attack: 15,
     wins: 0
 }
 
@@ -80,7 +80,7 @@ attackBtn.addEventListener("click", () => {
         message.innerHTML = "You win!";
         attackBtn.disabled = true;
         restartBtn.style.display = "block";
-        enemy.wins += 1;
+        player.wins += 1;
         shop.style.display = "block";
         
     }
@@ -89,7 +89,7 @@ attackBtn.addEventListener("click", () => {
         message.innerHTML = "You lost!"            
         attackBtn.disabled = true;
         restartBtn.style.display = "block";
-        player.wins += 1;
+        enemy.wins += 1;
         shop.style.display = "block";
     }
 }
@@ -98,10 +98,10 @@ attackBtn.addEventListener("click", () => {
 restartBtn.addEventListener("click", ()=>{
     player.hp = 100 + 10 * player.wins;
     playerHpText.textContent = player.hp;
-    player.attack = 20 + player.wins * 2;
+    player.attack = 20 + enemy.wins * 2;
     enemy.hp = 100 + 10 * enemy.wins;
     enemyHpText.textContent = enemy.hp;
-    enemy.attack = 15 + enemy.wins * 2;
+    enemy.attack = 15 + player.wins * 2;
     attackBtn.disabled = false;
     restartBtn.style.display = "none";
     message.innerHTML = "Game Restarted! Good Luck! Hope you lose. HAHA";
