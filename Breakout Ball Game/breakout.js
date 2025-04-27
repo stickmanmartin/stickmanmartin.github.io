@@ -16,6 +16,11 @@ function drawBall(){
     ctx.closePath();
 }
 
+function moveBall(){
+    ballX += ballDX;
+    ballY += ballDY;
+}
+
 document.addEventListener("keydown", (e) => {
     if(e.key === "ArrowLeft"){
         paddleX -= 20;
