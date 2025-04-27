@@ -28,8 +28,13 @@ document.addEventListener("keydown", (e) => {
     else if (e.key === "ArrowRight"){
         paddleX +=20;
     }
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    drawPaddle();
 });
 
-drawBall();
+
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    drawPaddle();
+    drawBall();
+    moveBall();
+    requestAnimationFrame(draw);
+}
