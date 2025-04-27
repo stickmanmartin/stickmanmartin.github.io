@@ -15,6 +15,6 @@ document.addEventListener("keydown", (e) => {
     else if (e.key === "ArrowRight"){
         paddleX += 20;
     }
-    ctx.clearRect(0,0,canvas.replaceChild.width,canvas.height)
-    drawPaddle()
-})
+    ctx.clearRect(0,0,canvas.replaceChild.width,canvas.height);
+    drawPaddle();
+});
