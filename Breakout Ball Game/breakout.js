@@ -1,11 +1,19 @@
 const canvas = document.getElementById("gameCanvas");
-const ctx = canavas.getElementById("2d")
+const ctx =  canvas.getContext("2d");
 
 let paddleX = 200;
 
 function drawPaddle(){
     ctx.fillStyle = "black";
-    ctx.fillRect(200,300,80,10);
+    ctx.fillRect(paddleX,300,80,10);
+}
+
+function drawBall(){
+    ctx.beginPath();
+    ctx.arc(240,290,8,0,Math.PI*2);
+    ctx.fillStyle = "red";
+    ctx.fill();
+    ctx.closePath();
 }
 
 document.addEventListener("keydown", (e) => {
@@ -13,8 +21,8 @@ document.addEventListener("keydown", (e) => {
         paddleX -= 20;
     }
     else if (e.key === "ArrowRight"){
-        paddleX += 20;
+        paddleX +=20;
     }
-    ctx.clearRect(0,0,canvas.replaceCanvas.width,canvas.height);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
     drawPaddle();
 });
