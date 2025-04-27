@@ -2,6 +2,10 @@ const canvas = document.getElementById("gameCanvas");
 const ctx =  canvas.getContext("2d");
 
 let paddleX = 200;
+let ballX = 240;
+let ballY = 290;
+let ballDX = 2;
+let ballDY = -2;
 
 function drawPaddle(){
     ctx.fillStyle = "black";
@@ -10,7 +14,7 @@ function drawPaddle(){
 
 function drawBall(){
     ctx.beginPath();
-    ctx.arc(240,290,8,0,Math.PI*2);
+    ctx.arc(ballX,ballY,8,0,Math.PI*2);
     ctx.fillStyle = "red";
     ctx.fill();
     ctx.closePath();
@@ -38,3 +42,5 @@ function draw(){
     moveBall();
     requestAnimationFrame(draw);
 }
+
+draw();
