@@ -96,10 +96,10 @@ attackBtn.addEventListener("click", () => {
 )
 
 restartBtn.addEventListener("click", ()=>{
-    player.hp = 100 + 10 * player.wins;
+    player.hp = 100 + 10 * enemy.wins;
     playerHpText.textContent = player.hp;
     player.attack = 20 + enemy.wins * 2;
-    enemy.hp = 100 + 10 * enemy.wins;
+    enemy.hp = 100 + 10 * player.wins;
     enemyHpText.textContent = enemy.hp;
     enemy.attack = 15 + player.wins * 2;
     attackBtn.disabled = false;

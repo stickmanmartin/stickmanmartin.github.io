@@ -17,22 +17,20 @@ let ball = {
     dx: 2,
     dy: -2
 };
-let z = 0;
-let w = 0;
-let brick = {
-    x: z,
-    y: w,
-    width: 40,
-    height: 20,
-    color: "red"
-}
+
 let bricks = []
 
-function createBrick(){
-    ctx.fillStyle = "red";
-    ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
-    z+=40
-    w+=20
+
+
+function createBrick(inputx){
+    let brick = {
+        x: inputx,
+        y: 0,
+        width: 40,
+        height: 20,
+        color: "red"
+    }
+    bricks.push(brick);
 }
 
 // Draw Paddle
@@ -40,6 +38,7 @@ function drawPaddle() {
     ctx.fillStyle = "white";
     ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
 }
+
 // Draw Ball
 function drawBall(){
     ctx.beginPath();
@@ -48,6 +47,7 @@ function drawBall(){
     ctx.fill();
     ctx.closePath(); 
 }
+
 function moveBall() {
     ball.x += ball.dx;
     ball.y += ball.dy;
@@ -74,13 +74,23 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
+for(let x =0;x<canvas.width;x+40){
+    createBrick(x);
+}
+
+
 function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
+    bricks.forEach((brick,index)=>{
+    
+        ctx.fillStyle = "red";
+        ctx.fillRect(brick.x, brick.y,brick.width,brick.height);
+    })
+    
+
     drawPaddle();
     drawBall();
     moveBall();
-    createBrick();
-    
     requestAnimationFrame(draw);
 }
 

@@ -181,7 +181,33 @@ h3{
     text-align: center; 
     background: radial-gradient(rgb(0, 0, 0), rgb(255, 0, 0), #03ffff, #6200ff);
     color: rgb(255, 255, 255);
-    padding: 60px 76px; 
+    padding: 60px 76.8px; 
+    text-decoration: none;
+    border-radius: 30px;
+    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
+    font-size: 15px;
+}
+#AIGAME{
+    position: fixed;
+    bottom: 415px;
+    right: 509px;
+    text-align: center; 
+    background: radial-gradient(rgb(0, 0, 0), rgb(98, 0, 255),rgb(30, 255, 0), #0318ff, #00ff6a, rgb(204, 255, 0));
+    color: rgb(255, 255, 255);
+    padding: 60px 83.4px; 
+    text-decoration: none;
+    border-radius: 30px;
+    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
+    font-size: 15px;
+}
+#tests{
+    position: fixed;
+    bottom: 570px;
+    right: 509px;
+    text-align: center; 
+    background: radial-gradient(rgb(0, 0, 0), rgb(255, 242, 0),rgb(255, 0, 0), #4a03ff, rgb(78, 81, 72)), #ff0000;
+    color: rgb(255, 255, 255);
+    padding: 60px 100px; 
     text-decoration: none;
     border-radius: 30px;
     text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Runner: DIFFICULTY MODES (REVISED)</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Courier New', Courier, monospace;
+            user-select: none;
+        }
+
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2; pointer-events: none;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+        }
+
+        #score-container {
+            position: absolute; top: 20px; left: 20px; text-align: left;
+        }
+
+        #score-board {
+            font-size: 32px; font-weight: bold; color: #fff;
+            text-shadow: 2px 2px 0px #00ffff;
+        }
+        
+        #high-score-display {
+            font-size: 18px; color: #ffff00; font-weight: bold;
+            text-shadow: 0 0 5px #ffaa00; margin-top: 5px;
+        }
+
+        #speed-display {
+            font-size: 16px; color: #ff00ff; font-weight: bold; margin-top: 5px;
+            text-shadow: 0 0 5px #ff00ff;
+        }
+
+        #ammo-display {
+            position: absolute; bottom: 20px; right: 20px;
+            font-size: 24px; font-weight: bold; color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            opacity: 0; transition: opacity 0.5s;
+        }
+
+        #level-msg {
+            position: absolute; top: 15%; width: 100%;
+            font-size: 50px; color: #ff0000; font-weight: 900;
+            text-shadow: 0 0 20px red;
+            opacity: 0; transition: opacity 0.5s;
+            transform: scale(0.9);
+            background: rgba(0,0,0,0.7);
+            padding: 10px 0;
+        }
+
+        h1 {
+            font-size: 80px; margin: 0; font-weight: 900; font-style: italic;
+            background: -webkit-linear-gradient(#00ffff, #ff00ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.6));
+        }
+
+        .new-record {
+            color: #ffff00 !important;
+            text-shadow: 0 0 20px #ffff00 !important;
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+        p {
+            font-size: 20px; color: #fff; margin-top: 10px; font-weight: bold;
+            background-color: rgba(0,0,0,0.5); padding: 5px 10px;
+        }
+
+        button {
+            margin-top: 20px; padding: 10px 30px; font-size: 20px;
+            background: rgba(0, 255, 255, 0.1); color: #fff;
+            border: 2px solid #fff; cursor: pointer; pointer-events: auto;
+            text-transform: uppercase; font-weight: bold;
+            box-shadow: 0 0 15px #00ffff, inset 0 0 15px #00ffff;
+            transition: all 0.1s; font-family: 'Courier New', Courier, monospace;
+        }
+        button:hover { background: #fff; color: #000; box-shadow: 0 0 50px #00ffff; }
+        .chaos-btn { color: #ff0000; border-color: #ff0000; box-shadow: 0 0 15px #ff0000, inset 0 0 15px #ff0000; }
+        .chaos-btn:hover { background: #ff0000; color: #fff; box-shadow: 0 0 50px #ff0000; }
+
+        .hidden { display: none !important; }
+        .center-group { display: flex; flex-direction: column; align-items: center;}
+
+        .scanlines {
+            position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 10;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+        }
+        
+        .vignette {
+            position: fixed; left: 0; top: 0; width: 100%; height: 100%;
+            box-shadow: 0 0 150px rgba(0,0,0,0.9) inset;
+            pointer-events: none; z-index: 9;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <div id="game-container"></div>
+
+    <div id="ui-layer">
+        <div id="score-container" class="hidden">
+            <div id="score-board">SCORE: 0</div>
+            <div id="high-score-display">HIGH SCORE: 0</div>
+            <div id="speed-display">ENGINE: 0%</div>
+        </div>
+        <div id="ammo-display">PLASMA CANNONS: OFFLINE</div>
+        <div id="level-msg"></div>
+        
+        <div id="start-screen">
+            <h1>NEON RUNNER</h1>
+            <p>MISSION: 1 TRILLION</p>
+            <p style="font-size: 14px; color: #00ffff">Avoid Red | Shoot Enemies | Survive</p>
+            <div id="start-high-score" style="margin-top:10px; color:#ffff00;"></div>
+            <button id="select-difficulty-btn">SELECT DIFFICULTY</button>
+        </div>
+
+        <div id="difficulty-screen" class="hidden">
+            <h1>SELECT MODE</h1>
+            <div class="center-group">
+                <button data-difficulty="easy">EASY (SLOW PACE / HIGH SCORE)</button>
+                <button data-difficulty="normal">NORMAL (STANDARD CHALLENGE)</button>
+                <button data-difficulty="hard">HARD (MAX SPEED & DENSITY)</button>
+                <button data-difficulty="chaos" class="chaos-btn">CHAOS (RISING SPEED / LOCKED SCORE)</button>
+            </div>
+        </div>
+
+        <div id="game-over-screen" class="hidden">
+            <h1 id="end-title">CRITICAL FAILURE</h1>
+            <p id="final-score">SCORE: 0</p>
+            <p id="new-record-msg" class="hidden new-record">NEW HIGH SCORE!</p>
+            <button id="restart-btn">REBOOT</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DIFFICULTY SETTINGS (REVISED) ---
+        // Speed is measured in units per frame (Roughly 60 frames/sec)
+        // Max speed of 9.0 units/frame is extremely fast.
+        const DIFFICULTY_SETTINGS = {
+            easy: { startSpeed: 0.3, speedIncrement: 0.0001, maxSpeed: 4.0, initialMultiplier: 5, spawnRateBase: 70 },
+            normal: { startSpeed: 0.5, speedIncrement: 0.0003, maxSpeed: 6.0, initialMultiplier: 1, spawnRateBase: 50 },
+            hard: { 
+                startSpeed: 0.8, 
+                speedIncrement: 0.0007, // Much faster ramp up
+                maxSpeed: 9.0, // Significantly faster max speed
+                initialMultiplier: 0.5, 
+                spawnRateBase: 25 // Denser obstacles
+            },
+            chaos: { 
+                startSpeed: 4.5, // 50% of 9.0 (Max speed of hard)
+                speedIncrement: 0.00045, // 0.45% of max speed per frame (1% per 10 frames)
+                maxSpeed: 9.0, 
+                initialMultiplier: 1.0, // Locked score multiplier
+                spawnRateBase: 20 // High density
+            }
+        };
+
+        // --- GLOBAL CONFIGURATION ---
+        const CONFIG = {
+            fogDensity: 0.015,
+            colors: { bg: 0x050011, grid: 0xff00ff, player: 0x00ffff }
+        };
+
+        let scene, camera, renderer;
+        let player, groundGrid;
+        let obstacles = [];
+        let particles = [];
+        let projectiles = [];
+        let gameActive = false;
+        let score = 0;
+        let highScore = 0;
+        let spawnTimer = 0;
+        let currentSpeed = 0;
+        let currentDifficulty = 'normal'; 
+        let mouseX = 0;
+        let targetX = 0;
+        let baseFOV = 60;
+        
+        // Progression
+        let currentLevel = 1;
+        let scoreMultiplier = 1;
+        let gunsUnlocked = false;
+
+        const WIN_SCORE = 1000000000000; 
+
+        // UI Elements
+        const startScreen = document.getElementById('start-screen');
+        const difficultyScreen = document.getElementById('difficulty-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const scoreContainer = document.getElementById('score-container');
+        const scoreBoard = document.getElementById('score-board');
+        const highScoreDisplay = document.getElementById('high-score-display');
+        const speedDisplay = document.getElementById('speed-display');
+        const startHighScore = document.getElementById('start-high-score');
+        const levelMsg = document.getElementById('level-msg');
+        const ammoDisplay = document.getElementById('ammo-display');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const newRecordMsg = document.getElementById('new-record-msg');
+        const startBtn = document.getElementById('select-difficulty-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const endTitle = document.getElementById('end-title');
+
+        function init() {
+            highScore = localStorage.getItem('neonRunnerHardcore') || 0;
+            startHighScore.innerText = "BEST: " + parseInt(highScore).toLocaleString();
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(CONFIG.colors.bg);
+            scene.fog = new THREE.FogExp2(CONFIG.colors.bg, CONFIG.fogDensity);
+
+            camera = new THREE.PerspectiveCamera(baseFOV, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 5, 14);
+            camera.lookAt(0, 0, -10);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.getElementById('game-container').appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(0, 20, 5);
+            scene.add(dirLight);
+
+            createEnvironment();
+            createPlayerShip(); 
+            
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('mousemove', (e) => mouseX = (e.clientX / window.innerWidth) * 2 - 1);
+            document.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if(e.touches.length) mouseX = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+            }, { passive: false });
+            
+            document.addEventListener('mousedown', shoot);
+            document.addEventListener('touchstart', shoot, {passive: false});
+
+            startBtn.addEventListener('click', showDifficultyScreen);
+            restartBtn.addEventListener('click', () => { 
+                gameOverScreen.classList.add('hidden');
+                showDifficultyScreen(); 
+            });
+            
+            document.querySelectorAll('#difficulty-screen button').forEach(button => {
+                button.addEventListener('click', () => {
+                    currentDifficulty = button.getAttribute('data-difficulty');
+                    startGame();
+                });
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        function showDifficultyScreen() {
+            startScreen.classList.add('hidden');
+            difficultyScreen.classList.remove('hidden');
+        }
+
+        function createEnvironment() {
+            const gridHelper = new THREE.GridHelper(600, 60, 0xff00ff, 0xbd00ff);
+            gridHelper.position.z = -100;
+            gridHelper.position.y = -2; 
+            gridHelper.material.transparent = true;
+            gridHelper.material.opacity = 0.4; 
+            scene.add(gridHelper);
+            groundGrid = gridHelper;
+
+            const sunGeo = new THREE.CircleGeometry(70, 32);
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            const grd = ctx.createLinearGradient(0, 0, 0, 128);
+            grd.addColorStop(0, '#ffff00'); grd.addColorStop(0.5, '#ff00ff'); grd.addColorStop(1, '#0000ff');
+            ctx.fillStyle = grd; ctx.fillRect(0, 0, 128, 128);
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            for(let y=0; y<128; y+=8) ctx.fillRect(0, y, 128, 2);
+            
+            const sun = new THREE.Mesh(sunGeo, new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, fog: false }));
+            sun.position.set(0, 30, -250);
+            scene.add(sun);
+        }
+
+        function createPlayerShip() {
+            player = new THREE.Group();
+            const hullMat = new THREE.MeshPhongMaterial({ color: 0x111111, emissive: 0x00ffff, emissiveIntensity: 0.8, shininess: 100, side: THREE.DoubleSide });
+
+            const fuselage = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 3), hullMat);
+            const wingGeo = new THREE.BufferGeometry();
+            const wingVertices = new Float32Array([-0.4, 0.1, 0.5, -2.5, 0, 1.5, -0.4, 0.1, 1.5, 0.4, 0.1, 0.5, 2.5, 0, 1.5, 0.4, 0.1, 1.5]);
+            wingGeo.setAttribute('position', new THREE.BufferAttribute(wingVertices, 3));
+            wingGeo.computeVertexNormals();
+            const wings = new THREE.Mesh(wingGeo, hullMat);
+
+            const engine = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 0.5), new THREE.MeshBasicMaterial({color: 0x00ffff}));
+            engine.position.set(0,0,1.6);
+
+            const fEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(0.8, 0.5, 3));
+            fuselage.add(new THREE.LineSegments(fEdges, new THREE.LineBasicMaterial({ color: 0xffffff })));
+
+            player.add(fuselage, wings, engine);
+            player.position.y = 0.5;
+            scene.add(player);
+            player.add(new THREE.PointLight(0x00ffff, 2, 15));
+        }
+
+        function shoot() {
+            if (!gameActive || !gunsUnlocked) return;
+            const offsets = [-1, 1];
+            offsets.forEach(xOffset => {
+                const geo = new THREE.BoxGeometry(0.1, 0.1, 3);
+                const mat = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); 
+                const laser = new THREE.Mesh(geo, mat);
+                laser.position.set(player.position.x + xOffset, player.position.y, player.position.z - 1);
+                scene.add(laser);
+                projectiles.push({ mesh: laser, velZ: -4, velX: 0 });
+            });
+        }
+
+        function createExplosion(pos, color) {
+            for(let i=0; i<6; i++) {
+                const geo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+                const mat = new THREE.MeshBasicMaterial({ color: color });
+                const p = new THREE.Mesh(geo, mat);
+                p.position.copy(pos);
+                scene.add(p);
+                particles.push({ 
+                    mesh: p, life: 1.0, 
+                    velocity: new THREE.Vector3((Math.random()-0.5), (Math.random()-0.5), (Math.random()-0.5)) 
+                });
+            }
+        }
+
+        function showLevelMsg(text) {
+            levelMsg.innerText = text;
+            levelMsg.style.opacity = 1;
+            levelMsg.style.transform = "scale(1.1)";
+            setTimeout(() => {
+                levelMsg.style.opacity = 0;
+                levelMsg.style.transform = "scale(0.9)";
+            }, 3000);
+        }
+        
+        // --- 20 LEVEL PROGRESSION SYSTEM (Modified for Multiplier and Chaos) ---
+        function checkLevelProgression() {
+            const s = score;
+            const settings = DIFFICULTY_SETTINGS[currentDifficulty];
+            
+            // Checkpoints array: [Score Threshold, Multiplier increase factor, Message]
+            let checkpoints;
+            
+            if (currentDifficulty === 'chaos') {
+                 // Chaos progression uses fixed score multiplier (1x) but still announces milestones
+                 checkpoints = [
+                    [15000, 1, "CHAOS LVL 2: INTERCEPTORS ACTIVE"],
+                    [35000, 1, "CHAOS LVL 3: SEEKER MINES UNLEASHED"],
+                    [70000, 1, "CHAOS LVL 4: WEAPONS ONLINE (YOU NEED THEM)"],
+                    [150000, 1, "CHAOS LVL 5: TITAN WALLS"],
+                    [300000, 1, "CHAOS LVL 6: ROTATORS"],
+                    [500000, 1, "CHAOS LVL 7: HEATSEEKER MISSILES"],
+                    [1000000, 1, "CHAOS LVL 8: THE GAUNTLET"],
+                    [3000000, 1, "CHAOS LVL 9: SINGULARITY THREAT"],
+                    [10000000, 1, "CHAOS LVL 10: ENDLESS VOID"]
+                 ];
+            } else {
+                // Normal progression (Multipliers scale)
+                checkpoints = [
+                    [5000, settings.initialMultiplier * 5, "LVL 2: MOVING TARGETS"],
+                    [15000, settings.initialMultiplier * 10, "LVL 3: DEBRIS FIELD"],
+                    [30000, settings.initialMultiplier * 25, "LVL 4: WEAPONS ONLINE"],
+                    [100000, settings.initialMultiplier * 50, "LVL 5: INTERCEPTORS"],
+                    [500000, settings.initialMultiplier * 100, "LVL 6: SEEKER MINES"],
+                    [2000000, settings.initialMultiplier * 500, "LVL 7: PLASMA ROTATORS"],
+                    [10000000, settings.initialMultiplier * 1000, "LVL 8: HEATSEEKER MISSILES"],
+                    [50000000, settings.initialMultiplier * 5000, "LVL 9: TITAN WALLS"],
+                    [200000000, settings.initialMultiplier * 10000, "LVL 10: LASER GATES"],
+                    [1000000000, settings.initialMultiplier * 50000, "LVL 11: DARK MATTER"],
+                    [5000000000, settings.initialMultiplier * 100000, "LVL 12: THE GLITCH"],
+                    [20000000000, settings.initialMultiplier * 500000, "LVL 13: ASTEROID BELT"],
+                    [50000000000, settings.initialMultiplier * 1000000, "LVL 14: PLASMA STORM"],
+                    [100000000000, settings.initialMultiplier * 5000000, "LVL 15: THE GAUNTLET"],
+                    [200000000000, settings.initialMultiplier * 10000000, "LVL 16: CHAOS THEORY"],
+                    [400000000000, settings.initialMultiplier * 20000000, "LVL 17: EVENT HORIZON"],
+                    [600000000000, settings.initialMultiplier * 40000000, "LVL 18: SINGULARITY"],
+                    [800000000000, settings.initialMultiplier * 80000000, "LVL 19: FINAL SEQUENCE"],
+                    [900000000000, settings.initialMultiplier * 100000000, "LVL 20: THE VOID"]
+                ];
+            }
+
+            for (let i = 0; i < checkpoints.length; i++) {
+                const [threshold, newMultiplier, message] = checkpoints[i];
+                if (currentLevel === i + 1 && s >= threshold) {
+                    currentLevel = i + 2;
+                    if (currentDifficulty !== 'chaos') {
+                        scoreMultiplier = newMultiplier;
+                    }
+                    if (message.includes("WEAPONS ONLINE")) {
+                        gunsUnlocked = true;
+                        ammoDisplay.style.opacity = 1;
+                    }
+                    showLevelMsg(message);
+                    return; // Exit after processing one level
+                }
+            }
+            
+            if (score >= WIN_SCORE) {
+                gameWin();
+            }
+        }
+
+        function spawnObstacle() {
+            let type = 'static';
+            const r = Math.random();
+
+            // Dynamic Obstacle Logic (Ensuring Interceptors and Seekers spawn)
+            let maxLevel = currentLevel;
+            if (currentDifficulty === 'chaos') {
+                // Chaos starts spawning everything important very fast
+                if (maxLevel >= 7 && r > 0.8) type = 'missile';
+                else if (maxLevel >= 6 && r > 0.7) type = 'rotator';
+                else if (maxLevel >= 5 && r > 0.65) type = 'titan_wall';
+                else if (maxLevel >= 4 && r > 0.6) type = 'seeker';
+                else if (maxLevel >= 2 && r > 0.5) type = 'interceptor';
+                else if (r > 0.4) type = 'moving';
+                else type = 'debris';
+            } else {
+                // Standard Obstacle Progression
+                if (maxLevel >= 13 && r > 0.4) type = 'asteroid';
+                else if (maxLevel >= 12 && r > 0.5) type = 'glitch';
+                else if (maxLevel >= 11 && r > 0.6) type = 'dark_matter';
+                else if (maxLevel >= 10 && r > 0.6) type = 'laser_gate';
+                else if (maxLevel >= 9 && r > 0.7) type = 'titan_wall';
+                else if (maxLevel >= 8 && r > 0.7) type = 'missile'; 
+                else if (maxLevel >= 7 && r > 0.6) type = 'rotator';
+                else if (maxLevel >= 6 && r > 0.6) type = 'seeker'; // ENEMY SPACESHIP
+                else if (maxLevel >= 5 && r > 0.6) type = 'interceptor'; // ENEMY SPACESHIP
+                else if (maxLevel >= 3 && r > 0.6) type = 'debris';
+                else if (maxLevel >= 2 && r > 0.5) type = 'moving';
+            }
+
+            let geometry, material;
+            let mesh;
+            
+            // --- OBSTACLE FACTORY (same as previous iteration for complexity) ---
+
+            if (type === 'missile') {
+                geometry = new THREE.CylinderGeometry(0.3, 0.3, 2, 8);
+                geometry.rotateX(Math.PI / 2);
+                material = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 1 });
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set((Math.random()*20)-10, Math.random()*5, -150);
+            }
+            else if (type === 'asteroid') {
+                geometry = new THREE.DodecahedronGeometry(Math.random() * 1.5 + 0.8);
+                material = new THREE.MeshStandardMaterial({ color: 0x554444, emissive: 0x221111 });
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set((Math.random()*20)-10, Math.random()*5, -150);
+            }
+            else if (type === 'glitch') {
+                geometry = new THREE.BoxGeometry(2,2,2);
+                material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set((Math.random()*20)-10, 2, -150);
+            }
+            else if (type === 'laser_gate') {
+                mesh = new THREE.Group();
+                const poleGeo = new THREE.CylinderGeometry(0.2, 0.2, 10, 8);
+                const poleMat = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+                const pole = new THREE.Mesh(poleGeo, poleMat);
+                pole.position.y = 5;
+                mesh.add(pole);
+                mesh.position.set((Math.random()*20)-10, 0, -150);
+            }
+            else if (type === 'titan_wall') {
+                mesh = new THREE.Group();
+                const gapX = (Math.random() * 16) - 8;
+                const leftW = 15 + gapX;
+                const leftGeo = new THREE.BoxGeometry(leftW, 10, 2);
+                const mat = new THREE.MeshStandardMaterial({ color: 0x444444, emissive: 0xff0000, emissiveIntensity:0.5 });
+                const leftMesh = new THREE.Mesh(leftGeo, mat);
+                leftMesh.position.set(-15 + (leftW/2), 2, 0); 
+                
+                const rightW = 30 - leftW - 6; 
+                const rightGeo = new THREE.BoxGeometry(rightW, 10, 2);
+                const rightMesh = new THREE.Mesh(rightGeo, mat);
+                rightMesh.position.set(15 - (rightW/2), 2, 0);
+
+                mesh.add(leftMesh);
+                mesh.add(rightMesh);
+                mesh.position.set(0, 0, -150);
+            }
+            else if (type === 'rotator') {
+                mesh = new THREE.Group();
+                const mat = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0xffaa00 });
+                const bar1 = new THREE.Mesh(new THREE.BoxGeometry(14, 1.5, 1.5), mat);
+                const bar2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 14, 1.5), mat);
+                mesh.add(bar1);
+                mesh.add(bar2);
+                mesh.position.set(0, 4, -150);
+            }
+            else if (type === 'dark_matter') {
+                geometry = new THREE.IcosahedronGeometry(2);
+                material = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set((Math.random()*20)-10, Math.random()*4, -150);
+            }
+            else if (type === 'interceptor') {
+                geometry = new THREE.TetrahedronGeometry(1.8);
+                material = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0xff0000 });
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set((Math.random()*20)-10, Math.random()*5, -150);
+            } 
+            else if (type === 'seeker') {
+                geometry = new THREE.OctahedronGeometry(1.2);
+                material = new THREE.MeshStandardMaterial({ color: 0x220000, emissive: 0xff00ff });
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set((Math.random()*20)-10, 1, -150);
+            }
+            else if (type === 'debris') {
+                geometry = new THREE.BoxGeometry(1, 1, 1);
+                material = new THREE.MeshStandardMaterial({ color: 0x333333, emissive: 0xffaa00 });
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set((Math.random()*20)-10, Math.random()*3, -150);
+            }
+            else {
+                geometry = new THREE.BoxGeometry(2, 6, 2);
+                material = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x00ff00 });
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set((Math.random()*20)-10, 2, -150);
+                mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry), new THREE.LineBasicMaterial({color:0xffffff})));
+            }
+
+            mesh.userData = {
+                type: type,
+                moveSpeed: (Math.random() * 0.15) + 0.05,
+                moveDir: Math.random() > 0.5 ? 1 : -1,
+                seekerSpeed: 0.12,
+                rotSpeed: (Math.random() * 0.1) + 0.05
+            };
+
+            scene.add(mesh);
+            obstacles.push(mesh);
+        }
+
+        function startGame() {
+            if (gameActive) return;
+            gameActive = true;
+            score = 0;
+            currentLevel = 1;
+            gunsUnlocked = false;
+            
+            const settings = DIFFICULTY_SETTINGS[currentDifficulty];
+            currentSpeed = settings.startSpeed;
+            scoreMultiplier = settings.initialMultiplier;
+            
+            if (currentDifficulty === 'chaos') {
+                 // Chaos starts at 50% speed and has locked score multiplier
+                 scoreMultiplier = 1;
+                 showLevelMsg("CHAOS MODE: RISING ANARCHY");
+            } else {
+                 showLevelMsg(currentDifficulty.toUpperCase() + " MODE: ENGAGED");
+            }
+
+
+            camera.fov = baseFOV;
+            camera.updateProjectionMatrix();
+            
+            obstacles.forEach(o => scene.remove(o));
+            obstacles = [];
+            projectiles.forEach(p => scene.remove(p.mesh));
+            projectiles = [];
+            
+            startScreen.classList.add('hidden');
+            difficultyScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            scoreContainer.classList.remove('hidden');
+            newRecordMsg.classList.add('hidden');
+            ammoDisplay.style.opacity = 0;
+            
+            endTitle.className = ""; endTitle.innerText = "CRITICAL FAILURE";
+            restartBtn.className = ""; restartBtn.innerText = "REBOOT";
+
+            highScoreDisplay.innerText = "HIGH SCORE: " + parseInt(highScore).toLocaleString();
+
+            animate();
+        }
+
+        function resetGame() { gameActive = false; showDifficultyScreen(); }
+
+        function gameOver() {
+            gameActive = false;
+            cancelAnimationFrame(frameId);
+            finalScoreDisplay.innerText = "SCORE: " + Math.floor(score).toLocaleString();
+            scoreContainer.classList.add('hidden');
+            gameOverScreen.classList.remove('hidden');
+            ammoDisplay.style.opacity = 0;
+
+            const storageKey = 'neonRunnerHardcore_' + currentDifficulty;
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem(storageKey, highScore);
+                newRecordMsg.classList.remove('hidden');
+                finalScoreDisplay.style.color = "#ffff00";
+            } else {
+                finalScoreDisplay.style.color = "#fff";
+            }
+        }
+
+        function gameWin() {
+            gameActive = false;
+            cancelAnimationFrame(frameId);
+            scoreContainer.classList.add('hidden');
+            gameOverScreen.classList.remove('hidden');
+            endTitle.innerText = "UNIVERSE CONQUERED";
+            endTitle.className = "win-text";
+            finalScoreDisplay.innerText = "1 TRILLION UNITS";
+            restartBtn.innerText = "ASCEND";
+            restartBtn.className = "win-btn";
+            
+            const storageKey = 'neonRunnerHardcore_' + currentDifficulty;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem(storageKey, highScore);
+            }
+        }
+
+        function updatePlayer() {
+            targetX = mouseX * 14; 
+            player.position.x += (targetX - player.position.x) * 0.15;
+            player.rotation.z = -(targetX - player.position.x) * 0.5;
+            player.position.y = 0.5 + Math.sin(Date.now() * 0.01) * 0.1;
+            
+            if(gameActive) {
+                const p = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.2), new THREE.MeshBasicMaterial({color:0x00ffff, side:THREE.DoubleSide}));
+                p.position.set(player.position.x, player.position.y, player.position.z + 1.5);
+                p.lookAt(camera.position);
+                scene.add(p);
+                particles.push({ mesh: p, life: 1.0, velocity: new THREE.Vector3((Math.random()-0.5)*0.1, (Math.random()-0.5)*0.1, 0.5) });
+            }
+        }
+
+        function updateProjectiles() {
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                const p = projectiles[i];
+                p.mesh.position.z += p.velZ; 
+                
+                const projBox = new THREE.Box3().setFromObject(p.mesh);
+                let hit = false;
+
+                for (let j = obstacles.length - 1; j >= 0; j--) {
+                    const obs = obstacles[j];
+                    if (['interceptor', 'seeker', 'debris', 'moving', 'static', 'asteroid', 'glitch', 'missile'].includes(obs.userData.type)) {
+                        
+                        if (checkCollision(projBox, obs)) {
+                            createExplosion(obs.position, 0xffaa00);
+                            scene.remove(obs);
+                            obstacles.splice(j, 1);
+                            scene.remove(p.mesh);
+                            projectiles.splice(i, 1);
+                            hit = true;
+                            score += (2000 * scoreMultiplier);
+                            break;
+                        }
+                    }
+                }
+                if (!hit && p.mesh.position.z < -200) {
+                    scene.remove(p.mesh);
+                    projectiles.splice(i, 1);
+                }
+            }
+        }
+
+        function checkCollision(playerBox, obstacle) {
+            if (obstacle.isGroup) {
+                for (let child of obstacle.children) {
+                    if (checkCollision(playerBox, child)) return true;
+                }
+                return false;
+            } else if (obstacle.isMesh) {
+                const box = new THREE.Box3().setFromObject(obstacle);
+                box.expandByScalar(-0.3); 
+                return playerBox.intersectsBox(box);
+            }
+            return false;
+        }
+
+        function updateObstacles() {
+            spawnTimer += 1;
+            const settings = DIFFICULTY_SETTINGS[currentDifficulty];
+            
+            let rate = settings.spawnRateBase;
+            // Density increases with speed/level
+            if(currentSpeed > settings.maxSpeed * 0.6) rate = Math.max(15, settings.spawnRateBase - 15);
+            if(currentSpeed > settings.maxSpeed * 0.8) rate = Math.max(10, settings.spawnRateBase - 20);
+
+            // Chaos Mode starts denser
+            if (currentDifficulty === 'chaos') rate = settings.spawnRateBase;
+            
+            if (spawnTimer > rate) { spawnObstacle(); spawnTimer = 0; }
+
+            const playerBox = new THREE.Box3().setFromCenterAndSize(player.position, new THREE.Vector3(0.8, 0.5, 3.0)); 
+
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const obs = obstacles[i];
+                obs.position.z += currentSpeed;
+
+                // Enemy Behaviors
+                if (obs.userData.type === 'missile') {
+                    const dx = player.position.x - obs.position.x;
+                    const dy = player.position.y - obs.position.y;
+                    obs.position.x += dx * 0.05;
+                    obs.position.y += dy * 0.05;
+                    obs.position.z += 0.2; 
+                    obs.lookAt(player.position);
+                }
+                else if (obs.userData.type === 'interceptor') {
+                    const dx = player.position.x - obs.position.x;
+                    obs.position.x += dx * 0.02; 
+                    obs.position.z += 0.15; 
+                    obs.rotation.z = -dx * 0.5;
+                }
+                else if (obs.userData.type === 'rotator') {
+                    obs.rotation.z += obs.userData.rotSpeed;
+                }
+                else if (obs.userData.type === 'glitch') {
+                    obs.scale.setScalar(1 + Math.random());
+                }
+                else if (obs.userData.type === 'seeker') {
+                    const dx = player.position.x - obs.position.x;
+                    if (obs.position.z < -5) obs.position.x += dx * obs.userData.seekerSpeed;
+                    obs.rotation.y += 0.1;
+                }
+                else if (obs.userData.type === 'dark_matter') {
+                    obs.visible = Math.random() > 0.5;
+                }
+                else if (obs.userData.type === 'moving') {
+                    obs.position.x += obs.userData.moveSpeed * obs.userData.moveDir;
+                    if (obs.position.x > 12 || obs.position.x < -12) obs.userData.moveDir *= -1;
+                }
+
+                if (checkCollision(playerBox, obs)) {
+                    gameOver();
+                    return;
+                }
+
+                if (obs.position.z > 10) {
+                    scene.remove(obs);
+                    obstacles.splice(i, 1);
+                }
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.life -= 0.05;
+                p.mesh.position.add(p.velocity);
+                p.mesh.rotation.x += 0.1;
+                p.mesh.scale.setScalar(p.life);
+                if (p.life <= 0) { scene.remove(p.mesh); particles.splice(i, 1); }
+            }
+        }
+
+        function animate() {
+            if (!gameActive) return;
+            frameId = requestAnimationFrame(animate);
+
+            updatePlayer();
+            updateProjectiles();
+            groundGrid.position.z += currentSpeed;
+            if (groundGrid.position.z > 50) groundGrid.position.z = -100;
+
+            updateObstacles();
+            updateParticles();
+            checkLevelProgression();
+
+            // SPEED LOGIC
+            const settings = DIFFICULTY_SETTINGS[currentDifficulty];
+            if (currentSpeed < settings.maxSpeed) {
+                currentSpeed += settings.speedIncrement;
+                const targetFOV = baseFOV + (currentSpeed * 8);
+                camera.fov += (targetFOV - camera.fov) * 0.05;
+                camera.updateProjectionMatrix();
+            }
+            
+            // Display % of Max Capacity (Engine power)
+            const speedPct = Math.floor((currentSpeed / settings.maxSpeed) * 100);
+            speedDisplay.innerText = "ENGINE: " + speedPct + "%";
+            
+            // Score only increments by the score multiplier (1 for Chaos)
+            score += (1 * scoreMultiplier); 
+            scoreBoard.innerText = "SCORE: " + Math.floor(score).toLocaleString();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        init();
+    </script>
+</body>
+</html>

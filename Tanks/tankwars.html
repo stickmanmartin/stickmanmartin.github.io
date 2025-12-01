@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D RPG Tank Grinder v3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS for a robust, game-like look */
+        :root {
+            --bg-color: #111827; /* Darker background */
+            --tank-color: #2a6fdb;
+            --enemy-color: #dc2626; /* Red for enemies */
+            --ui-color: #1f2937;
+            --accent-color: #48bb78;
+            --danger-color: #dc2626;
+        }
+
+        body {
+            font-family: 'Chakra Petch', sans-serif;
+            background-color: var(--bg-color);
+            color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        #game-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #ui-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 300px;
+            height: 100%;
+            padding: 15px;
+            background-color: rgba(31, 41, 55, 0.9);
+            z-index: 10;
+            box-shadow: 5px 0 10px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        #canvas-container {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+        }
+        
+        #game-messages {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffeb3b;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            display: none;
+            z-index: 11;
+        }
+
+        /* HP Bars for Player and Enemies */
+        .hp-bar-container {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 20px;
+            background-color: #4a5568;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            z-index: 11;
+        }
+        .hp-bar {
+            height: 100%;
+            background-color: #e53e3e;
+            transition: width 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        /* Enemy HP bar styling is implicitly handled by the mesh update in 3D */
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        
+        <!-- UI Panel (Sidebar) -->
+        <div id="ui-panel">
+            <h2 class="text-2xl font-bold mb-4 border-b pb-2 text-accent-color">Commander Status</h2>
+            <div id="auth-status" class="text-xs mb-4 text-gray-400">Initializing...</div>
+
+            <p class="text-xl font-semibold mb-2">Tank: <span id="tank-type" class="text-yellow-400">Basic</span></p>
+            <p class="text-xl font-semibold mb-2">Level: <span id="player-level">1</span></p>
+            
+            <div class="w-full h-2 bg-gray-600 rounded-lg mb-1 overflow-hidden" title="Experience">
+                <div id="exp-bar" class="h-full bg-purple-500 transition-all" style="width: 0%;"></div>
+            </div>
+            
+            <p class="text-sm mb-4">EXP: <span id="player-exp">0</span> / <span id="exp-to-next">100</span></p>
+
+            <h3 class="text-lg font-semibold mt-4 mb-2">Skill Points: <span id="skill-points" class="text-yellow-400">0</span></h3>
+
+            <div id="stat-upgrades" class="space-y-2">
+                <!-- Stat Upgrade Buttons will be injected here -->
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-600 space-y-3">
+                <button id="fire-button" class="w-full bg-accent-color hover:bg-green-600 text-gray-900 py-2 rounded-lg text-sm">
+                    FIRE (Spacebar/Click)
+                </button>
+                <button id="save-game-button" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-sm">
+                    Save Progress
+                </button>
+                <button id="load-game-button" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 py-2 rounded-lg text-sm">
+                    Load Last Save
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Game Area (Canvas Container) -->
+        <div id="canvas-container">
+            <!-- Three.js renderer will append canvas here -->
+            
+            <!-- Player HP Bar Overlay -->
+            <div id="hp-bar-container" class="hp-bar-container">
+                <div id="hp-bar" class="hp-bar" style="width: 100%;">100 / 100</div>
+            </div>
+
+            <!-- Game Messages Overlay -->
+            <div id="game-messages"></div>
+        </div>
+    </div>
+    
+    <!-- Upgrade Modal Overlay -->
+    <div id="upgrade-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center">
+        <div class="bg-ui-color p-8 rounded-xl shadow-2xl w-11/12 max-w-2xl border-4 border-accent-color">
+            <h3 class="text-3xl font-bold mb-4 text-center text-yellow-400">Tank Evolution Available!</h3>
+            <p class="text-center mb-6 text-lg">Choose your permanent upgrade path (Level 10):</p>
+            <div id="upgrade-choices" class="grid grid-cols-2 gap-4 max-h-80 overflow-y-auto pr-2">
+                <!-- Upgrade buttons injected here -->
+            </div>
+            <button id="skip-upgrade-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 mt-6 rounded-lg font-semibold">
+                Remain Basic (Skip for now)
+            </button>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // --- Firebase Imports and Setup ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db;
+        let auth;
+        let userId = 'anon'; 
+        const DATA_PATH = `artifacts/${appId}/users/`;
+        const COLLECTION_NAME = 'tank_wars_data_v2';
+        let isAuthReady = false;
+
+        if (firebaseConfig) {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            onAuthStateChanged(auth, async (user) => {
+                isAuthReady = true;
+                if (user) {
+                    userId = user.uid;
+                    document.getElementById('auth-status').textContent = `User: ${userId.substring(0, 8)}...`;
+                    await loadGame();
+                } else {
+                    if (initialAuthToken) {
+                        try {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } catch (error) {
+                            console.error("Custom token sign-in failed. Falling back to anonymous.", error);
+                            await signInAnonymously(auth);
+                        }
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                }
+            });
+        } else {
+             document.getElementById('auth-status').textContent = "DB OFFLINE (Anon)";
+             isAuthReady = true;
+        }
+        
+        // --- Game Constants ---
+        const SPEED_BASE = 5; 
+        const TANK_WIDTH = 2;
+        const TANK_HEIGHT = 1.5;
+        const TANK_DEPTH = 3;
+        const BULLET_RADIUS = 0.3;
+        const MAP_SIZE = 1000; // Increased map size
+        const EVOLUTION_LEVEL = 10;
+
+        // Block Tiers and Configuration - EXP values increased for faster leveling
+        const BLOCK_TIERS = {
+            BLUE: { color: 0x4ddbff, size: 1.0, hp: 15, exp: 75, isWall: false, name: "Blue Block (Basic)" }, // 10 -> 12
+            YELLOW: { color: 0xFFFF00, size: 1.5, hp: 30, exp: 100, isWall: false, name: "Yellow Block (Intermediate)" }, // 25 -> 30
+            PURPLE: { color: 0x800080, size: 3, hp: 100, exp: 300, isWall: false, name: "Purple Block (Monster)" }, // 50 -> 60
+            GREEN: { color: 0x48bb78, size: 2, hp: 100, exp: 350, isWall: false, name: "Green Block (Elite)" }, // 90 -> 110
+            RED: { color: 0xFF0000, size: 2.5, hp: 100, exp: 200, isWall: false, name: "Red Block (Hard)"},
+            PUMPKIN: { color: 0xff7518, size: 6.0, hp: 800, exp: 1500, isWall: false, name: "Gigantic Pumpkin (Boss)" }, // 1000 -> 1200
+            WALL: { color: 0x4a5568, size: 5.0, hp: Infinity, exp: 0, isWall: true, name: "Wall (Impassable)" },
+        };
+        const BLOCK_DISTRIBUTION = [
+            'BLUE', 'BLUE', 'BLUE', 'BLUE', 'BLUE', 'BLUE', 'BLUE', 'BLUE', 'BLUE', 'BLUE', 'YELLOW', 'YELLOW', 'YELLOW', 'YELLOW', 'YELLOW', 'YELLOW', 'YELLOW', 'YELLOW', 'YELLOW', 'RED', 'RED', 'RED', 'RED', 'RED', 'RED', 'RED', 'PURPLE', 'PURPLE', 'PURPLE', 'PURPLE', 'GREEN'
+        ];
+        const PUMPKIN_COUNT = 3;
+        const WALL_COUNT = 200;
+        const REGULAR_BLOCK_COUNT = 3000; // Increased block count for bigger map
+        const ENEMY_COUNT = 60; // Increased enemy count for bigger map
+        const MAX_HP_CAP = 100000000000000000000; 
+        
+        const STAT_NAMES = { 
+            maxHealth: "Max Health",
+            healthRegen: "Regeneration",
+            bulletSpeed: "Bullet Speed",
+            bulletDamage: "Bullet Damage",
+            fireRate: "Fire Rate (Sec)",
+            bodyDamage: "Body Damage",
+            movementSpeed: "Movement Speed",
+        };
+        
+        // Tank Evolution Definitions (No changes here, kept for completeness)
+        const TANK_EVOLUTIONS = {
+            'Twin': { color: 0x4ddbff, bulletsPerShot: 2, angleOffset: Math.PI / 12, specialStat: {bulletDamage: -3, fireRate: -0.05}, description: "Fires two bullets in a narrow spread." },
+            'Sniper': { color: 0xffa07a, bulletsPerShot: 1, angleOffset: 0, specialStat: {bulletDamage: 15, bulletSpeed: 10, fireRate: 0.15}, description: "High damage, high speed, slow firing." },
+            'MachineGun': { color: 0x98fb98, bulletsPerShot: 1, angleOffset: 0, specialStat: {fireRate: -0.25, bulletDamage: -5}, description: "Very high rate of fire, low damage." },
+            'Triple': { color: 0xdda0dd, bulletsPerShot: 3, angleOffset: Math.PI / 8, specialStat: {bulletDamage: -5}, description: "Fires three bullets in a wide spread." },
+            'Penta': { color: 0xffe4b5, bulletsPerShot: 5, angleOffset: Math.PI / 6, specialStat: {bulletDamage: -8, movementSpeed: -0.2}, description: "Wide spray of five bullets, heavy." },
+            'FlankGuard': { color: 0xff6347, bulletsPerShot: 1, angleOffset: 0, specialStat: {movementSpeed: 0.2, maxHealth: 20}, description: "Fires forward AND backward simultaneously." },
+            'Smasher': { color: 0x4682b4, bulletsPerShot: 0, angleOffset: 0, specialStat: {bodyDamage: 50, maxHealth: 50, bulletSpeed: -100}, description: "Melee tank. Massive body damage and speed." }, 
+            'Trapper': { color: 0xffd700, bulletsPerShot: 1, angleOffset: 0, specialStat: {fireRate: 0.5, bulletDamage: -5}, description: "Fires slow, large, high-damage projectiles." },
+        };
+
+        const TANK_EVOLUTIONS25 = {
+            'Thunder': { color: 0x4ddbff, bulletsPerShot: 4, angleOffset: Math.PI / 12, specialStat: {bulletDamage: -3, fireRate: -0.5}, description: "Fires two bullets in a narrow spread." },
+            'Assasin': { color: 0xffa07a, bulletsPerShot: 1, angleOffset: 0, specialStat: {bulletDamage: 15, bulletSpeed: 10, fireRate: -0.2, movementSpeed: 1}, description: "High damage, high speed, slow firing." },
+            'MachineGun': { color: 0x98fb98, bulletsPerShot: 1, angleOffset: 0, specialStat: {fireRate: -0.25, bulletDamage: -5}, description: "Very high rate of fire, low damage." },
+            'Triple': { color: 0xdda0dd, bulletsPerShot: 3, angleOffset: Math.PI / 8, specialStat: {bulletDamage: -5}, description: "Fires three bullets in a wide spread." },
+            'Penta': { color: 0xffe4b5, bulletsPerShot: 5, angleOffset: Math.PI / 6, specialStat: {bulletDamage: -8, movementSpeed: -0.2}, description: "Wide spray of five bullets, heavy." },
+            'FlankGuard': { color: 0xff6347, bulletsPerShot: 1, angleOffset: 0, specialStat: {movementSpeed: 0.2, maxHealth: 20}, description: "Fires forward AND backward simultaneously." },
+            'Smasher': { color: 0x4682b4, bulletsPerShot: 0, angleOffset: 0, specialStat: {bodyDamage: 50, maxHealth: 50, bulletSpeed: -100}, description: "Melee tank. Massive body damage and speed." }, 
+            'Trapper': { color: 0xffd700, bulletsPerShot: 1, angleOffset: 0, specialStat: {fireRate: 0.5, bulletDamage: -5}, description: "Fires slow, large, high-damage projectiles." },
+        };
+
+
+        // --- Three.js Setup and Game State ---
+        let scene, camera, renderer, clock;
+        let playerTank;
+        let enemies = [];
+        let blocks = [];
+        let bullets = [];
+        let keys = {};
+        
+        // --- Base Entity Class (Used by Player and Enemy) ---
+        class BaseTank {
+            constructor(isPlayer = false, initialLevel = 1) {
+                this.isPlayer = isPlayer;
+                this.group = new THREE.Group();
+                this.group.position.set(0, 0.75, 0); 
+                this.color = isPlayer ? 0x2a6fdb : 0xdc2626; // Blue for player, Red for enemies
+                
+                this.level = initialLevel;
+                this.exp = 0;
+                this.skillPoints = 0;
+                this.tankType = isPlayer ? 'Basic' : 'Enemy'; 
+                this.stats = {
+                    maxHealth: 100,
+                    healthRegen: isPlayer ? 0.1 : 0.0, // Only player regens automatically
+                    bulletSpeed: 20,
+                    bulletDamage: 10,
+                    fireRate: 1.0, 
+                    bodyDamage: 5,
+                    movementSpeed: 1,
+                };
+                this.currentHP = this.stats.maxHealth;
+                this.lastShotTime = 0;
+                this.isAlive = true;
+
+                this.updateCannonModel();
+            }
+            
+            getExpToNextLevel() {
+                // Modified leveling curve for easier progression (50 * level ^ 1.25)
+                return Math.floor(20 * (this.level ** 1.25)); 
+            }
+
+            // Called when an entity (bullet/body) deals the killing blow
+            addExp(amount) {
+                this.exp += amount;
+                let requiredExp = this.getExpToNextLevel();
+                
+                while (this.exp >= requiredExp) {
+                    this.exp -= requiredExp;
+                    this.level++;
+                    this.skillPoints += this.isPlayer ? 1 : 0; // Only player gets skill points
+                    requiredExp = this.getExpToNextLevel(); 
+                    if (this.isPlayer) {
+                        showMessage(`LEVEL UP! Commander Level ${this.level}`);
+                    }
+                }
+                if (this.isPlayer) updateStatPanel();
+            }
+
+            updateCannonModel(typeOverride = null) {
+                // Remove old parts safely
+                if (this.body) { this.group.remove(this.body); this.body.geometry.dispose(); this.body.material.dispose(); }
+                if (this.cannon) { this.group.remove(this.cannon); this.cannon.geometry.dispose(); this.cannon.material.dispose(); }
+
+                const type = TANK_EVOLUTIONS[typeOverride || this.tankType] || {};
+                const color = type.color || this.color;
+                
+                // Body
+                const bodyGeometry = new THREE.SphereGeometry(TANK_DEPTH / 2, 32, 16);
+                const bodyMaterial = new THREE.MeshLambertMaterial({ color: color });
+                this.body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                this.group.add(this.body);
+
+                // Cannon
+                const cannonGeometry = new THREE.CylinderGeometry(0.3, 0.4, 2.5, 32);
+                const cannonMaterial = new THREE.MeshLambertMaterial({ color: color + 0x333333 }); // Slightly lighter
+                this.cannon = new THREE.Mesh(cannonGeometry, cannonMaterial);
+                this.cannon.rotation.x = Math.PI / 2; 
+                this.cannon.position.z = 1.8;
+                this.group.add(this.cannon);
+                
+                if (this.isPlayer) {
+                    document.getElementById('tank-type').textContent = this.tankType;
+                }
+            }
+            
+            takeDamage(damage) {
+                this.currentHP -= damage;
+                
+                // Flash red/white for feedback
+                const flashColor = this.isPlayer ? 0xFFFFFF : 0xFF0000;
+                this.body.material.emissive.setHex(flashColor); 
+                setTimeout(() => this.body.material.emissive.setHex(0x000000), 50);
+
+                if (this.currentHP <= 0) {
+                    this.isAlive = false;
+                    scene.remove(this.group);
+                    return true; // Killed
+                }
+                return false; // Still alive
+            }
+
+            // Simplified shooting logic for all tanks
+            shoot(targetPosition = null) {
+                const now = clock.getElapsedTime();
+                if (now - this.lastShotTime < this.stats.fireRate) {
+                    return;
+                }
+                this.lastShotTime = now;
+                
+                let direction;
+                
+                if (targetPosition) {
+                    // Aim at the target if one is provided (for enemies)
+                    direction = targetPosition.clone().sub(this.group.position).normalize();
+                    // Enemy rotation is handled in EnemyTank.updateAI
+                } else {
+                    // Use current facing direction (for player)
+                    let forward = new THREE.Vector3(0, 0, 1);
+                    direction = forward.applyQuaternion(this.group.quaternion);
+                }
+                
+                // Create bullet mesh
+                const color = this.isPlayer ? 0xffff00 : 0xff0000; // Player yellow, Enemy red
+                const geometry = new THREE.SphereGeometry(BULLET_RADIUS, 16, 16);
+                const material = new THREE.MeshBasicMaterial({ color: color });
+                const mesh = new THREE.Mesh(geometry, material);
+                
+                // Calculate start position
+                const startPos = this.group.position.clone();
+                const offset = direction.clone().multiplyScalar(TANK_DEPTH/2 + 0.5); 
+                startPos.add(offset);
+                mesh.position.copy(startPos);
+                scene.add(mesh);
+                
+                // Create bullet object
+                bullets.push({
+                    mesh: mesh,
+                    velocity: direction.multiplyScalar(this.stats.bulletSpeed),
+                    damage: this.stats.bulletDamage,
+                    radius: BULLET_RADIUS,
+                    shooter: this, // Reference to the entity that fired it
+                });
+            }
+        }
+
+        // --- Player Tank (Inherits from BaseTank) ---
+        class PlayerTank extends BaseTank {
+            constructor() {
+                super(true);
+            }
+            
+            // Player specific stats upgrade
+            upgradeStat(statKey) {
+                if (this.skillPoints <= 0) return;
+                
+                this.skillPoints--;
+                switch(statKey) {
+                    case 'maxHealth': this.stats.maxHealth = Math.min(MAX_HP_CAP, this.stats.maxHealth + 20); this.currentHP += 20; break;
+                    case 'healthRegen': this.stats.healthRegen = Math.min(5, this.stats.healthRegen + 0.1); break;
+                    case 'bulletSpeed': this.stats.bulletSpeed = Math.min(50, this.stats.bulletSpeed + 2); break;
+                    case 'bulletDamage': this.stats.bulletDamage = Math.min(100, this.stats.bulletDamage + 5); break;
+                    case 'fireRate': this.stats.fireRate = Math.max(0.1, this.stats.fireRate - 0.05); break;
+                    case 'bodyDamage': this.stats.bodyDamage += 5; break;
+                    case 'movementSpeed': this.stats.movementSpeed = Math.min(3, this.stats.movementSpeed + 0.1); break;
+                }
+                updateStatPanel();
+                updateHPDisplay(this);
+            }
+            
+            // Player specific evolution
+            evolve(newType) {
+                this.tankType = newType;
+                const typeData = TANK_EVOLUTIONS[newType];
+                
+                if (typeData.specialStat) {
+                    Object.keys(typeData.specialStat).forEach(stat => {
+                        this.stats[stat] += typeData.specialStat[stat];
+                    });
+                }
+                
+                this.updateCannonModel();
+                document.getElementById('upgrade-modal').classList.add('hidden');
+                updateStatPanel();
+                showMessage(`Evolution successful! You are now a ${newType}.`);
+            }
+            
+            applyRegen(deltaTime) {
+                if (this.currentHP < this.stats.maxHealth) {
+                    this.currentHP = Math.min(this.stats.maxHealth, this.currentHP + this.stats.healthRegen * deltaTime);
+                }
+            }
+        }
+        
+        // --- Enemy Tank (Inherits from BaseTank) ---
+        class EnemyTank extends BaseTank {
+            constructor(initialLevel) {
+                super(false, initialLevel);
+                this.aiTimer = 0;
+                this.target = null;
+                this.stats.movementSpeed = 0.8;
+                this.stats.fireRate = 2.0;
+                this.stats.bulletDamage = 5;
+                this.stats.bodyDamage = 10;
+                this.initialExpMultiplier = 65; // Base EXP reward increased from 50 to 65
+                this.updateStatsByLevel();
+                this.hpBarMesh = this.createHPBar();
+            }
+            
+            updateStatsByLevel() {
+                // Enemies scale slightly as they level up
+                this.stats.maxHealth = 100 + (this.level - 1) * 20;
+                this.stats.bulletDamage = 5 + (this.level - 1) * 3;
+                this.stats.bodyDamage = 10 + (this.level - 1) * 5;
+                this.stats.fireRate = Math.max(0.5, 2.0 - (this.level - 1) * 0.1);
+                this.currentHP = Math.min(this.currentHP, this.stats.maxHealth); // Heal to new max
+            }
+            
+            getExpReward() {
+                // EXP reward scales with enemy level
+                return this.initialExpMultiplier * this.level;
+            }
+
+            createHPBar() {
+                // Simple HP bar above the enemy
+                const geometry = new THREE.PlaneGeometry(1, 0.2);
+                const material = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.y = TANK_HEIGHT + 1;
+                this.group.add(mesh);
+                return mesh;
+            }
+
+            updateHPBar() {
+                const healthRatio = this.currentHP / this.stats.maxHealth;
+                this.hpBarMesh.scale.x = healthRatio;
+                // Move bar slightly to the left so it shrinks rightward
+                this.hpBarMesh.position.x = (1 - healthRatio) * (-0.5); 
+                this.hpBarMesh.material.color.setHex(healthRatio > 0.5 ? 0x00ff00 : healthRatio > 0.2 ? 0xffff00 : 0xff0000);
+            }
+
+            // Simple AI loop
+            updateAI(deltaTime) {
+                this.aiTimer -= deltaTime;
+                
+                // Check for player as primary target
+                const playerDistance = this.group.position.distanceTo(playerTank.group.position);
+                const targetDistance = 30; // Range to engage (increased for bigger map)
+                const fleeDistance = 8; // Distance to back up
+
+                if (playerDistance < targetDistance && playerTank.isAlive) {
+                    this.target = playerTank.group.position;
+                    // Calculate movement and direction
+                    let directionVector = playerTank.group.position.clone().sub(this.group.position);
+                    let moveSpeed = SPEED_BASE * this.stats.movementSpeed * deltaTime;
+                    
+                    // Rotate to face player BEFORE acting
+                    const targetAngle = Math.atan2(-directionVector.x, -directionVector.z);
+                    this.group.rotation.y = targetAngle;
+
+                    if (playerDistance < fleeDistance) {
+                         // Back up and shoot
+                         moveSpeed *= -0.5;
+                         this.shoot(playerTank.group.position);
+                    } else if (playerDistance < targetDistance * 0.5) {
+                        // Hold position and shoot
+                        moveSpeed = 0;
+                        this.shoot(playerTank.group.position);
+                    } else {
+                        // Chase
+                    }
+                    
+                    this.group.translateZ(moveSpeed);
+                    
+                } else if (this.aiTimer <= 0 || !this.target) {
+                    // Set new target (random block or random direction)
+                    this.aiTimer = Math.random() * 5 + 3; // New decision every 3-8 seconds
+                    if (blocks.length > 0) {
+                        // Find a random, non-wall block
+                        const nonWalls = blocks.filter(b => !b.isWall);
+                        if (nonWalls.length > 0) {
+                             const targetBlock = nonWalls[Math.floor(Math.random() * nonWalls.length)];
+                             this.target = targetBlock.mesh.position;
+                        }
+                    } else {
+                        // Just move randomly
+                        this.target = new THREE.Vector3(
+                            (Math.random() - 0.5) * MAP_SIZE, 
+                            0.75, 
+                            (Math.random() - 0.5) * MAP_SIZE
+                        );
+                    }
+                } else {
+                    // Move towards the target (block or random point)
+                    let directionVector = this.target.clone().sub(this.group.position);
+                    
+                    if (directionVector.length() > TANK_DEPTH) {
+                        directionVector.normalize();
+                        const targetAngle = Math.atan2(-directionVector.x, -directionVector.z);
+                        this.group.rotation.y = targetAngle;
+                        this.group.translateZ(SPEED_BASE * this.stats.movementSpeed * deltaTime);
+                        
+                        // If near a block, try shooting it
+                        if (directionVector.length() < 15) {
+                             this.shoot(this.target);
+                        }
+                    } else {
+                        this.aiTimer = 0; // Target reached
+                    }
+                }
+                
+                this.updateHPBar();
+            }
+        }
+
+
+        // --- Block Class (Updated for Tiers) ---
+        class Block {
+            constructor(x, z, tier) {
+                this.tier = tier;
+                const config = BLOCK_TIERS[tier];
+                
+                this.size = config.size;
+                this.expValue = config.exp;
+                this.maxHP = config.hp;
+                this.currentHP = config.hp;
+                this.isAlive = true;
+                this.isWall = config.isWall;
+                this.color = config.color;
+                this.bodyDamage = 5 * this.size; 
+
+                // 3D Mesh
+                const geometry = config.name.includes("Pumpkin") 
+                    ? new THREE.SphereGeometry(this.size / 2, 32, 16) 
+                    : new THREE.BoxGeometry(this.size, this.size, this.size);
+
+                const material = new THREE.MeshPhongMaterial({ color: this.color });
+                this.mesh = new THREE.Mesh(geometry, material);
+                this.mesh.position.set(x, this.size / 2, z);
+                this.mesh.castShadow = true;
+                scene.add(this.mesh);
+                
+                this.center = this.mesh.position;
+            }
+
+            takeDamage(damage, sourceEntity) {
+                if (this.isWall) return false;
+                
+                // Damage calculation
+                this.currentHP -= damage;
+                
+                // Flash white on hit
+                this.mesh.material.emissive.setHex(0xFFFFFF); 
+                setTimeout(() => this.mesh.material.emissive.setHex(this.color), 50);
+
+                if (this.currentHP <= 0) {
+                    this.isAlive = false;
+                    scene.remove(this.mesh);
+                    // Dispose of geometry/material to prevent memory leaks
+                    this.mesh.geometry.dispose();
+                    this.mesh.material.dispose();
+                    
+                    if (sourceEntity) {
+                        sourceEntity.addExp(this.expValue);
+                    }
+                    return true; // Destroyed
+                }
+                return false; // Still alive
+            }
+        }
+
+
+        // --- Game Setup Functions ---
+
+        function initScene() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87ceeb); 
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            clock = new THREE.Clock();
+
+            // Lighting and Ground
+            scene.add(new THREE.AmbientLight(0x404040, 3)); 
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(20, 50, 20);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            const texture = new THREE.CanvasTexture(createCheckeredTexture(16, 16));
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(MAP_SIZE, MAP_SIZE);
+            const groundGeometry = new THREE.PlaneGeometry(MAP_SIZE * 2, MAP_SIZE * 2);
+            const groundMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, map: texture });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            
+            // Initialize Player Tank (only once)
+            playerTank = new PlayerTank();
+            scene.add(playerTank.group);
+            
+            // Initial load/start
+            if (isAuthReady) {
+                loadGame();
+            } else {
+                startNewGame();
+            }
+
+            setupEventListeners();
+            animate();
+        }
+        
+        function generateBlocks() {
+            // Remove all blocks from scene and array
+            blocks.forEach(b => {
+                scene.remove(b.mesh);
+                b.mesh.geometry.dispose();
+                b.mesh.material.dispose();
+            });
+            blocks = [];
+
+            // Helper to get a random position
+            const getRandomPos = (size) => ({
+                x: (Math.random() - 0.5) * (MAP_SIZE - size * 2),
+                z: (Math.random() - 0.5) * (MAP_SIZE - size * 2)
+            });
+
+            // 1. Generate Special Blocks (Walls and Pumpkins)
+            for (let i = 0; i < PUMPKIN_COUNT; i++) {
+                const pos = getRandomPos(BLOCK_TIERS.PUMPKIN.size);
+                blocks.push(new Block(pos.x, pos.z, 'PUMPKIN'));
+            }
+            for (let i = 0; i < WALL_COUNT; i++) {
+                const pos = getRandomPos(BLOCK_TIERS.WALL.size);
+                blocks.push(new Block(pos.x, pos.z, 'WALL'));
+            }
+
+            // 2. Generate Regular Blocks
+            for (let i = 0; i < REGULAR_BLOCK_COUNT; i++) {
+                 const tierKey = BLOCK_DISTRIBUTION[Math.floor(Math.random() * BLOCK_DISTRIBUTION.length)];
+                 const size = BLOCK_TIERS[tierKey].size; // Size is consistent per tier
+                 const pos = getRandomPos(size);
+                 blocks.push(new Block(pos.x, pos.z, tierKey));
+            }
+        }
+        
+        function generateEntities() {
+             // Remove old enemies
+            enemies.forEach(e => {
+                scene.remove(e.group);
+                // Simple cleanup, relying on BaseTank cleanup for geometry/material if applicable
+            });
+            enemies = [];
+
+            // Spawn initial enemies
+            for (let i = 0; i < ENEMY_COUNT; i++) {
+                const pos = {
+                    x: (Math.random() - 0.5) * MAP_SIZE * 0.8,
+                    z: (Math.random() - 0.5) * MAP_SIZE * 0.8
+                };
+                const enemy = new EnemyTank(Math.floor(Math.random() * 3) + 1); // Level 1-3
+                enemy.group.position.set(pos.x, TANK_HEIGHT/2, pos.z);
+                enemies.push(enemy);
+                scene.add(enemy.group);
+            }
+        }
+
+
+        // --- Input Handling ---
+
+        function setupEventListeners() {
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('keydown', onKeyDown, false);
+            document.addEventListener('keyup', onKeyUp, false);
+            document.addEventListener('mousemove', onMouseMove, false);
+            document.addEventListener('mousedown', onMouseDown, false);
+            
+            document.getElementById('fire-button').onclick = () => playerTank.shoot();
+            document.getElementById('save-game-button').onclick = saveGame;
+            document.getElementById('load-game-button').onclick = loadGame;
+            document.getElementById('skip-upgrade-button').onclick = () => document.getElementById('upgrade-modal').classList.add('hidden');
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onKeyDown(event) {
+            keys[event.code] = true;
+            if (event.code === 'Space') {
+                playerTank.shoot();
+                event.preventDefault(); 
+            }
+        }
+
+        function onKeyUp(event) {
+            keys[event.code] = false;
+        }
+        
+        function onMouseMove(event) {
+            if (!playerTank || !playerTank.isAlive) return;
+            const sensitivity = 0.003;
+            // Mouse controls rotation
+            playerTank.group.rotation.y -= event.movementX * sensitivity;
+        }
+
+        function onMouseDown(event) {
+            if (event.button === 0) {
+                playerTank.shoot();
+            }
+        }
+
+
+        // --- Game Logic Updates ---
+
+        function updateMovement(deltaTime) {
+            if (!playerTank || !playerTank.isAlive) return;
+
+            // --- Player Movement (W/S for forward/back, A/D for strafing) ---
+            const speed = SPEED_BASE * playerTank.stats.movementSpeed;
+            const velocityZ = (keys['KeyW'] ? 1 : 0) - (keys['KeyS'] ? 1 : 0);
+            const velocityX = (keys['KeyA'] ? 1 : 0) - (keys['KeyD'] ? 1 : 0); // A moves left, D moves right
+            
+            playerTank.group.translateZ(velocityZ * speed * deltaTime); 
+            playerTank.group.translateX(velocityX * speed * deltaTime); // Strafing
+
+            // --- AI Movement ---
+            enemies.forEach(e => e.updateAI(deltaTime));
+            
+            // --- Universal Collision & Boundary Check ---
+            const entities = [playerTank, ...enemies];
+            
+            for (let i = entities.length - 1; i >= 0; i--) {
+                const entityA = entities[i];
+                if (!entityA.isAlive) continue;
+
+                const tankSphere = new THREE.Sphere(entityA.group.position, TANK_DEPTH / 2);
+
+                // 1. Entity-Block Collision (Contact Damage)
+                for (let j = blocks.length - 1; j >= 0; j--) {
+                    const block = blocks[j];
+                    if (!block.isAlive) continue;
+
+                    const blockBox = new THREE.Box3().setFromObject(block.mesh);
+                    
+                    if (blockBox.intersectsSphere(tankSphere)) {
+                        const damage = block.bodyDamage * deltaTime * 10; 
+                        
+                        if (entityA.takeDamage(damage)) {
+                            // Entity destroyed by block collision 
+                            if (entityA.isPlayer) {
+                                startNewGame(); // Use startNewGame for player death
+                                return; // Exit loop after death
+                            }
+                        }
+                        
+                        // Knockback
+                        const pushVector = entityA.group.position.clone().sub(block.center).normalize();
+                        pushVector.y = 0; 
+                        entityA.group.position.add(pushVector.multiplyScalar(speed * deltaTime * 1.5)); 
+
+                        // Block takes damage from entity body (Walls are immune)
+                        block.takeDamage(entityA.stats.bodyDamage * deltaTime * 10, entityA);
+                    }
+                }
+                
+                // 2. Entity-Entity Collision (Body Damage)
+                for (let j = i + 1; j < entities.length; j++) {
+                    const entityB = entities[j];
+                    if (!entityB.isAlive) continue;
+
+                    const distance = entityA.group.position.distanceTo(entityB.group.position);
+                    if (distance < TANK_DEPTH) {
+                        // Collision! Apply body damage
+                        const damageA = entityB.stats.bodyDamage * deltaTime * 30;
+                        const damageB = entityA.stats.bodyDamage * deltaTime * 30;
+                        
+                        // Check for player death first
+                        if (entityA.isPlayer && entityA.takeDamage(damageA)) { startNewGame(); return; }
+                        if (entityB.isPlayer && entityB.takeDamage(damageB)) { startNewGame(); return; }
+                        
+                        // Apply damage to enemies
+                        if (!entityA.isPlayer) entityA.takeDamage(damageA);
+                        if (!entityB.isPlayer) entityB.takeDamage(damageB);
+                        
+                        // Separate the tanks
+                        const separationVector = entityA.group.position.clone().sub(entityB.group.position).normalize();
+                        const separationSpeed = (entityA.stats.movementSpeed + entityB.stats.movementSpeed) / 2 * SPEED_BASE * deltaTime * 0.5;
+                        entityA.group.position.add(separationVector.clone().multiplyScalar(separationSpeed));
+                        entityB.group.position.sub(separationVector.clone().multiplyScalar(separationSpeed));
+                    }
+                }
+
+                // 3. Boundary Check
+                const halfSize = MAP_SIZE / 2;
+                entityA.group.position.x = THREE.MathUtils.clamp(entityA.group.position.x, -halfSize, halfSize);
+                entityA.group.position.z = THREE.MathUtils.clamp(entityA.group.position.z, -halfSize, halfSize);
+                entityA.group.position.y = TANK_HEIGHT / 2;
+            }
+
+
+            // Camera follow (only for player)
+            const offset = new THREE.Vector3(0, 8, -12);
+            offset.applyQuaternion(playerTank.group.quaternion);
+            camera.position.copy(playerTank.group.position).add(offset);
+            camera.lookAt(playerTank.group.position);
+            updateHPDisplay(playerTank);
+        }
+        
+        function updateBullets(deltaTime) {
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const bullet = bullets[i];
+                bullet.mesh.position.add(bullet.velocity.clone().multiplyScalar(deltaTime));
+                
+                const shooter = bullet.shooter;
+
+                // 1. Check collision with BLOCKS
+                let hitBlock = null;
+                for (let j = 0; j < blocks.length; j++) {
+                    const block = blocks[j];
+                    if (!block.isAlive) continue;
+                    const distance = bullet.mesh.position.distanceTo(block.center);
+                    if (distance < block.size / 2 + bullet.radius) {
+                        hitBlock = block;
+                        break;
+                    }
+                }
+
+                if (hitBlock) {
+                    if (hitBlock.takeDamage(bullet.damage, shooter)) {
+                         // Block destroyed (EXP awarded inside takeDamage)
+                    }
+                    scene.remove(bullet.mesh);
+                    bullets.splice(i, 1);
+                    continue;
+                }
+                
+                // 2. Check collision with ENTITIES (Player or Enemy)
+                const targets = shooter.isPlayer ? enemies : [playerTank];
+                
+                let targetHit = false;
+                for (let j = 0; j < targets.length; j++) {
+                    const target = targets[j];
+                    if (!target.isAlive) continue;
+                    
+                    const distance = bullet.mesh.position.distanceTo(target.group.position);
+                    if (distance < TANK_DEPTH / 2 + bullet.radius) {
+                        // Hit a tank!
+                        if (target.takeDamage(bullet.damage)) {
+                            // Target killed! Reward EXP to the shooter.
+                            if (target.isPlayer) {
+                                startNewGame(); // Player death trigger
+                                targetHit = true;
+                                break;
+                            } else {
+                                // Enemy killed. Reward EXP.
+                                shooter.addExp(target.getExpReward());
+                            }
+                        }
+                        scene.remove(bullet.mesh);
+                        bullets.splice(i, 1);
+                        targetHit = true;
+                        break;
+                    }
+                }
+                
+                if (targetHit) continue; // Skip to next bullet if we hit something
+
+                // Remove bullet if it flies too far
+                if (bullet.mesh.position.length() > MAP_SIZE * 2) {
+                    scene.remove(bullet.mesh);
+                    bullets.splice(i, 1);
+                }
+            }
+            
+            // Cleanup dead enemies and respawn if necessary
+            enemies = enemies.filter(e => e.isAlive);
+            if (enemies.length < ENEMY_COUNT) {
+                 // Simple respawn logic: replace the dead ones
+                 const pos = {
+                    x: (Math.random() - 0.5) * MAP_SIZE * 0.8,
+                    z: (Math.random() - 0.5) * MAP_SIZE * 0.8
+                };
+                const enemy = new EnemyTank(Math.floor(Math.random() * playerTank.level * 0.5) + 1); // Enemy level scales with player
+                enemy.group.position.set(pos.x, TANK_HEIGHT/2, pos.z);
+                enemies.push(enemy);
+                scene.add(enemy.group);
+            }
+            
+            // Regenerate blocks if too few are left
+            if (blocks.filter(b => b.isAlive && !b.isWall).length < REGULAR_BLOCK_COUNT / 3) {
+                generateBlocks();
+            }
+        }
+        
+        // --- UI Update Functions ---
+        
+        let messageTimeout;
+        function showMessage(text) {
+            const display = document.getElementById('game-messages');
+            display.textContent = text;
+            display.style.display = 'block';
+            clearTimeout(messageTimeout);
+            messageTimeout = setTimeout(() => {
+                display.style.display = 'none';
+            }, 3000);
+        }
+        
+        function showUpgradeModal() {
+            const modal = document.getElementById('upgrade-modal');
+            const choicesContainer = document.getElementById('upgrade-choices');
+            
+            choicesContainer.innerHTML = ''; 
+            
+            Object.keys(TANK_EVOLUTIONS).forEach(type => {
+                const data = TANK_EVOLUTIONS[type];
+                
+                const button = document.createElement('button');
+                button.className = 'upgrade-button text-left flex flex-col justify-between p-4 bg-gray-700 hover:bg-gray-800 rounded-lg transition duration-150';
+                button.innerHTML = `
+                    <p class="text-lg font-bold text-white">${type}</p>
+                    <p class="text-xs text-gray-400 mt-1">${data.description}</p>
+                `;
+                button.onclick = () => playerTank.evolve(type);
+                choicesContainer.appendChild(button);
+            });
+            
+            modal.classList.remove('hidden');
+        }
+
+        function updateHPDisplay(tank) {
+            if (!tank || !tank.isPlayer) return;
+            
+            const hpBar = document.getElementById('hp-bar');
+            const percent = Math.round((tank.currentHP / tank.stats.maxHealth) * 100);
+            
+            hpBar.style.width = `${percent}%`;
+            hpBar.textContent = `${Math.round(tank.currentHP)} / ${tank.stats.maxHealth}`;
+            
+            if (percent > 50) hpBar.style.backgroundColor = '#48bb78';
+            else if (percent > 20) hpBar.style.backgroundColor = '#f6e05e';
+            else hpBar.style.backgroundColor = '#e53e3e';
+        }
+
+        function updateStatPanel() {
+            if (!playerTank) return;
+            const p = playerTank;
+            
+            document.getElementById('player-level').textContent = p.level;
+            document.getElementById('skill-points').textContent = p.skillPoints; 
+            document.getElementById('tank-type').textContent = p.tankType;
+            
+            const requiredExp = p.getExpToNextLevel();
+            const expPercent = (p.exp / requiredExp) * 100;
+            document.getElementById('exp-bar').style.width = `${Math.min(100, expPercent)}%`;
+            document.getElementById('player-exp').textContent = Math.round(p.exp);
+            document.getElementById('exp-to-next').textContent = requiredExp;
+            
+            const statsPanel = document.getElementById('stat-upgrades');
+            statsPanel.innerHTML = '';
+
+            Object.keys(p.stats).forEach(statKey => {
+                const statName = STAT_NAMES[statKey] || statKey;
+                let statValue = p.stats[statKey];
+                
+                if (statKey === 'healthRegen' || statKey === 'fireRate' || statKey === 'movementSpeed') {
+                    statValue = statValue.toFixed(2);
+                } else {
+                    statValue = Math.round(statValue);
+                }
+                
+                const statElement = document.createElement('div');
+                statElement.className = 'flex justify-between items-center text-sm';
+                
+                const buttonHtml = p.skillPoints > 0 ? 
+                    `<button class="bg-accent-color hover:bg-green-600 text-gray-900 py-1 px-2 rounded-md font-bold text-xs" data-stat="${statKey}">+</button>` : 
+                    `<span class="text-gray-500">-</span>`;
+
+                statElement.innerHTML = `
+                    <span class="font-medium">${statName}</span>
+                    <span class="text-yellow-300">${statValue}</span>
+                    ${buttonHtml}
+                `;
+                statsPanel.appendChild(statElement);
+            });
+
+            statsPanel.querySelectorAll('button').forEach(button => {
+                button.onclick = (e) => {
+                    playerTank.upgradeStat(e.target.dataset.stat);
+                };
+            });
+            
+            if (p.level >= EVOLUTION_LEVEL && p.tankType === 'Basic' && document.getElementById('upgrade-modal').classList.contains('hidden')) {
+                 showUpgradeModal();
+            }
+        }
+        
+        // --- Firebase CRUD Operations ---
+        async function saveGame() {
+            if (!db || userId === 'anon') { showMessage("Cannot save: Database not connected or user ID not resolved."); return; }
+            if (!playerTank) { showMessage("No game to save."); return; }
+
+            try {
+                const saveData = {
+                    level: playerTank.level,
+                    exp: playerTank.exp,
+                    skillPoints: playerTank.skillPoints,
+                    currentHP: playerTank.currentHP,
+                    stats: playerTank.stats,
+                    tankType: playerTank.tankType, 
+                    tankPosition: [playerTank.group.position.x, playerTank.group.position.y, playerTank.group.position.z],
+                    tankRotation: [playerTank.group.rotation.x, playerTank.group.rotation.y, playerTank.group.rotation.z],
+                };
+                
+                const docRef = doc(db, DATA_PATH + userId, COLLECTION_NAME, 'save_slot_1');
+                await setDoc(docRef, saveData);
+                showMessage("Game progress saved successfully!");
+            } catch (e) {
+                console.error("Error saving document: ", e);
+                showMessage("Error saving game. Check console for details.");
+            }
+        }
+
+        async function loadGame() {
+            if (!db) { return; }
+            
+            try {
+                const docRef = doc(db, DATA_PATH + userId, COLLECTION_NAME, 'save_slot_1');
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const loadedData = docSnap.data();
+                    
+                    const p = playerTank;
+                    p.level = loadedData.level;
+                    p.exp = loadedData.exp;
+                    p.skillPoints = loadedData.skillPoints;
+                    p.currentHP = loadedData.currentHP;
+                    p.stats = loadedData.stats;
+                    p.tankType = loadedData.tankType || 'Basic';
+                    p.isAlive = true;
+                    
+                    if (loadedData.tankPosition) p.group.position.set(...loadedData.tankPosition);
+                    if (loadedData.tankRotation) p.group.rotation.set(...loadedData.tankRotation);
+                    
+                    p.updateCannonModel();
+
+                    updateHPDisplay(p);
+                    updateStatPanel();
+                    showMessage("Game loaded successfully!");
+                    
+                    // Re-generate enemies/blocks for the loaded game
+                    bullets.forEach(b => scene.remove(b.mesh));
+                    bullets = []; 
+                    generateEntities();
+                    generateBlocks();
+                } else {
+                    showMessage("No previous save found. Starting new game.");
+                    startNewGame();
+                }
+            } catch (e) {
+                console.error("Error loading document: ", e);
+                showMessage("Error loading game. Starting new game.");
+                startNewGame();
+            }
+        }
+        
+        function startNewGame() {
+            // 1. Cleanup old entities/bullets
+            enemies.forEach(e => scene.remove(e.group));
+            enemies = [];
+            blocks.forEach(b => scene.remove(b.mesh));
+            blocks = [];
+            bullets.forEach(b => scene.remove(b.mesh));
+            bullets = [];
+            
+            // 2. Reset player stats
+            playerTank.level = 1;
+            playerTank.exp = 0;
+            playerTank.skillPoints = 0;
+            playerTank.currentHP = 100;
+            playerTank.tankType = 'Basic';
+            playerTank.stats = {
+                maxHealth: 100,
+                healthRegen: 0.1,
+                bulletSpeed: 20,
+                bulletDamage: 10,
+                fireRate: 0.5, 
+                bodyDamage: 5,
+                movementSpeed: 1, 
+            };
+            
+            // 3. Reset position and visuals
+            playerTank.group.position.set(0, TANK_HEIGHT/2, 0);
+            playerTank.group.rotation.y = 0;
+            playerTank.isAlive = true;
+            playerTank.updateCannonModel();
+            
+            // 4. Generate new world
+            generateEntities();
+            generateBlocks();
+            
+            // 5. Update UI
+            updateHPDisplay(playerTank);
+            updateStatPanel();
+            showMessage("New game started! Eliminate the red enemies and colorful blocks to level up.");
+        }
+
+
+        // --- Three.js Utility ---
+        function createCheckeredTexture(width, height) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const context = canvas.getContext('2d');
+            context.fillStyle = '#ffffff'; 
+            context.fillRect(0, 0, width / 2, height / 2);
+            context.fillRect(width / 2, height / 2, width / 2, height / 2);
+            context.fillStyle = '#eeeeee'; 
+            context.fillRect(width / 2, 0, width / 2, height / 2);
+            context.fillRect(0, height / 2, width / 2, height / 2);
+            return canvas;
+        }
+
+        // --- Main Game Loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const deltaTime = clock.getDelta();
+
+            // 1. Update Tank (Movement & Regen)
+            if (playerTank.isAlive) {
+                playerTank.applyRegen(deltaTime);
+            }
+            updateMovement(deltaTime);
+
+            // 2. Update Bullets
+            updateBullets(deltaTime);
+
+            // 3. Render Scene
+            renderer.render(scene, camera);
+        }
+        
+        // Start Initialization on load
+        window.onload = function() {
+             // Delay initScene slightly if Firebase hasn't resolved auth yet
+             if (isAuthReady) {
+                initScene();
+            } else {
+                const checkAuth = setInterval(() => {
+                    if (isAuthReady) {
+                        clearInterval(checkAuth);
+                        initScene();
+                    }
+                }, 100);
+            }
+        };
+
+    </script>
+</body>
+</html>

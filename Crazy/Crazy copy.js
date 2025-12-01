@@ -20,7 +20,6 @@ function draw() {
   }
   flowers=[];
 }
-
 // Function to create 20 flowers.
 function flowerPower() {
   for (let i = 0; i < numberofflowers; i += 1 ) {
