@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Elemental Tanks - True RPG Edition</title>
+    <link rel="stylesheet" href="element_tank.css">
+</head>
+<body>
+
+<div id="game-container">
+    <h1>Visual Elemental Tanks: True RPG Edition</h1>
+    
+    <div id="arena-wrapper">
+        <canvas id="arena" width="960" height="300"></canvas>
+        <div id="class-modal">
+            <h2>Pick a Main Class for your Element</h2>
+            <div id="class-options"></div>
+        </div>
+        <div id="campfire-modal" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 11; text-align: center;">
+            <h2 style="color: #ff9800;">Campfire Rest</h2>
+            <p>Choose your bonus for this rest stop:</p>
+            <div style="display: flex; gap: 20px;">
+                <div class="class-card" onclick="restAtCamp()">
+                    <h3>Rest</h3>
+                    <p>Restore 100% Max HP</p>
+                </div>
+                <div class="class-card" onclick="forgeRelic()">
+                    <h3>Forge</h3>
+                    <p>Upgrade 1 Relic</p>
+                </div>
+                <div class="class-card" onclick="startFishing()" style="border-color:#40c4ff;">
+                    <h3>Fishing</h3>
+                    <p>Catch for Permanent Stats</p>
+                </div>
+            </div>
+        </div>
+        <div id="karma-modal" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 12; text-align: center;">
+            <h2 style="color: #ffeb3b;">MERCY OR MALICE?</h2>
+            <p>The enemy has surrendered. What is their fate?</p>
+            <div style="display: flex; gap: 20px;">
+                <div class="class-card" onclick="resolveKarma('spare')" style="border-color:#4caf50;">
+                    <h3 style="color:#4caf50;">SPARE</h3>
+                    <p>Gain Karma & XP bonus</p>
+                </div>
+                <div class="class-card" onclick="resolveKarma('execute')" style="border-color:#f44336;">
+                    <h3 style="color:#f44336;">EXECUTE</h3>
+                    <p>Lose Karma & Gain Power</p>
+                </div>
+            </div>
+        </div>
+        <div id="casino-modal" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 15; text-align: center;">
+            <h2 style="color: #ffd700; font-size: 30px; text-shadow: 0 0 10px #ffd700;">WELCOME TO THE CASINO</h2>
+            <p>Place your bets for Divine power.</p>
+            <div style="display: flex; gap: 20px;">
+                <div class="class-card" onclick="resolveCasino('gold')" style="border-color:#ffd700;">
+                    <h3 style="color:#ffd700;">BET 1,000G</h3>
+                    <p>20% Chance for Divine Relic</p>
+                </div>
+                <div class="class-card" onclick="resolveCasino('relic')" style="border-color:#ff00ff;">
+                    <h3 style="color:#ff00ff;">BET RANDOM RELIC</h3>
+                    <p>40% Chance to Upgrade to Divine</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="message-overlay">Roll an element to start!</div>
+
+    <div class="dashboard">
+        <div class="panel">
+            <h3 style="margin-top:0; border-bottom: 1px solid #555; padding-bottom:5px;">Tank Status</h3>
+            <div class="stat-line"><strong>Level:</strong> <span id="ui-level">1</span></div>
+            <div class="stat-line"><strong>XP:</strong> <span><span id="ui-xp">0</span> / <span id="ui-xp-next">100</span></span></div>
+            <div class="stat-line" style="margin-bottom:10px;">
+                <div><strong>Class:</strong> <div id="ui-element">None</div></div>
+                <button class="btn-upgrade" id="btn-evolve-class" onclick="evolveClass()" style="background: #9c27b0; font-size: 10px;" disabled>Evolve (Lv10, 1000g)</button>
+            </div>
+            
+            <div class="stat-line">
+                <div><strong>Prof 1:</strong> <span id="ui-prof1">None</span></div>
+                <button class="btn-roll-prof" id="btn-roll-prof1" onclick="rollProfession(1)" disabled>Roll (50 XP)</button>
+            </div>
+            <div class="stat-line" style="margin-bottom:15px;">
+                <div><strong>Prof 2:</strong> <span id="ui-prof2">None</span></div>
+                <button class="btn-roll-prof" id="btn-roll-prof2" onclick="rollProfession(2)" disabled>Roll (50 XP)</button>
+            </div>
+            
+            <div class="stat-line">
+                <span><strong>HP:</strong> <span id="ui-hp">100</span> <span class="mult-text" id="ui-hp-mult">(x1.00)</span></span>
+                <button class="btn-upgrade" id="btn-up-hp" onclick="allocatePoint('hp')" disabled>+10 HP</button>
+            </div>
+            <div class="stat-line">
+                <span><strong>DMG:</strong> <span id="ui-dmg">15</span> <span class="mult-text" id="ui-dmg-mult">(x1.00)</span></span>
+                <button class="btn-upgrade" id="btn-up-dmg" onclick="allocatePoint('dmg')" disabled>+2 DMG</button>
+            </div>
+            <div class="stat-line">
+                <span><strong>SPD:</strong> <span id="ui-spd">10</span> <span class="mult-text" id="ui-spd-mult">(x1.00)</span></span>
+                <button class="btn-upgrade" id="btn-up-spd" onclick="allocatePoint('spd')" disabled>+1 SPD</button>
+            </div>
+
+            <div id="limit-break-container" onclick="triggerLimitBreak()" style="position: relative;">
+                <div id="limit-break-text">Limit Break</div>
+                <div id="limit-break-fill"></div>
+            </div>
+            <button id="btn-blood-magic" onclick="triggerBloodMagic()" style="margin-top:5px; background: #c62828; color: #fff; width: 100%; border: 1px solid #ff5252; box-shadow: 0 0 5px #ff5252; font-size: 10px; cursor: pointer;">BLOOD MAGIC (Sacrifice HP for Ult)</button>
+
+            <div class="stat-line" style="margin-top:5px;">
+                <span><strong>Free Points:</strong> <span id="ui-points" style="color:#40c4ff; font-weight:bold;">0</span></span>
+            </div>
+            <div class="stat-line" style="margin-top:10px; border-top: 1px solid #444; padding-top: 10px;">
+                <span><strong>Max Hit:</strong> <span id="ui-max-hit" style="color:#ff5252;">0</span></span>
+            </div>
+            <button onclick="resetGame()" style="margin-top: 20px; background: #333; color: #777; width: 100%; font-size: 10px;">RESET PROGRESS</button>
+        </div>
+
+        <div class="panel">
+            <div class="tabs">
+                <div class="tab-btn active" onclick="showTab('tab-battle')">Map & Battle</div>
+                <div class="tab-btn" onclick="showTab('tab-talents')">Talents</div>
+                <div class="tab-btn" onclick="showTab('tab-fusion')">Fusion</div>
+                <div class="tab-btn" onclick="showTab('tab-shop')">Shop & Relics</div>
+                <div id="tab-btn-market" class="tab-btn" onclick="showTab('tab-market')" style="display:none; color: #ff00ff;">Black Market</div>
+                <div class="tab-btn" onclick="showTab('tab-skill-tree')" style="color: #40c4ff;">Skill Tree</div>
+                <div class="tab-btn" onclick="showTab('tab-prestige')" style="color: #ff5252;">Prestige</div>
+            </div>
+
+            <div id="tab-skill-tree" class="tab-content">
+                <h3 style="margin-top:0; color: #40c4ff;">Permanent Skill Tree</h3>
+                <p style="font-size: 11px; color: #888;">Spend Hero Souls to unlock account-wide perks.</p>
+                <div class="talent-grid" id="ui-skill-tree"></div>
+            </div>
+
+            <div id="tab-market" class="tab-content">
+                <h3 style="margin-top:0; color: #ff00ff;">The Forbidden Black Market</h3>
+                <p style="font-size: 11px; color: #888;">These artifacts cost your permanent essence. There is no turning back.</p>
+                <div id="ui-black-market" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            </div>
+
+            <div id="tab-prestige" class="tab-content">
+                <h3 style="margin-top:0; color: #ff5252;">Permanent Upgrades</h3>
+                <div class="stat-line" style="font-size: 18px; margin-bottom: 15px;">
+                    <strong>Hero Souls:</strong> <span id="ui-souls" style="color: #ff5252; font-weight: bold;">0</span>
+                </div>
+                <p style="font-size: 11px; color: #888;">Spend souls earned from death to buy permanent stat boosts for all future runs.</p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="stat-line">
+                        <span>Perm HP: <span id="ui-perm-hp">x1.00</span></span>
+                        <button class="btn-upgrade" onclick="buyPermUpgrade('hp')">Buy (+5%) - 10 Souls</button>
+                    </div>
+                    <div class="stat-line">
+                        <span>Perm DMG: <span id="ui-perm-dmg">x1.00</span></span>
+                        <button class="btn-upgrade" onclick="buyPermUpgrade('dmg')">Buy (+5%) - 10 Souls</button>
+                    </div>
+                    <div class="stat-line">
+                        <span>Perm SPD: <span id="ui-perm-spd">x1.00</span></span>
+                        <button class="btn-upgrade" onclick="buyPermUpgrade('spd')">Buy (+5%) - 10 Souls</button>
+                    </div>
+                    <button class="btn-battle" id="btn-ascend" onclick="ascend()" style="margin-top:20px; background:#ff5252;">ASCEND (Trade Streak for Souls)</button>
+                </div>
+            </div>
+
+            <div id="tab-battle" class="tab-content active">
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <button class="btn-roll" id="btn-roll" onclick="rollGacha()" style="margin-bottom:0; flex: 1.5;">Roll Combo (100 XP)</button>
+                    <button class="btn-battle" id="btn-battle" onclick="startBattle()" style="margin-bottom:0; flex: 1.5;">BATTLE</button>
+                    <button class="btn-shop" id="btn-scout" onclick="triggerScout()" style="margin-bottom:0; flex: 1; background: #607d8b;">SCOUT</button>
+                </div>
+                
+                <div class="controls-row">
+                    <button id="speed-1" class="btn-speed active" onclick="setSpeed(1)">1x</button>
+                    <button id="speed-2" class="btn-speed" onclick="setSpeed(2)">2x</button>
+                    <button id="speed-4" class="btn-speed" onclick="setSpeed(4)">4x</button>
+                    <button id="btn-skip-toggle" class="btn-skip" onclick="toggleSkip()">Skip</button>
+                    <button id="btn-auto-toggle" class="btn-auto" onclick="toggleAuto()">Auto: OFF</button>
+                </div>
+                
+                <div class="controls-row" style="margin-top:5px; background:#222;">
+                    <button class="btn-speed" onclick="setStance('Offensive')">Stance: ATK</button>
+                    <button class="btn-speed" onclick="setStance('Balanced')">Stance: BAL</button>
+                    <button class="btn-speed" onclick="setStance('Defensive')">Stance: DEF</button>
+                    <button id="btn-bribe" class="btn-skip" onclick="bribeEnemy()" style="background:#ffd700; color:#000;">BRIBE BOSS</button>
+                </div>
+
+                <div style="margin-top:10px; background:#111; padding:10px; border-radius:5px;">
+                    <strong style="font-size:10px; color:#40c4ff;">TACTICAL HOTBAR:</strong>
+                    <div id="ui-inventory" style="display:flex; gap:5px; margin-top:5px;"></div>
+                </div>
+
+                <div class="map-grid" id="ui-map">
+                    <!-- Map nodes will be generated here -->
+                </div>
+            </div>
+
+            <div id="tab-talents" class="tab-content">
+                <h3 style="margin-top:0;">Talent Tree</h3>
+                <div class="talent-grid" id="ui-talents"></div>
+            </div>
+
+            <div id="tab-fusion" class="tab-content">
+                <h3 style="margin-top:0;">Elemental Fusion</h3>
+                <p style="font-size: 11px; color: #888;">Sacrifice your current element + Gold to attempt a higher rarity roll.</p>
+                <div class="fusion-container">
+                    <div class="fusion-slot filled" id="fusion-slot-1">Current Element</div>
+                    <div style="font-size: 24px;">+</div>
+                    <div class="fusion-slot filled" id="fusion-cost-display">? Gold</div>
+                </div>
+                <button class="btn-shop" id="btn-fusion" onclick="performFusion()" style="background: #9c27b0; height: 40px; font-size: 16px;">FUSE FOR HIGHER RARITY</button>
+                
+                <h3 style="margin-top:20px;">The God Forge</h3>
+                <p style="font-size: 11px; color: #888;">Sacrifice ALL your gold (min. 5000) to forge a Divine Aura relic that scales with the amount sacrificed.</p>
+                <button class="btn-shop" onclick="buyGodRelic()" style="background: #ffff00; color: #000; height: 40px; font-size: 16px;">SACRIFICE ALL GOLD FOR DIVINE AURA</button>
+            </div>
+
+            <div id="tab-shop" class="tab-content">
+                <div class="stat-line" style="font-size: 16px; margin-bottom: 10px;">
+                    <strong>Gold:</strong> <span id="ui-gold" class="gold-text">0</span>
+                    <span style="font-size: 14px; margin-left: 10px;">Streak: <span id="ui-streak" class="streak-text">0</span></span>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <button class="btn-shop" id="btn-shop-heal" onclick="buyHeal()">Potion (50g)</button>
+                    <button class="btn-shop" id="btn-shop-relic" onclick="buyRelic()" style="background-color: #9c27b0;">Roll Relic (200g)</button>
+                    <button class="btn-shop" id="btn-shop-pet" onclick="buyCompanion()" style="background-color: #2196f3;">Roll Pet (1000g)</button>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <button class="btn-shop" id="btn-shop-dice" onclick="rollLoadedDice()" style="background-color: #ff9800;">Loaded Dice (500g)</button>
+                    <button class="btn-shop" id="btn-shop-anvil" onclick="useBlacksmith()" style="background-color: #607d8b;">Anvil (300g)</button>
+                </div>
+                <button class="btn-auto-buy" id="btn-auto-relic" onclick="toggleAutoRelic()">Auto-Buy Relics: OFF</button>
+                
+                <div class="relic-list" id="ui-relics">
+                    <strong>Relics Owned:</strong><br>
+                    <div id="ui-relic-text">None</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="combat-log">
+        <div class="log-entry">System: Welcome to Elemental Tanks. Roll an element to start!</div>
+    </div>
+</div>
+
+<script src="element_tank.js"></script>
+</body>
+</html>

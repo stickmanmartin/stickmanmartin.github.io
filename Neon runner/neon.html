@@ -440,7 +440,6 @@
             } else {
                 // Standard Obstacle Progression
                 if (maxLevel >= 13 && r > 0.4) type = 'asteroid';
-                else if (maxLevel >= 12 && r > 0.5) type = 'glitch';
                 else if (maxLevel >= 11 && r > 0.6) type = 'dark_matter';
                 else if (maxLevel >= 10 && r > 0.6) type = 'laser_gate';
                 else if (maxLevel >= 9 && r > 0.7) type = 'titan_wall';
@@ -469,12 +468,6 @@
                 material = new THREE.MeshStandardMaterial({ color: 0x554444, emissive: 0x221111 });
                 mesh = new THREE.Mesh(geometry, material);
                 mesh.position.set((Math.random()*20)-10, Math.random()*5, -150);
-            }
-            else if (type === 'glitch') {
-                geometry = new THREE.BoxGeometry(2,2,2);
-                material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
-                mesh = new THREE.Mesh(geometry, material);
-                mesh.position.set((Math.random()*20)-10, 2, -150);
             }
             else if (type === 'laser_gate') {
                 mesh = new THREE.Group();
@@ -664,7 +657,7 @@
 
                 for (let j = obstacles.length - 1; j >= 0; j--) {
                     const obs = obstacles[j];
-                    if (['interceptor', 'seeker', 'debris', 'moving', 'static', 'asteroid', 'glitch', 'missile'].includes(obs.userData.type)) {
+                    if (['interceptor', 'seeker', 'debris', 'moving', 'static', 'asteroid', 'missile'].includes(obs.userData.type)) {
                         
                         if (checkCollision(projBox, obs)) {
                             createExplosion(obs.position, 0xffaa00);
@@ -736,9 +729,6 @@
                 }
                 else if (obs.userData.type === 'rotator') {
                     obs.rotation.z += obs.userData.rotSpeed;
-                }
-                else if (obs.userData.type === 'glitch') {
-                    obs.scale.setScalar(1 + Math.random());
                 }
                 else if (obs.userData.type === 'seeker') {
                     const dx = player.position.x - obs.position.x;
