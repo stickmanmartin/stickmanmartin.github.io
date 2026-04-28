@@ -1,0 +1,59 @@
+:root {
+    --bg: #050508;
+    --panel: #12121c;
+    --accent: #00f2ff;
+    --danger: #ff0055;
+    --gold: #ffd700;
+    --xp: #00ff66;
+    --text: #ffffff;
+    --card-bg: #1a1a25;
+}
+
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+
+#game-container { width: 98vw; max-width: 800px; height: 95vh; background: var(--panel); border: 2px solid #333; display: flex; flex-direction: column; padding: 10px; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+
+header { display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; padding-bottom: 10px; border-bottom: 2px solid #333; }
+.stat-group { display: flex; flex-direction: column; gap: 5px; }
+.stat-box { font-weight: bold; font-size: 0.9em; padding: 5px 10px; background: rgba(0,0,0,0.3); border-radius: 4px; }
+.stat-box.hp { color: var(--danger); } .stat-box.gold { color: var(--gold); }
+
+.title-group { text-align: center; }
+.title-group h1 { margin: 0; font-size: 1.5em; letter-spacing: 3px; color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+
+#canvas-wrapper { position: relative; flex: 1; margin: 10px 0; overflow: hidden; border: 1px solid #222; }
+canvas { background: #08080c; display: block; width: 100%; height: 100%; cursor: crosshair; }
+
+.overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 100; }
+.overlay-inner { background: #0a0a0f; border: 2px solid var(--accent); padding: 30px; border-radius: 12px; max-width: 90%; box-shadow: 0 0 30px rgba(0, 242, 255, 0.2); }
+.overlay-inner.wide { width: 550px; }
+
+#choices-container { display: flex; gap: 15px; margin: 20px 0; justify-content: center; }
+.choice-card { background: var(--card-bg); border: 2px solid #444; padding: 15px; width: 150px; cursor: pointer; transition: 0.2s; text-align: center; }
+.choice-card:hover { border-color: var(--accent); transform: translateY(-5px); box-shadow: 0 0 15px var(--accent); }
+
+.shop-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+.shop-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.tab-btn { flex: 1; padding: 10px; background: #1a1a25; border: 1px solid #444; color: #666; cursor: pointer; font-weight: bold; }
+.tab-btn.active { border-color: var(--accent); color: var(--accent); background: #2a2a35; }
+
+#upgrade-list, #market-list { max-height: 350px; overflow-y: auto; padding-right: 10px; }
+.upgrade-item { background: #151520; border: 1px solid #333; margin-bottom: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-radius: 6px; }
+
+.main-btn { padding: 10px 20px; border: 2px solid #555; background: #222; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+.main-btn:hover { border-color: var(--accent); }
+.gold-btn { border-color: var(--gold); color: var(--gold); }
+.danger-btn { border-color: var(--danger); color: var(--danger); }
+
+.floating-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(0, 242, 255, 0.2); padding: 10px 20px; border-radius: 30px; font-weight: bold; color: var(--accent); border: 1px solid var(--accent); pointer-events: none; display: flex; align-items: center; gap: 10px; }
+.hint-pulse { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
+
+#ui-footer { display: flex; gap: 10px; height: 100px; }
+#combat-log { flex: 1; background: #000; padding: 10px; font-family: 'Consolas', monospace; font-size: 0.8em; overflow-y: auto; color: #aaa; border-left: 3px solid var(--accent); }
+.speed-controls { display: flex; flex-direction: column; gap: 5px; }
+.speed-btn { flex: 1; background: #1a1a25; border: 1px solid #333; color: #666; cursor: pointer; padding: 0 15px; }
+.speed-btn.active { color: var(--accent); border-color: var(--accent); }
+
+#Home { position: fixed; top: 15px; right: 15px; background: #000; color: #fff; text-decoration: none; padding: 5px 12px; border: 1px solid #444; border-radius: 4px; font-size: 0.75em; z-index: 1000; }
+.critical-text { color: var(--danger); text-shadow: 0 0 15px var(--danger); }

@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Runner: DIFFICULTY MODES (REVISED)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             overflow: hidden;
             background-color: #000;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Orbitron', sans-serif;
             user-select: none;
         }
 
@@ -189,7 +190,54 @@
         let mouseX = 0;
         let targetX = 0;
         let baseFOV = 60;
+        let cameraShake = 0;
+        let shieldActive = false;
+        let shieldMesh;
         
+        // Sound Engine
+        class SoundEngine {
+            constructor() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            playShoot() {
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            }
+            playExplosion() {
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const noise = this.ctx.createBufferSource();
+                const bufferSize = this.ctx.sampleRate * 0.5;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                noise.buffer = buffer;
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(10, this.ctx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                noise.start();
+                noise.stop(this.ctx.currentTime + 0.5);
+            }
+        }
+        const sounds = new SoundEngine();
+
         // Progression
         let currentLevel = 1;
         let scoreMultiplier = 1;
@@ -280,6 +328,33 @@
             scene.add(gridHelper);
             groundGrid = gridHelper;
 
+            // Neon City Buildings
+            const buildingGroup = new THREE.Group();
+            buildingGroup.name = "buildings";
+            for(let i=0; i<40; i++) {
+                const h = Math.random() * 20 + 10;
+                const w = Math.random() * 5 + 2;
+                const geo = new THREE.BoxGeometry(w, h, w);
+                const mat = new THREE.MeshPhongMaterial({ 
+                    color: 0x000000, 
+                    emissive: 0xff00ff, 
+                    emissiveIntensity: 0.2,
+                    shininess: 100 
+                });
+                const b = new THREE.Mesh(geo, mat);
+                b.position.set(
+                    (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 30 + 15),
+                    h/2 - 2,
+                    -Math.random() * 400
+                );
+                // Windows
+                const edges = new THREE.EdgesGeometry(geo);
+                const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.5 }));
+                b.add(line);
+                buildingGroup.add(b);
+            }
+            scene.add(buildingGroup);
+
             const sunGeo = new THREE.CircleGeometry(70, 32);
             const canvas = document.createElement('canvas');
             canvas.width = 128; canvas.height = 128;
@@ -287,8 +362,8 @@
             const grd = ctx.createLinearGradient(0, 0, 0, 128);
             grd.addColorStop(0, '#ffff00'); grd.addColorStop(0.5, '#ff00ff'); grd.addColorStop(1, '#0000ff');
             ctx.fillStyle = grd; ctx.fillRect(0, 0, 128, 128);
-            ctx.fillStyle = 'rgba(0,0,0,0.4)';
-            for(let y=0; y<128; y+=8) ctx.fillRect(0, y, 128, 2);
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            for(let y=0; y<128; y+=8) ctx.fillRect(0, y, 128, 4);
             
             const sun = new THREE.Mesh(sunGeo, new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, fog: false }));
             sun.position.set(0, 30, -250);
@@ -314,12 +389,26 @@
 
             player.add(fuselage, wings, engine);
             player.position.y = 0.5;
+
+            // Shield Mesh
+            const shieldGeo = new THREE.SphereGeometry(2, 32, 32);
+            const shieldMat = new THREE.MeshBasicMaterial({ 
+                color: 0x00ffff, 
+                transparent: true, 
+                opacity: 0.3, 
+                wireframe: true 
+            });
+            shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+            shieldMesh.visible = false;
+            player.add(shieldMesh);
+
             scene.add(player);
             player.add(new THREE.PointLight(0x00ffff, 2, 15));
         }
 
         function shoot() {
             if (!gameActive || !gunsUnlocked) return;
+            sounds.playShoot();
             const offsets = [-1, 1];
             offsets.forEach(xOffset => {
                 const geo = new THREE.BoxGeometry(0.1, 0.1, 3);
@@ -332,6 +421,8 @@
         }
 
         function createExplosion(pos, color) {
+            sounds.playExplosion();
+            cameraShake = 0.5;
             for(let i=0; i<6; i++) {
                 const geo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
                 const mat = new THREE.MeshBasicMaterial({ color: color });
@@ -422,12 +513,13 @@
             }
         }
 
-        function spawnObstacle() {
-            let type = 'static';
+        function spawnObstacle(typeOverride) {
+            let type = typeOverride || 'static';
             const r = Math.random();
 
-            // Dynamic Obstacle Logic (Ensuring Interceptors and Seekers spawn)
-            let maxLevel = currentLevel;
+            if (!typeOverride) {
+                // Dynamic Obstacle Logic (Ensuring Interceptors and Seekers spawn)
+                let maxLevel = currentLevel;
             if (currentDifficulty === 'chaos') {
                 // Chaos starts spawning everything important very fast
                 if (maxLevel >= 7 && r > 0.8) type = 'missile';
@@ -449,6 +541,7 @@
                 else if (maxLevel >= 5 && r > 0.6) type = 'interceptor'; // ENEMY SPACESHIP
                 else if (maxLevel >= 3 && r > 0.6) type = 'debris';
                 else if (maxLevel >= 2 && r > 0.5) type = 'moving';
+            }
             }
 
             let geometry, material;
@@ -529,6 +622,14 @@
                 mesh = new THREE.Mesh(geometry, material);
                 mesh.position.set((Math.random()*20)-10, Math.random()*3, -150);
             }
+            else if (type === 'shield_powerup') {
+                geometry = new THREE.TorusGeometry(1, 0.2, 16, 100);
+                material = new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff });
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set((Math.random()*20)-10, 1, -150);
+                const light = new THREE.PointLight(0x00ffff, 2, 10);
+                mesh.add(light);
+            }
             else {
                 geometry = new THREE.BoxGeometry(2, 6, 2);
                 material = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x00ff00 });
@@ -583,6 +684,9 @@
             scoreContainer.classList.remove('hidden');
             newRecordMsg.classList.add('hidden');
             ammoDisplay.style.opacity = 0;
+            
+            shieldActive = false;
+            if(shieldMesh) shieldMesh.visible = false;
             
             endTitle.className = ""; endTitle.innerText = "CRITICAL FAILURE";
             restartBtn.className = ""; restartBtn.innerText = "REBOOT";
@@ -704,7 +808,11 @@
             // Chaos Mode starts denser
             if (currentDifficulty === 'chaos') rate = settings.spawnRateBase;
             
-            if (spawnTimer > rate) { spawnObstacle(); spawnTimer = 0; }
+            if (spawnTimer > rate) { 
+                if (Math.random() > 0.95) spawnObstacle('shield_powerup');
+                else spawnObstacle(); 
+                spawnTimer = 0; 
+            }
 
             const playerBox = new THREE.Box3().setFromCenterAndSize(player.position, new THREE.Vector3(0.8, 0.5, 3.0)); 
 
@@ -730,6 +838,10 @@
                 else if (obs.userData.type === 'rotator') {
                     obs.rotation.z += obs.userData.rotSpeed;
                 }
+                else if (obs.userData.type === 'shield_powerup') {
+                    obs.rotation.y += 0.05;
+                    obs.rotation.x += 0.02;
+                }
                 else if (obs.userData.type === 'seeker') {
                     const dx = player.position.x - obs.position.x;
                     if (obs.position.z < -5) obs.position.x += dx * obs.userData.seekerSpeed;
@@ -744,8 +856,23 @@
                 }
 
                 if (checkCollision(playerBox, obs)) {
-                    gameOver();
-                    return;
+                    if (obs.userData.type === 'shield_powerup') {
+                        shieldActive = true;
+                        shieldMesh.visible = true;
+                        scene.remove(obs);
+                        obstacles.splice(i, 1);
+                        showLevelMsg("SHIELD ACTIVATED");
+                    } else if (shieldActive) {
+                        shieldActive = false;
+                        shieldMesh.visible = false;
+                        createExplosion(obs.position, 0x00ffff);
+                        scene.remove(obs);
+                        obstacles.splice(i, 1);
+                        showLevelMsg("SHIELD DEPLETED");
+                    } else {
+                        gameOver();
+                        return;
+                    }
                 }
 
                 if (obs.position.z > 10) {
@@ -774,6 +901,27 @@
             updateProjectiles();
             groundGrid.position.z += currentSpeed;
             if (groundGrid.position.z > 50) groundGrid.position.z = -100;
+
+            // Scroll Buildings
+            const buildings = scene.getObjectByName("buildings");
+            if(buildings) {
+                buildings.children.forEach(b => {
+                    b.position.z += currentSpeed * 0.5; // Distant objects move slower
+                    if(b.position.z > 20) b.position.z = -400;
+                });
+            }
+
+            // Camera Shake
+            if (cameraShake > 0) {
+                camera.position.x = (Math.random() - 0.5) * cameraShake;
+                camera.position.y = 5 + (Math.random() - 0.5) * cameraShake;
+                cameraShake *= 0.9;
+                if (cameraShake < 0.01) {
+                    cameraShake = 0;
+                    camera.position.x = 0;
+                    camera.position.y = 5;
+                }
+            }
 
             updateObstacles();
             updateParticles();

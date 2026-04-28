@@ -1,57 +1,102 @@
-body {
-    font-family: monospace, Arial;
-    text-align:center;
-    background-color: black;
-    color:white;
+:root {
+    --bg-color: #050508;
+    --panel-bg: #1a1a20;
+    --accent: #00e5ff;
+    --danger: #ff0055;
+    --gold: #ffdd00;
+    --text: #ffffff;
+    --xp: #00ff88;
 }
 
+/* --- 20 UNIQUE HERO SPRITES --- */
 
-button:hover{
-    background-color: #777;
-}
+.hero-base { width: 100%; height: 100%; position: relative; transition: 0.2s; }
 
-#enemy-hp {
-    display: inline-block;
-}
+/* 1. Recruit */ .recruit-img { background: #555; clip-path: inset(10% 10% 0 10%); }
+/* 2. Apprentice */ .apprentice-img { background: #448; border-radius: 50% 50% 0 0; }
+/* 3. Scout */ .scout-img { background: #252; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+/* 4. Squire */ .squire-img { background: #666; border-left: 5px solid #888; }
 
-#restart-btn {
-    display: block;
-    margin: 20px auto;
-}
+/* 5. Knight */ .knight-img { background: #888; border: 2px solid #fff; clip-path: polygon(10% 0, 90% 0, 100% 20%, 100% 100%, 0 100%, 0 20%); }
+/* 6. Wizard */ .wizard-img { background: #50a; border-radius: 40% 40% 10% 10%; box-shadow: 0 0 15px #a0f; }
+/* 7. Archer */ .archer-img { background: #1a1; clip-path: polygon(50% 0, 100% 30%, 80% 100%, 20% 100%, 0 30%); }
+/* 8. Cleric */ .cleric-img { background: #fff; border: 3px solid #ddd; border-top: 5px solid gold; }
 
-#shop {
-    display: block;
-    margin: 20px auto;
-}
+/* 9. Berserker */ .berserker-img { background: #822; clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%); border-top: 10px solid #f00; }
+/* 10. Sorcerer */ .sorcerer-img { background: #205; border-radius: 30% 30% 50% 50%; box-shadow: inset 0 0 20px #fff; }
+/* 11. Assassin */ .assassin-img { background: #111; clip-path: polygon(50% 0, 100% 20%, 70% 100%, 30% 100%, 0 20%); border-top: 3px solid #f05; }
+/* 12. Lich */ .lich-img { background: #111; border-left: 8px solid #508; filter: drop-shadow(0 0 10px #a0f); }
+/* 13. Paladin Knight */ .paladinknight-img { background: #ddd; border: 3px solid gold; border-radius: 10px; }
 
+/* 14. Dragon Knight */ .dragonknight-img { background: #c50; clip-path: polygon(10% 0, 90% 0, 100% 50%, 80% 100%, 20% 100%, 0 50%); border-top: 5px solid #000; }
+/* 15. Archmage */ .archmage-img { background: #fff; box-shadow: 0 0 30px #fff, 0 0 60px #a0f; border-radius: 50%; }
+/* 16. Shadow Hunter */ .shadowhunter-img { background: #022; clip-path: polygon(50% 0, 100% 100%, 0 100%); border-right: 5px solid #0f6; }
+/* 17. Templar */ .templar-img { background: #fff; border: 5px solid gold; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
 
-@keyframes shake {
-    0% {transform: translateX(0);}
-    25% {transform: translateX(-50px);transform: translateY(50px);}
-    50% {transform: translateX(50px);transform: translateY(-50px);}
-    75% {transform: translateX(-50px);transform: translateY(50px);}
-    100% {transform: translateX(0);transform: translateY(50px);}
-}
+/* 18. Sun God */ .sungod-img { background: gold; border-radius: 50%; box-shadow: 0 0 50px gold; }
+/* 19. Void Reaver */ .voidreaver-img { background: #000; border: 2px solid #a0f; box-shadow: 0 0 20px #a0f; clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%); }
+/* 20. Chaos Lord */ .chaoslord-img { background: #500; border: 4px solid #000; clip-path: polygon(50% 0, 100% 30%, 100% 70%, 50% 100%, 0 70%, 0 30%); box-shadow: 0 0 20px #f00; }
+/* 21. Eternal One */ .eternalone-img { background: linear-gradient(45deg, #fff, #00e5ff); border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; animation: eternal-swirl 3s infinite linear; }
+@keyframes eternal-swirl { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
 
+/* Shared Details */
+.hero-base::before { content: ''; position: absolute; top: 15%; left: 15%; width: 70%; height: 10%; background: rgba(255,255,255,0.2); }
+.warrior-archetype::before { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.mage-archetype::after { content: ''; position: absolute; top: 40%; left: 35%; width: 30%; height: 20%; background: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff; }
 
-.hit-effect {
-    animation: shake 0.5s ease-in-out;
-}
+/* --- CORE UI --- */
 
-#Home {
-    position: fixed; /* Fixes the button position relative to the viewport */
-    bottom: 20px; /* Distance from the bottom edge of the viewport */
-    right: 20px; /* Distance from the right edge of the viewport */
-    width: 50px;
-    height: 50px;
-    border: 2px solid #000000;
-    border-radius: 50%;
-    background-color: rgb(255, 0, 0);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-decoration: none;
-    color: #fff;
-    font-size: 18px;
-    z-index: 1000;
-  }
+body { margin: 0; background: var(--bg-color); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+#game-container { width: 95vw; max-width: 1000px; height: 95vh; background: var(--panel-bg); border: 3px solid #555; display: flex; flex-direction: column; padding: 20px; position: relative; box-sizing: border-box; }
+
+.overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; border: 5px solid #444; }
+.hero-preview { width: 100px; height: 140px; margin: 0 auto 20px auto; position: relative; }
+.sprite-container .hero-preview { width: 50px; height: 75px; margin: 0; }
+
+.rarity-common { border-color: var(--common) !important; color: #aaa; }
+.rarity-rare { border-color: #0077ff !important; color: #0077ff; }
+.rarity-epic { border-color: #aa00ff !important; color: #aa00ff; }
+.rarity-legendary { border-color: #ffaa00 !important; color: #ffaa00; }
+.rarity-mythic { border-color: #ff0044 !important; color: #ff0044; box-shadow: 0 0 40px #ff0044; }
+
+#class-display-card { background: #0a0a0c; border: 4px solid #444; padding: 30px; width: 300px; text-align: center; margin-bottom: 20px; }
+.roll-anim { animation: roll-pulse 0.1s infinite alternate; }
+@keyframes roll-pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+#battle-scene { flex: 1; display: flex; justify-content: space-around; align-items: center; position: relative; background: #2a2a35; border: 4px solid #000; border-radius: 12px; margin-bottom: 20px; box-shadow: inset 0 0 100px rgba(0,0,0,0.8); }
+#battle-scene::after { content: ''; position: absolute; bottom: 15%; left: 5%; right: 5%; height: 3px; background: rgba(255,255,255,0.1); box-shadow: 0 0 15px var(--accent); }
+
+.sprite-container { display: flex; flex-direction: column; align-items: center; gap: 10px; transition: transform 0.2s; }
+.player.charge { transform: translateX(350px); }
+.shadow-enemy { width: 70px; height: 90px; background: #000; border-radius: 40% 40% 10% 10%; filter: drop-shadow(0 0 20px var(--danger)); border: 1px solid #300; }
+
+.hp-bar-container { height: 16px; background: #000; border: 2px solid #555; border-radius: 8px; overflow: hidden; }
+.hp-fill { height: 100%; background: var(--danger); transition: width 0.3s; }
+#player-hp-fill { background: var(--accent); }
+
+#xp-bar-container { width: 100%; height: 8px; background: #000; border-radius: 4px; border: 1px solid #444; margin: 10px 0; }
+#xp-fill { height: 100%; width: 0; background: var(--xp); box-shadow: 0 0 10px var(--xp); }
+
+#ui-panel { display: grid; grid-template-columns: 1fr 300px; gap: 20px; height: 180px; }
+#combat-log { background: #000; padding: 12px; overflow-y: auto; font-family: 'Consolas', monospace; font-size: 0.9em; border-left: 4px solid var(--accent); color: #fff; }
+
+.main-btn { padding: 12px; background: #222; border: 2px solid #555; color: #fff; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+.main-btn:hover { border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.gold-btn { border-color: var(--gold); color: var(--gold); }
+
+.shop-overlay { position: absolute; inset: 0; background: #0a0a0c; z-index: 500; padding: 30px; display: none; flex-direction: column; border: 5px solid var(--gold); }
+.shop-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; overflow-y: auto; flex: 1; padding: 10px; }
+.item-card { background: #1a1a20; border: 2px solid #333; padding: 15px; text-align: center; }
+
+/* Projectiles */
+.fire-orb { width: 25px; height: 25px; background: radial-gradient(circle, #fff, #ff4400); border-radius: 50%; box-shadow: 0 0 30px #ff0000; position: absolute; }
+.water-orb { width: 25px; height: 25px; background: radial-gradient(circle, #fff, #00d2ff); border-radius: 50%; box-shadow: 0 0 30px #0044ff; position: absolute; }
+.void-orb { width: 25px; height: 25px; background: radial-gradient(circle, #fff, #a0f); border-radius: 50%; box-shadow: 0 0 30px #50a; position: absolute; }
+.holy-bolt { width: 25px; height: 25px; background: radial-gradient(circle, #fff, #ffdd00); border-radius: 50%; box-shadow: 0 0 30px gold; position: absolute; }
+.arrow-projectile { width: 40px; height: 4px; background: #8b4513; position: absolute; }
+.p-fly { animation: fly-right 0.4s linear forwards; }
+@keyframes fly-right { from { left: 25%; opacity: 1; } to { left: 75%; opacity: 0; } }
+
+.coin-icon { display: inline-block; width: 14px; height: 14px; background: var(--gold); border-radius: 50%; border: 2px solid #000; vertical-align: middle; margin-right: 5px; }
+.level-badge { background: var(--xp); color: #000; padding: 5px 10px; border-radius: 4px; font-weight: bold; }
+#Home { position: fixed; bottom: 10px; right: 10px; background: #000; color: #fff; padding: 5px 10px; text-decoration: none; border: 1px solid #444; font-size: 0.8em; }

@@ -63,6 +63,17 @@
                 </div>
             </div>
         </div>
+        <div id="fishing-modal" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,20,40,0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 20; text-align: center;">
+            <h2 style="color: #40c4ff; text-shadow: 0 0 10px #40c4ff;">DEEP SEA FISHING</h2>
+            <p>Catch the fish for permanent stat boosts!</p>
+            <div id="fishing-area" style="width: 300px; height: 30px; background: #222; border: 2px solid #444; position: relative; margin: 20px 0; border-radius: 15px; overflow: hidden;">
+                <div id="fishing-bar" style="width: 60px; height: 100%; background: rgba(64, 196, 255, 0.4); position: absolute; left: 120px; border-left: 2px solid rgba(255,255,255,0.2); border-right: 2px solid rgba(255,255,255,0.2);"></div>
+                <div style="position: absolute; left: 149px; top: 0; width: 2px; height: 100%; background: #ffd700; z-index: 1;"></div> <!-- Center Target -->
+                <div id="fishing-fish" style="width: 20px; height: 20px; background: #ffeb3b; border-radius: 50%; position: absolute; left: 140px; top: 5px; box-shadow: 0 0 10px #ffeb3b; z-index: 2;"></div>
+            </div>
+            <p id="fishing-msg">Press SPACE or Click to CATCH!</p>
+            <button class="btn-battle" id="btn-fish-action" onclick="attemptCatch()" style="background: #40c4ff; color: #000; width: 200px;">REEL IN!</button>
+        </div>
     </div>
     
     <div id="message-overlay">Roll an element to start!</div>

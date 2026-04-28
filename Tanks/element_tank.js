@@ -690,7 +690,7 @@ function buyTalent(id) {
     const t = TALENTS.find(x => x.id === id);
     if (player.level < t.req) { showMessage("Level too low!", "#ff3c3c"); return; }
     player.talents.push(id);
-    recalculateStats(); renderTalents(); saveGame();
+    recalculateStats(); updateUI(); renderTalents(); saveGame();
     showMessage(`Learned ${t.name}!`, "#00e676");
 }
 
@@ -753,7 +753,7 @@ function buyRelic() {
         let pool = RELICS_DATA[rarity];
         let relicData = pool[Math.floor(Math.random() * pool.length)];
         player.relics.push({ ...relicData, rarity: rarity, level: 1 });
-        checkRelicMerging(); recalculateStats();
+        checkRelicMerging(); recalculateStats(); updateUI();
         showMessage(`Rolled [${rarity}] Relic: ${relicData.name}!`, "#ba68c8");
     }
 }
@@ -763,7 +763,7 @@ function levelUpRelic(idx) {
     const cost = Math.floor(100 * Math.pow(1.5, r.level || 1));
     if (player.gold >= cost) {
         player.gold -= cost; r.level = (r.level || 1) + 1; r.val *= 1.1;
-        logMessage(`Leveled up ${r.name} to Lvl ${r.level}!`); recalculateStats(); saveGame();
+        logMessage(`Leveled up ${r.name} to Lvl ${r.level}!`); recalculateStats(); updateUI(); saveGame();
     } else showMessage(`Need ${cost} Gold!`, "#ff3c3c");
 }
 
@@ -808,7 +808,7 @@ function buyCompanion() {
         const name = keys[Math.floor(Math.random() * keys.length)];
         const data = COMPANIONS_DATA[name];
         player.companions.push({ name: name, ...data, turnCount: 0 });
-        recalculateStats(); showMessage(`New Companion: ${name}!`, data.color); saveGame();
+        recalculateStats(); updateUI(); showMessage(`New Companion: ${name}!`, data.color); saveGame();
     } else if (player.gold < 1000) showMessage("Need 1000 gold for a companion!", "#ff3c3c");
 }
 
@@ -816,7 +816,7 @@ function rollProfession(slot) {
     if (battleState.active || player.element_name === "None" || player.xp < 50) return;
     player.xp -= 50; const rarity = getWeightedRandomRarity();
     player[`prof${slot}`] = { ...PROFESSIONS[rarity][Math.floor(Math.random() * PROFESSIONS[rarity].length)], rarity: rarity };
-    recalculateStats(); showMessage(`Rolled [${rarity}] ${player[`prof${slot}`].name}!`, "#ff9800");
+    recalculateStats(); updateUI(); showMessage(`Rolled [${rarity}] ${player[`prof${slot}`].name}!`, "#ff9800");
 }
 
 function setSpeed(s) {
@@ -1096,7 +1096,6 @@ function resolveKarma(choice) {
         else if (player.max_hp > oldMax) player.hp += (player.max_hp - oldMax); 
 
         player.hp = Math.min(player.hp, player.max_hp);
-        updateUI();
     }
 function rollGacha() {
     if (battleState.active || (player.element_name !== "None" && player.xp < 100)) return;
@@ -1104,7 +1103,7 @@ function rollGacha() {
     player.base_multipliers = [1.0, 1.0, 1.0]; const rarity = getWeightedRandomRarity();
     const elementKeys = Object.keys(ELEMENTS_DATA[rarity]); const element = elementKeys[Math.floor(Math.random() * elementKeys.length)];
     const data = ELEMENTS_DATA[rarity][element]; player.element_name = element; player.rarity = rarity; player.attack_name = data.attack; player.color = data.color; player.type = data.type; player.effect = data.effect;
-    player.base_multipliers[0] *= data.stats[0]; player.base_multipliers[1] *= data.stats[1]; player.base_multipliers[2] *= data.stats[2]; recalculateStats();
+    player.base_multipliers[0] *= data.stats[0]; player.base_multipliers[1] *= data.stats[1]; player.base_multipliers[2] *= data.stats[2]; recalculateStats(); updateUI();
     battleState.pickingClass = true; document.getElementById("class-modal").style.display = "flex";
     const options = document.getElementById("class-options"); options.innerHTML = "";
     for(let i=0; i<3; i++) {
@@ -1154,14 +1153,123 @@ function evolveClass() {
 }
 
 function triggerCampfire() { document.getElementById("campfire-modal").style.display = "flex"; }
-function restAtCamp() { player.hp = player.max_hp; document.getElementById("campfire-modal").style.display = "none"; showMessage("Fully Rested!", "#4caf50"); if (battleState.auto) setTimeout(startBattle, 1000); updateUI(); saveGame(); }
+function restAtCamp() { 
+    player.hp = player.max_hp; 
+    document.getElementById("campfire-modal").style.display = "none"; 
+    showMessage("Fully Rested!", "#4caf50"); 
+    updateUI(); 
+    saveGame(); 
+    if (battleState.auto) {
+        const delay = 1000 / battleState.speed;
+        if (dungeon.active && dungeon.currentNode < dungeon.nodes.length) {
+            setTimeout(() => handleNode(dungeon.currentNode), delay);
+        } else {
+            setTimeout(startBattle, delay);
+        }
+    }
+}
 function forgeRelic() {
     const commonRelics = player.relics.filter(r => r.rarity === "Common");
-    if (commonRelics.length > 0) { const r = commonRelics[0]; r.rarity = "Uncommon"; r.val *= 1.5; showMessage(`Forged ${r.name}!`, "#81c784"); }
-    else { showMessage("No Common relics!", "#ff9800"); applyHealing(Math.floor(player.max_hp * 0.2)); }
-    document.getElementById("campfire-modal").style.display = "none"; if (battleState.auto) setTimeout(startBattle, 1000); recalculateStats(); saveGame();
+    if (commonRelics.length > 0) { 
+        const r = commonRelics[0]; 
+        r.rarity = "Uncommon"; 
+        r.val *= 1.5; 
+        showMessage(`Forged ${r.name}!`, "#81c784"); 
+    }
+    else { 
+        showMessage("No Common relics!", "#ff9800"); 
+        applyHealing(Math.floor(player.max_hp * 0.2)); 
+    }
+    document.getElementById("campfire-modal").style.display = "none"; 
+    recalculateStats(); updateUI(); saveGame();
+    if (battleState.auto) {
+        const delay = 1000 / battleState.speed;
+        if (dungeon.active && dungeon.currentNode < dungeon.nodes.length) {
+            setTimeout(() => handleNode(dungeon.currentNode), delay);
+        } else {
+            setTimeout(startBattle, delay);
+        }
+    }
 }
-function sellRelic(idx) { const r = player.relics.splice(idx, 1)[0]; const gold = r.rarity === "Common" ? 50 : r.rarity === "Uncommon" ? 100 : 250; player.gold += gold; recalculateStats(); saveGame(); }
+let fishingState = { active: false, fishX: 0, fishV: 2, barX: 120, barW: 60, areaW: 300 };
+
+function startFishing() {
+    document.getElementById("campfire-modal").style.display = "none";
+    document.getElementById("fishing-modal").style.display = "flex";
+    fishingState.active = true;
+    fishingState.fishX = Math.random() * (fishingState.areaW - 20);
+    fishingState.fishV = (2 + Math.random() * 2) * (Math.random() < 0.5 ? 1 : -1);
+    
+    // Start fishing loop
+    requestAnimationFrame(updateFishing);
+}
+
+function updateFishing() {
+    if (!fishingState.active) return;
+    
+    fishingState.fishX += fishingState.fishV;
+    if (fishingState.fishX <= 0 || fishingState.fishX >= fishingState.areaW - 20) {
+        fishingState.fishV *= -1;
+    }
+    
+    const fishEl = document.getElementById("fishing-fish");
+    if (fishEl) fishEl.style.left = fishingState.fishX + "px";
+    
+    requestAnimationFrame(updateFishing);
+}
+
+function attemptCatch() {
+    if (!fishingState.active) return;
+    fishingState.active = false;
+    
+    const fishCenter = fishingState.fishX + 10;
+    const barCenter = fishingState.barX + (fishingState.barW / 2);
+    const distance = Math.abs(fishCenter - barCenter);
+    
+    if (distance <= (fishingState.barW / 2)) {
+        let quality = "Good";
+        let multiplier = 1;
+        let color = "#4caf50";
+
+        if (distance < 5) {
+            quality = "PERFECT!!";
+            multiplier = 5;
+            color = "#ffd700";
+            cameraShake = 20;
+        } else if (distance < 15) {
+            quality = "Great!";
+            multiplier = 2.5;
+            color = "#40c4ff";
+        }
+
+        const bonusType = ["hp", "dmg", "spd"][Math.floor(Math.random() * 3)];
+        const baseBoost = bonusType === "hp" ? 10 : (bonusType === "dmg" ? 2 : 1);
+        const finalBoost = Math.floor(baseBoost * multiplier);
+        
+        player[`base_${bonusType}`] += finalBoost;
+        showMessage(`${quality} Caught a rare fish! +${finalBoost} Perm ${bonusType.toUpperCase()}!`, color);
+        logMessage(`FISHING: [${quality}] Caught a trophy! +${finalBoost} ${bonusType.toUpperCase()}`);
+        spawnParticles(fishingState.fishX + 400, 200, color, 30); // Visual flair
+    } else {
+        showMessage("The fish got away...", "#888");
+        logMessage("FISHING: The fish escaped the hook.");
+    }
+    
+    setTimeout(() => {
+        document.getElementById("fishing-modal").style.display = "none";
+        recalculateStats();
+        updateUI();
+        saveGame();
+        if (battleState.auto) {
+            const delay = 500 / battleState.speed;
+            if (dungeon.active && dungeon.currentNode < dungeon.nodes.length) {
+                setTimeout(() => handleNode(dungeon.currentNode), delay);
+            } else {
+                setTimeout(startBattle, delay);
+            }
+        }
+    }, 1500);
+}
 
 function startBattle() {
     if (player.element_name === "None" || battleState.active || battleState.pickingClass) return;
@@ -1222,7 +1330,7 @@ function startBattle() {
                 isElite: false, 
                 isMirror: true,
                 ultimate: 0, 
-                relics: [...player.relics] 
+                relics: player.relics.map(r => ({...r})) 
             };
         } else if (isNemesis) {
             e = {
@@ -1292,7 +1400,9 @@ function startBattle() {
     let startMsg = isMirror ? "VOID ANOMALY: MIRROR MATCH" : (isNemesis ? "VENGEANCE: NEMESIS SPAWNED" : (battleState.isRift ? "DIMENSIONAL RIFT DETECTED" : (battleState.isBoss ? `WARNING: BOSS APPROACHING!` : (isHorde ? "HORDE DETECTED!" : `Battle Start!`))));
     showMessage(startMsg, "#ff5252");
     setTimeout(() => executeTurn(player.spd >= enemies[0].spd ? player : enemies[0], player.spd >= enemies[0].spd ? enemies[0] : player), 1000 / battleState.speed);
-}function instantResolve() {
+}
+
+function instantResolve() {
     let loops = 0; let turn = 0;
     while(player.hp > 0 && enemies.some(e => e.hp > 0) && loops < 2000) {
         loops++; let a = turn === 0 ? player : enemies.find(e => e.hp > 0); let d = turn === 0 ? enemies.find(e => e.hp > 0) : player;
@@ -1345,7 +1455,7 @@ function executeTurn(attacker, defender) {
     if (player.turnCounter % 5 === 0) {
         player.cycle = player.cycle === "Day" ? "Night" : "Day";
         logMessage(`The sky shifts... It is now ${player.cycle}.`);
-        recalculateStats();
+        recalculateStats(); updateUI();
     }
 
     let skip = applyStatusEffects(attacker);
@@ -1462,7 +1572,7 @@ function resolveHit(p) {
 
             // Enemy Adaptation (Bosses)
             if (d.isBoss) {
-                d.resistances = d.relics || {};
+                if (!d.resistances) d.resistances = {};
                 d.resistances[a.type] = (d.resistances[a.type] || 0) + 0.05;
                 if (d.resistances[a.type] > 0.5) d.resistances[a.type] = 0.5;
                 dmg *= (1 - d.resistances[a.type]);
@@ -1555,6 +1665,8 @@ function resolveHit(p) {
             setTimeout(() => executeTurn(nextA, nextD), 800 / battleState.speed); 
         }
     }
+}
+
 function checkAchievements() {
     if (player.maxHit >= 1000000 && !player.achievements.includes("Millionaire")) {
         player.achievements.push("Millionaire");
@@ -1569,6 +1681,7 @@ function checkAchievements() {
 }
 
 function endBattle(playerWon) {
+    battleState.active = true; // Briefly set to true to prevent accidental restarts during cleanup
     battleState.active = false;
     player.combatDegradation = 0;
     battleState.fleeTriggered = false;
@@ -1581,6 +1694,8 @@ function endBattle(playerWon) {
         }
     }
     checkAchievements();
+
+    if (playerWon) {
         player.battleCount = (player.battleCount || 0) + 1;
         const maw = player.relics.find(r => r.parasitic);
         if (maw && player.battleCount % 5 === 0 && player.relics.length > 1) {
@@ -1590,20 +1705,24 @@ function endBattle(playerWon) {
             maw.val *= 2;
             logMessage(`THE MAW: Consumed ${target.name}! Power now ${formatNum(maw.val)}x`);
         }
+        
         if (battleState.isBoss) {
-            checkMastery();
             // Monster Harvesting: Boss Organs
             const organType = ["hp", "dmg", "spd"][Math.floor(Math.random()*3)];
             const boost = organType === "hp" ? 10 : (organType === "dmg" ? 2 : 1);
             player[`base_${organType}`] += boost;
             showMessage(`HARVESTED: Boss Essence (+${boost} Permanent ${organType.toUpperCase()})!`, "#00e676");
         }
+        
         let xp = Math.floor(75 * player.level * (player.xpBonus || 1)); 
         let gold = Math.floor(75 * player.level * (player.goldBonus || 1)); 
         let interest = Math.floor(player.gold * 0.10); 
         gold += interest;
 
-        player.xp += xp; player.gold += gold; player.streak++;
+        player.xp += xp; 
+        player.gold += gold; 
+        player.streak++;
+        
         while (player.xp >= player.xp_to_next) { 
             player.xp -= player.xp_to_next; 
             player.level++; 
@@ -1625,15 +1744,21 @@ function endBattle(playerWon) {
             dungeon.currentNode++;
         }
 
-        if (player.streak % 5 === 0) setTimeout(triggerCampfire, 1000);
-        recalculateStats(); if (player.autoBuyRelics && player.gold >= 200) buyRelic(); 
+        if (player.streak % 5 === 0) {
+            setTimeout(triggerCampfire, 1000);
+        }
+        
+        recalculateStats(); 
+        updateUI(); 
+        if (player.autoBuyRelics && player.gold >= 200) buyRelic(); 
         saveGame();
 
         if (battleState.auto && player.hp > 0 && player.streak % 5 !== 0) {
+            const delay = 1200 / battleState.speed;
             if (dungeon.active && dungeon.currentNode < dungeon.nodes.length) {
-                setTimeout(() => handleNode(dungeon.currentNode), 1200 / battleState.speed);
-            } else {
-                setTimeout(startBattle, 1200 / battleState.speed);
+                setTimeout(() => handleNode(dungeon.currentNode), delay);
+            } else if (!dungeon.active) {
+                setTimeout(startBattle, delay);
             }
         }
     } else {
@@ -1650,16 +1775,29 @@ function endBattle(playerWon) {
         const tarot = player.tarot ? TAROT_CARDS[player.tarot] : null;
         let soulsEarned = 5 + (tarot?.soulsOnDeath || 0);
         player.heroSouls = (player.heroSouls || 0) + soulsEarned; 
-        player.streak = 0; player.hp = player.max_hp; player.shield = 0;
+        player.streak = 0; 
+        player.hp = player.max_hp; 
+        player.shield = 0;
         player.combo = 0;
+        
+        if (dungeon.active) {
+            dungeon.active = false;
+            dungeon.currentNode = -1;
+            dungeon.nodes = [];
+        }
+        
         saveGame();
     }
-    enemies = []; battleState.isRift = false; updateUI();
-}``
+    
+    enemies = []; 
+    battleState.isRift = false; 
+    battleState.isBoss = false;
+    updateUI();
+}
 function allocatePoint(stat) {
     if (player.free_points <= 0 || battleState.active) return;
     player[stat === 'hp' ? 'alloc_hp' : stat === 'dmg' ? 'alloc_dmg' : 'alloc_spd']++;
-    player.free_points--; recalculateStats(); saveGame();
+    player.free_points--; recalculateStats(); updateUI(); saveGame();
 }
 
 function buySkill(id) {
@@ -1883,7 +2021,9 @@ function updateUI() {
             <button class="btn-speed" onclick="useConsumable(${i})" style="font-size:10px; margin-bottom:5px;">${item}</button>
         `).join("");
     }
-}function triggerScout() {
+}
+
+function triggerScout() {
     if (battleState.active) return;
     const events = [
         { name: "Shrine", roll: () => { player.hp -= 20; player.relics.push({...RELICS_DATA["Epic"][0], rarity: "Epic", level: 1}); }},

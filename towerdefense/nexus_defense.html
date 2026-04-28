@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Defense: Tactical Overdrive</title>
+    <link rel="stylesheet" href="nexus_defense.css">
+</head>
+<body>
+    <div id="game-container">
+        <header>
+            <div class="stat-group">
+                <div class="stat-box hp">❤️ <span id="base-hp">1200</span></div>
+                <div class="stat-box gold">💰 <span id="gold">1000</span></div>
+            </div>
+            <div class="title-group">
+                <h1>NEXUS DEFENSE</h1>
+                <div id="wave-counter">WAVE: <span id="wave">0</span></div>
+            </div>
+            <div class="stat-group">
+                <div class="stat-box level">🎖️ LVL <span id="level">1</span></div>
+                <div class="stat-box xp">✨ XP <span id="xp">0</span></div>
+            </div>
+        </header>
+
+        <div id="canvas-wrapper">
+            <canvas id="game-canvas" width="600" height="700"></canvas>
+            
+            <!-- Choice Overlay (FREE) -->
+            <div id="choice-overlay" class="overlay" style="display: none;">
+                <div class="overlay-inner">
+                    <h2 id="overlay-title">WAVE CLEARED!</h2>
+                    <p class="overlay-hint" style="color:#00ff66;">PICK ONE NEW TOWER (FREE REWARD)</p>
+                    <div id="choices-container"></div>
+                    <div class="divider"><span>OR</span></div>
+                    <div class="overlay-actions">
+                        <button class="main-btn gold-btn" onclick="showUpgradeMenu()">OPEN ARMORY & SHOP</button>
+                        <button class="main-btn danger-btn" onclick="skipPlacement()">SKIP TO NEXT WAVE</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shop Overlay (Upgrades & Market) -->
+            <div id="upgrade-overlay" class="overlay" style="display: none;">
+                <div class="overlay-inner wide">
+                    <div class="shop-header-row">
+                        <h2>NEXUS ARMORY</h2>
+                        <div class="shop-gold">💰 <span id="shop-gold-val">0</span></div>
+                    </div>
+                    <div class="shop-tabs">
+                        <button id="tab-upgrades" class="tab-btn active" onclick="switchShopTab('upgrades')">UPGRADES</button>
+                        <button id="tab-market" class="tab-btn" onclick="switchShopTab('market')">BUY TOWERS</button>
+                    </div>
+                    <div id="upgrade-list"></div>
+                    <div id="market-list" style="display:none;"></div>
+                    <div class="overlay-actions">
+                        <button class="main-btn" onclick="closeUpgradeMenu()">RETURN TO REWARDS</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="placement-hint" class="floating-hint" style="display:none;">
+                <div class="hint-pulse"></div>
+                <span>SELECT SECTOR IN DEFENSE ZONE</span>
+            </div>
+
+            <div id="gameover-overlay" class="overlay" style="display: none;">
+                <div class="overlay-inner">
+                    <h1 class="critical-text">NEXUS BREACHED</h1>
+                    <p id="final-stats"></p>
+                    <button class="main-btn gold-btn" onclick="location.reload()">REBOOT SYSTEM</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="ui-footer">
+            <div id="combat-log"></div>
+            <div class="speed-controls">
+                <button class="speed-btn active" onclick="setSpeed(1)">1x</button>
+                <button class="speed-btn" onclick="setSpeed(2)">2x</button>
+                <button class="speed-btn" onclick="setSpeed(4)">4x</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="nexus_defense.js"></script>
+    <a id="Home" href="../index.html">EXIT</a>
+</body>
+</html>

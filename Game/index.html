@@ -3,37 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Shadow Realm: Class Roller</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="game">
-        <h1>RPG game</h1>
-        <div id="stats">
-            <p><strong>Player HP</strong> <span id="player-hp">100</span></p>
-            <p><strong>Enemy HP</strong> <span id="enemy-hp">100</span></p>
-            
+    <div id="game-container">
+        <!-- Class Roller Overlay -->
+        <div id="class-select" class="overlay">
+            <h2 id="roll-title">FATE AWAITS...</h2>
+            <div id="rolling-container">
+                <div id="class-display-card" class="class-card rarity-common">
+                    <!-- This container holds the detailed CSS hero -->
+                    <div id="roll-visual-container" class="hero-preview">
+                        <div id="roll-visual-inner"></div>
+                    </div>
+                    <h3 id="roll-name">???</h3>
+                    <p id="roll-rarity">Click Roll to start</p>
+                </div>
+            </div>
+            <button id="roll-btn" class="main-btn gold-btn" onclick="rollClass()">ROLL CLASS (FREE)</button>
+            <button id="start-btn" class="main-btn" style="display:none;" onclick="startGame()">START JOURNEY</button>
         </div>
-        <button id="attack-btn">Attack</button>
-        <button id="shop">Shop</button>
-        <button id="mace" style="display: none;">Mace</button>
-        <button id="staff" style="display: none;">Staff</button>
-        <button id="dagger" style="display: none;">Dagger</button>
-        <button id="bow" style="display: none;">Bow & Arrows</button>
-        <button id="spear" style="display: none;">Spear</button>
-        <button id="sword" style="display: none;">Sword</button>
-        <button id="scepter" style="display: none;">Scepter</button>
-        <button id="bombs" style="display: none;">Bombs</button>
-        <button id="shop-info" style="display: none;">Info</button>
-        <button id="shop-back" style="display: none;">Back</button>
 
-        <button id="restart-btn" style="display:none; text-align:center;">Restart Game</button>
-        <p id="message"></p>
+        <header>
+            <div class="header-left">
+                <h1>SHADOW REALM</h1>
+                <div class="level-badge">LVL <span id="lvl">1</span></div>
+            </div>
+            <div class="status-bar">
+                <span id="class-tag" class="rarity-common">CLASS: <span id="current-class">-</span></span>
+                <span>GOLD: <div class="coin-icon"></div><span id="gold">0</span></span>
+            </div>
+        </header>
+
+        <div id="xp-bar-container"><div id="xp-fill"></div></div>
+
+        <main id="battle-scene">
+            <div id="projectile-layer"></div>
+            <div id="player-sprite" class="sprite-container player">
+                <div id="player-pet-wisp"></div>
+                <!-- Hero battle visual -->
+                <div id="player-visual-container" class="hero-preview">
+                    <div id="player-visual-inner"></div>
+                </div>
+                <div class="name-tag">HERO</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div id="enemy-sprite" class="sprite-container enemy">
+                <div class="shadow-enemy"></div>
+                <div class="name-tag">SHADOW</div>
+            </div>
+        </main>
+
+        <section id="stat-bars">
+            <div class="bar-group">
+                <div class="hp-bar-container"><div id="player-hp-fill" class="hp-fill"></div></div>
+                <div class="bar-labels">HP: <span id="player-hp">100</span>/<span id="player-max-hp">100</span> | ATK: <span id="player-atk">0</span> | DEF: <span id="player-def">0</span></div>
+            </div>
+            <div class="bar-group">
+                <div class="hp-bar-container"><div id="enemy-hp-fill" class="hp-fill"></div></div>
+                <div class="bar-labels">ENEMY HP: <span id="enemy-hp">100</span>/<span id="enemy-max-hp">100</span></div>
+            </div>
+        </section>
+
+        <section id="ui-panel">
+            <div id="combat-log"></div>
+            <div id="actions">
+                <button id="attack-btn" class="main-btn">STRIKE</button>
+                <div class="shop-buttons" style="display:flex; gap:5px;">
+                    <button id="shop-btn" class="main-btn" style="flex:1">ARMORY</button>
+                    <button id="blackmarket-btn" class="main-btn blood-btn" style="flex:1">BLACK MARKET</button>
+                </div>
+                <button id="restart-btn" class="main-btn danger" style="display:none;">NEXT CHALLENGE</button>
+            </div>
+
+            <div id="shop-overlay" class="shop-overlay">
+                <div class="shop-header"><h3>ROYAL ARMORY</h3><div>💰 <span id="shop-gold-display">0</span></div></div>
+                <div class="shop-tabs" style="display:flex; gap:5px; margin-bottom:15px;">
+                    <button onclick="showTab('weapons')" class="main-btn" style="flex:1">WEAPONS</button>
+                    <button onclick="showTab('armor')" class="main-btn" style="flex:1">ARMOR</button>
+                    <button onclick="showTab('pets')" class="main-btn" style="flex:1">PETS</button>
+                </div>
+                <div id="shop-items-container" class="shop-items"></div>
+                <button onclick="closeShop()" class="main-btn danger" style="margin-top:15px;">BACK TO BATTLE</button>
+            </div>
+
+            <div id="blackmarket-overlay" class="shop-overlay blood-theme">
+                <div class="shop-header"><h3>FORBIDDEN TRADES</h3><div>💰 <span id="bm-gold-display">0</span></div></div>
+                <div id="bm-items-container" style="display:grid; gap:10px;">
+                    <div class="item-card"><h4>BLOOD PACT</h4><p>Weapon for +25 ATK</p><button onclick="sac('weapon')" class="main-btn">SACRIFICE</button></div>
+                    <div class="item-card"><h4>REROLL FATE</h4><p>500 Gold to Roll again</p><button onclick="buyBM('reroll')" class="main-btn">REROLL</button></div>
+                </div>
+                <button onclick="closeBM()" class="main-btn danger" style="margin-top:15px;">ESCAPE</button>
+            </div>
+        </section>
+
+        <footer>
+            <a id="Home" href="../index.html">QUIT</a>
+        </footer>
     </div>
 
     <script src="game.js"></script>
     <audio id="punch" src="punch_u4LmMsr.mp3"></audio>
     <audio id="doe" src="tf_nemesis.wav"></audio>
-    <a id="Home" href="../index.html">Home</a>
 </body>
 </html>
