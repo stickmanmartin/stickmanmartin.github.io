@@ -31,10 +31,7 @@ function flowerPower() {
 }
 
 // ... createFlower() and drawFlower()
-function drawFlower() {
-  // Create flower object.
-  let myFlower = createFlower();
-
+function drawFlower(myFlower) {
   
   // Use flower object properties to draw an ellipse.
   fill(myFlower.color);

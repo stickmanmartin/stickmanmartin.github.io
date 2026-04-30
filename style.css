@@ -1,215 +1,199 @@
-#Martin{
+:root {
+    --bg-dark: #0f172a;
+    --card-bg: #1e293b;
+    --card-hover: #334155;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #38bdf8;
+    
+    --sports: #fbbf24;
+    --stem: #a78bfa;
+    --art: #f472b6;
+    --hobbies: #34d399;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Hero Section */
+.hero {
     text-align: center;
-    background: radial-gradient(circle, rgb(2, 77, 45),rgb(0, 255, 89), #001effef, rgb(149, 0, 255),#ff0000f1);
-    color: rgb(246, 255, 0);
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 0.5);
+    padding: 80px 20px 40px;
+    background: linear-gradient(135deg, rgba(15,23,42,1) 0%, rgba(30,41,59,1) 100%);
+    border-bottom: 1px solid #334155;
 }
-h2{
-    color: rgb(255, 0, 0);
+
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    background: linear-gradient(to right, #38bdf8, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
 }
-h3{
-    Color: #b300ff
+
+.subtitle {
+    font-size: 1.2rem;
+    color: var(--text-muted);
 }
-#Line_number_1{
-    color: radial-gradient(#001effef, #ff0000f1);
+
+/* Clock Style */
+.clock-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent);
+    background: rgba(0,0,0,0.3);
+    padding: 5px 15px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 15px;
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 10px var(--accent);
 }
-#Test{
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(34, 255, 0), #5d0fe4, #0073ff);
-    color: rgb(255, 255, 255);
-    padding: 100px 71px; 
+
+/* Sections */
+.section-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 60px 0 30px;
+    text-align: center;
+    color: var(--text-main);
+}
+
+/* Skills Grid */
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.skill-card {
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.skill-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.skill-category {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sports { color: var(--sports); }
+.stem { color: var(--stem); }
+.art { color: var(--art); }
+.hobbies { color: var(--hobbies); }
+
+.skill-card ul {
+    list-style: none;
+}
+
+.skill-card li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #334155;
+}
+
+.skill-card li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.skill-name { font-weight: 500; }
+.stars { font-size: 0.9em; }
+
+/* Project Grid */
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 80px;
+}
+
+.project-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
     text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid #334155;
+    transition: all 0.3s ease;
 }
-#copyright{
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+
+.project-card:hover {
+    background: var(--card-hover);
+    transform: scale(1.03);
+    border-color: var(--accent);
 }
-#Home {
-    position: fixed; /* Fixes the button position relative to the viewport */
-    bottom: 20px; /* Distance from the bottom edge of the viewport */
-    right: 20px; /* Distance from the right edge of the viewport */
-    width: 50px;
-    height: 50px;
-    border: 2px solid #000000;
-    border-radius: 50%;
-    background-color: rgb(255, 0, 0);
+
+.project-icon {
+    font-size: 2.5rem;
+    background: rgba(0,0,0,0.2);
+    width: 60px;
+    height: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
-    text-decoration: none;
-    color: #fff;
-    font-size: 18px;
-    z-index: 1000; /* Ensures the button is above other content */
-}
-/* Style for the joke page */
-#Jokes {
-    position: fixed;
-    bottom: 20px;
-    right: 265px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(0, 81, 255), #00ff62, #00ff00);
-    color: rgb(255, 255, 255);
-    padding: 100px 88px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
-}
-#newJokeButton {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    font-size: 16px;
-    color: #fff;
-    background-color: #0040ff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    border-radius: 12px;
 }
 
-#newJokeButton:hover {
-    background-color: #ff0000;
+.project-info h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
 }
 
-#Circles{
-    position: fixed;
-    bottom: 255px;
-    right: 20px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(255, 174, 0), #0fe41d, #ffae00);
-    color: rgb(255, 255, 255);
-    padding: 60px 80px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
-}
-#Caterpiller {
-    position: fixed;
-    bottom: 415px;
-    right: 20px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(255, 0, 0), #c0e40f, #ff0000);
-    color: rgb(255, 255, 255);
-    padding: 60px 71px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
-}
-#Sun{
-    position: fixed;
-    bottom: 255px;
-    right: 265px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(0, 255, 225), #88e40f, #ff6200);
-    color: rgb(255, 255, 255);
-    padding: 60px 99.5px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
-}
-#Crazy {
-    position: fixed;
-    bottom: 570px;
-    right: 265px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(208, 255, 0), #ffaa00,#ffee00, #ff0000, #ff0000);
-    color: rgb(255, 255, 255);
-    padding: 60px 86px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
+.project-info p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
 }
 
-#Crazy2{
-    position: fixed;
-    bottom: 570px;
-    right: 20px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(0, 255, 183), #40ff00,#8e7d7d, #5e5e5e, #000000);
-    color: rgb(255, 255, 255);
-    padding: 60px 81px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
-}
+/* Category Colors */
+.project-card.epic { border-left: 4px solid #f43f5e; }
+.project-card.strategy { border-left: 4px solid #3b82f6; }
+.project-card.action { border-left: 4px solid #f59e0b; }
+.project-card.art-project { border-left: 4px solid #a855f7; }
+.project-card.fun { border-left: 4px solid #10b981; }
+.project-card.misc { border-left: 4px solid #64748b; }
 
-#Flower{
-    position: fixed;
-    bottom: 415px;
-    right: 265px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(255, 0, 0), #a200ff,#00ff62, #00ffe5, #001eff);
-    color: rgb(255, 255, 255);
-    padding: 60px 92px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
-}
-
-#Game{
-    position: fixed;
-    bottom: 20px;
-    right: 509px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(76, 62, 62), #df0000, #fb00ff);
-    color: rgb(255, 255, 255);
-    padding: 100px 91px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
-}
-
-#Catch{
-    position: fixed;
-    bottom: 255px;
-    right: 509px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(255, 0, 0), #03ffff, #6200ff);
-    color: rgb(255, 255, 255);
-    padding: 60px 76.8px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
-}
-#AIGAME{
-    position: fixed;
-    bottom: 415px;
-    right: 509px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(98, 0, 255),rgb(30, 255, 0), #0318ff, #00ff6a, rgb(204, 255, 0));
-    color: rgb(255, 255, 255);
-    padding: 60px 83.4px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
-}
-#tests{
-    position: fixed;
-    bottom: 570px;
-    right: 509px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(255, 242, 0),rgb(255, 0, 0), #4a03ff, rgb(78, 81, 72)), #ff0000;
-    color: rgb(255, 255, 255);
-    padding: 60px 100px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
+/* Footer */
+footer {
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid #334155;
+    background: #0f172a;
+    color: var(--text-muted);
+    font-size: 0.9rem;
 }

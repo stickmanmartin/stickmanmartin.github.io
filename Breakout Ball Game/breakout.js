@@ -63,9 +63,20 @@ function moveBall() {
     if(ball.x > paddle.x && ball.x < paddle.x + paddle.width && ball.y + ball.radius > paddle.y) {
         ball.dy *= -1;
     }
+
+    // Brick collision
+    for(let i = 0; i < bricks.length; i++) {
+        let b = bricks[i];
+        if(ball.x > b.x && ball.x < b.x + b.width && ball.y > b.y && ball.y < b.y + b.height) {
+            ball.dy *= -1;
+            bricks.splice(i, 1);
+            i--;
+        }
+    }
 }
 
 document.addEventListener("keydown", (e) => {
+
     if(e.key === "ArrowLeft"){
         paddle.x -= 20;
     }
@@ -74,7 +85,7 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-for(let x =0;x<canvas.width;x+40){
+for(let x =0;x<canvas.width;x+=40){
     createBrick(x);
 }
 
