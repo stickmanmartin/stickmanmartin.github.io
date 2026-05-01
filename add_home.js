@@ -77,10 +77,12 @@ for (const file of htmlFiles) {
     content = content.replace(/<a id="Home"[^>]*>.*?<\/a>/ig, '');
     content = content.replace(/<a href="[^"]*" class="global-home-btn">.*?<\/a>/ig, '');
     content = content.replace(/<a href="[^"]*" class="global-hub-btn">.*?<\/a>/ig, '');
+    content = content.replace(/<a href="index.html" class="circle">Home<\/a>/ig, '');
     content = content.replace(/<!-- Unified Global Home Button -->\s*<style>[\s\S]*?<\/style>/ig, '');
     content = content.replace(/<!-- Global Hub Navigation -->\s*<style>[\s\S]*?<\/style>/ig, '');
     content = content.replace(/<style>\s*\.global-home-btn[\s\S]*?<\/style>/ig, '');
     content = content.replace(/<style>\s*\.global-hub-btn[\s\S]*?<\/style>/ig, '');
+    content = content.replace(/#Home\s*\{[\s\S]*?\}/ig, ''); // Remove #Home CSS rules
 
     // 2. Insert new button
     const btnHtml = `${homeButtonStyle}\n<a href="${homeHref}" class="global-hub-btn">Back to Hub</a>\n`;

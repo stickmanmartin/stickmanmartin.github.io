@@ -1,7 +1,3 @@
-let emoji = "☀️"
-let emojitwo = "🌏"
-let emojithree = "🪐"
-
 function setup() {
     createCanvas(800, 800);
     background(0);
@@ -57,6 +53,10 @@ function draw() {
     circle(400, 400, 30);
     circle(400, 300, 20);
     circle(400, 500, 20);
+    fill(255, 255, 255);
+    circle(400, 400, 30);
+    circle(400, 300, 20);
+    circle(400, 500, 20);
     fill(0, 255, 0);
     circle(329, 470, 30);
     fill(255, 0, 0);
@@ -70,8 +70,5 @@ function draw() {
     fill(138, 0, 196);
     circle(330, 330, 30);
     textSize(27)
-    text(emoji, 386.5, 410)
     textSize(15)
-    text(emojitwo, 393, 305.5)
-    text(emojithree, 393, 505.5)
 }

@@ -268,6 +268,43 @@
     target.style.display = 'none';
   </script>
 
+
+
+<style>
+    .facility-nav-btn {
+        position: fixed;
+        bottom: 25px;
+        left: 25px;
+        background: rgba(15, 23, 42, 0.9);
+        color: #fff !important;
+        text-decoration: none !important;
+        padding: 14px 28px;
+        border-radius: 4px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        z-index: 1000000;
+        border: 2px solid #fff;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        transition: all 0.3s;
+        text-transform: uppercase;
+        backdrop-filter: blur(5px);
+    }
+    .facility-nav-btn:hover {
+        background: #fff;
+        color: #0a0a0c !important;
+        box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+    }
+</style>
+<a href="tests.html" class="facility-nav-btn">Facility Dashboard</a>
+
+
+
+
+
+
+
 <!-- Global Hub Navigation -->
 <style>
     .global-hub-btn {
@@ -303,38 +340,7 @@
         content: '🏠';
         font-size: 18px;
     }
-    
-    .facility-nav {
-        position: fixed;
-        top: 25px;
-        left: 25px;
-        background: rgba(30, 41, 59, 0.8);
-        padding: 10px 20px;
-        border-radius: 12px;
-        border: 1px solid #334155;
-        backdrop-filter: blur(5px);
-        z-index: 1000;
-        display: flex;
-        gap: 15px;
-    }
-    
-    .facility-nav a {
-        color: var(--text-muted);
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 600;
-        transition: color 0.3s;
-    }
-    
-    .facility-nav a:hover {
-        color: var(--accent);
-    }
 </style>
-
-<div class="facility-nav">
-    <a href="tests.html">Facility Dashboard</a>
-    <a href="memorytest.html">Memory Test</a>
-</div>
 
 <a href="../index.html" class="global-hub-btn">Back to Hub</a>
 </body>
