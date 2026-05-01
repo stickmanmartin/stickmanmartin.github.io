@@ -16,7 +16,46 @@
 
 </head>
 <body>
-    <a id="Home" href="../../index.html">Home</a>
+    
     <script src="AI.js"></script>
+
+<!-- Global Hub Navigation -->
+<style>
+    .global-hub-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
+        color: white !important;
+        text-decoration: none !important;
+        padding: 14px 28px;
+        border-radius: 50px;
+        font-family: 'Poppins', 'Segoe UI', sans-serif;
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+        z-index: 1000000;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+    .global-hub-btn:hover {
+        transform: scale(1.1) translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6);
+        background: linear-gradient(135deg, #0077ff 0%, #00f2ff 100%);
+        border-color: #fff;
+    }
+    .global-hub-btn::before {
+        content: '🏠';
+        font-size: 18px;
+    }
+</style>
+
+<a href="../../index.html" class="global-hub-btn">Back to Hub</a>
 </body>
 </html>

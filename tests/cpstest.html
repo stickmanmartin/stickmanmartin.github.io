@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CPS Test - Testing Facility</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-facility: #0a0a0c;
+      --card-facility: #141418;
+      --accent-facility: #10b981; /* High-Energy Green */
+      --text-main: #e2e8f0;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      background-color: var(--bg-facility);
+      color: var(--text-main);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    #facility-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    #facility-pointer {
+        position: fixed;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10001;
+        mix-blend-mode: screen;
+        box-shadow: 
+            0 0 10px #fff,
+            0 0 20px #10b981,
+            0 0 40px rgba(16, 185, 129, 0.5);
+        transform: translate(-50%, -50%);
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(to right, #10b981, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 30px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 0.8rem;
+    }
+
+    #test-container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: var(--card-facility);
+      padding: 40px;
+      border-radius: 4px;
+      border: 1px solid #2d2d35;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    #click-area {
+      width: 100%;
+      height: 250px;
+      background: rgba(0,0,0,0.4);
+      border: 2px dashed var(--accent-facility);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-facility);
+      transition: all 0.1s;
+    }
+
+    #click-area:active {
+      background: rgba(16, 185, 129, 0.1);
+      transform: scale(0.98);
+    }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .stat-box {
+      background: rgba(0,0,0,0.3);
+      padding: 15px;
+      border: 1px solid #2d2d35;
+    }
+
+    .stat-val { font-size: 2.5rem; font-weight: 800; color: var(--accent-facility); }
+    .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+
+    #highscore-display {
+        margin-top: 20px;
+        color: var(--accent-facility);
+        font-family: 'Fira Code', monospace;
+        font-size: 0.9rem;
+    }
+
+    #start-prompt {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(20, 20, 24, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Impulse Test</h1>
+    <p class="subtitle">High-Frequency Click Per Second Analysis</p>
+  </header>
+
+  <main id="test-container">
+    <div id="start-prompt">
+        <div style="border: 2px solid var(--accent-facility); padding: 15px 30px; color: var(--accent-facility); font-weight: 700;">INITIALIZE IMPULSE</div>
+    </div>
+
+    <div id="click-area">CLICK REPEATEDLY</div>
+
+    <div class="stats-bar">
+      <div class="stat-box">
+        <div id="cps" class="stat-val">0.0</div>
+        <div class="stat-label">CPS</div>
+      </div>
+      <div class="stat-box">
+        <div id="time" class="stat-val">10</div>
+        <div class="stat-label">Seconds</div>
+      </div>
+    </div>
+    <div id="highscore-display">Peak Impulse: 0.0 CPS</div>
+  </main>
+
+  <script src="facility_bg.js"></script>
+  <script>
+    const clickArea = document.getElementById('click-area');
+    const cpsDisplay = document.getElementById('cps');
+    const timeDisplay = document.getElementById('time');
+    const startPrompt = document.getElementById('start-prompt');
+    const highscoreDisplay = document.getElementById('highscore-display');
+
+    let clicks = 0;
+    let timeLeft = 10;
+    let isActive = false;
+    let timer;
+    let highscore = localStorage.getItem('cpsHighscore') || 0;
+
+    highscoreDisplay.textContent = `Peak Impulse: ${highscore} CPS`;
+
+    function startTest() {
+        isActive = true;
+        clicks = 0;
+        timeLeft = 10;
+        startPrompt.style.display = 'none';
+        timer = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+        timeLeft--;
+        timeDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) endTest();
+    }
+
+    function endTest() {
+        clearInterval(timer);
+        isActive = false;
+        const finalCPS = (clicks / 10).toFixed(1);
+        
+        if (finalCPS > parseFloat(highscore)) {
+            highscore = finalCPS;
+            localStorage.setItem('cpsHighscore', highscore);
+            highscoreDisplay.textContent = `Peak Impulse: ${highscore} CPS (NEW RECORD)`;
+        }
+
+        alert(`TEST COMPLETE\nTotal Clicks: ${clicks}\nCPS: ${finalCPS}`);
+        startPrompt.style.display = 'flex';
+        cpsDisplay.textContent = '0.0';
+        timeDisplay.textContent = '10';
+    }
+
+    clickArea.addEventListener('mousedown', (e) => {
+        if (!isActive) return;
+        clicks++;
+        cpsDisplay.textContent = (clicks / (10 - timeLeft || 0.1)).toFixed(1);
+    });
+
+    startPrompt.addEventListener('click', startTest);
+  </script>
+
+<!-- Global Hub Navigation -->
+<style>
+    .global-hub-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+        color: white !important;
+        text-decoration: none !important;
+        padding: 14px 28px;
+        border-radius: 4px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        z-index: 1000000;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+    .global-hub-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.6);
+    }
+    
+    .facility-nav {
+        position: fixed;
+        top: 25px;
+        left: 25px;
+        background: var(--card-facility);
+        padding: 10px 20px;
+        border-radius: 4px;
+        border: 1px solid #2d2d35;
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+        display: flex;
+        gap: 15px;
+    }
+    
+    .facility-nav a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: color 0.3s;
+    }
+    
+    .facility-nav a:hover {
+        color: var(--accent-facility);
+    }
+</style>
+
+<div class="facility-nav">
+    <a href="tests.html">Dashboard</a>
+    <a href="clickspeed.html">Reflex</a>
+    <a href="typingtest.html">Typing</a>
+    <a href="memorytest.html">Memory</a>
+</div>
+
+<a href="../index.html" class="global-hub-btn">Exit to Hub</a>
+</body>
+</html>

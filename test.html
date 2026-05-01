@@ -293,69 +293,55 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Global Hub Navigation -->
 <style>
-    .global-home-btn {
+    .global-hub-btn {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #ff0055;
-        color: white;
-        text-decoration: none;
-        padding: 10px 20px;
-        border-radius: 30px;
-        font-family: 'Segoe UI', Tahoma, sans-serif;
-        font-weight: bold;
-        font-size: 14px;
-        box-shadow: 0 4px 15px rgba(255, 0, 85, 0.4);
-        z-index: 99999;
-        border: 2px solid #fff;
-        transition: transform 0.2s;
-    }
-    .global-home-btn:hover {
-        transform: scale(1.1);
-    }
-</style>
-
-
-
-
-
-
-
-<!-- Unified Global Home Button -->
-<style>
-    .global-home-btn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #ff0055 0%, #ff4d88 100%);
+        bottom: 25px;
+        right: 25px;
+        background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
         color: white !important;
         text-decoration: none !important;
-        padding: 12px 24px;
+        padding: 14px 28px;
         border-radius: 50px;
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-family: 'Poppins', 'Segoe UI', sans-serif;
         font-weight: 800;
-        font-size: 14px;
-        letter-spacing: 1px;
-        box-shadow: 0 4px 15px rgba(255, 0, 85, 0.4);
-        z-index: 999999;
-        border: 2px solid #fff;
-        transition: all 0.3s ease;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+        z-index: 1000000;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
         text-transform: uppercase;
+        cursor: pointer;
     }
-    .global-home-btn:hover {
-        transform: scale(1.1) translateY(-3px);
-        box-shadow: 0 6px 20px rgba(255, 0, 85, 0.6);
-        filter: brightness(1.1);
+    .global-hub-btn:hover {
+        transform: scale(1.1) translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6);
+        background: linear-gradient(135deg, #0077ff 0%, #00f2ff 100%);
+        border-color: #fff;
     }
-    .global-home-btn:active {
-        transform: scale(0.95);
+    .global-hub-btn::before {
+        content: '🏠';
+        font-size: 18px;
     }
 </style>
 
-<a href="index.html" class="global-home-btn">🏠 BACK TO HUB</a>
+<a href="index.html" class="global-hub-btn">Back to Hub</a>
 </body>
 </html>

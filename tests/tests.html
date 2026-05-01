@@ -3,47 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Testing Facility Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-    #Home {
-    position: fixed; /* Fixes the button position relative to the viewport */
-    bottom: 20px; /* Distance from the bottom edge of the viewport */
-    right: 20px; /* Distance from the right edge of the viewport */
-    width: 50px;
-    height: 50px;
-    border: 2px solid #000000;
-    border-radius: 50%;
-    background-color: rgb(255, 0, 0);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-decoration: none;
-    color: #fff;
-    font-size: 18px;
-    z-index: 1000;
-  }
-  #click{
-    position: fixed;
-    bottom: 570px;
-    right: 909px;
-    text-align: center; 
-    background: radial-gradient(rgb(0, 0, 0), rgb(255, 242, 0),rgb(255, 0, 0), #4a03ff, rgb(78, 81, 72)), #ff0000;
-    color: rgb(255, 255, 255);
-    padding: 60px 100px; 
-    text-decoration: none;
-    border-radius: 30px;
-    text-shadow: 4px 2px 1px rgba(0, 0, 0, 1);
-    font-size: 15px;
-}
+        :root {
+            --bg-facility: #0a0a0c;
+            --card-facility: #141418;
+            --accent-facility: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
 
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-facility);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        #facility-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        #facility-pointer {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10001;
+            mix-blend-mode: screen;
+            box-shadow: 
+                0 0 10px #fff,
+                0 0 20px #38bdf8,
+                0 0 40px rgba(56, 189, 248, 0.5);
+            transform: translate(-50%, -50%);
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #38bdf8, #f59e0b, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .test-card {
+            background: var(--card-facility);
+            border-radius: 4px;
+            padding: 25px;
+            text-decoration: none;
+            color: var(--text-main);
+            border: 1px solid #2d2d35;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .test-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 4px; height: 100%;
+            background: var(--accent);
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+
+        .test-card:hover {
+            transform: scale(1.02);
+            border-color: var(--accent);
+            background: #1a1a20;
+        }
+
+        .test-card:hover::after { opacity: 1; }
+
+        .test-icon { font-size: 2.5rem; margin-bottom: 15px; }
+
+        .test-info h2 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .test-info p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .highscore-box {
+            background: rgba(0,0,0,0.5);
+            padding: 12px;
+            border-radius: 2px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .highscore-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+        .highscore-value { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+
+        /* Module Colors */
+        .reflex { --accent: #38bdf8; }
+        .memory { --accent: #a78bfa; }
+        .typing { --accent: #f59e0b; }
+        .impulse { --accent: #10b981; }
     </style>
 </head>
 <body>
-    <ul>
-        <a id="memory" href="memorytest.html">Memory Test</a>
-        <a id="click" href="clickspeed.html">Click Speed Test</a>
-    </ul>
+    <header>
+        <h1>Testing Facility</h1>
+        <p class="subtitle">Neural Evaluation Dashboard</p>
+    </header>
 
-<a id="Home" href="../../index.html">Home</a>
+    <main class="container">
+        <a href="clickspeed.html" class="test-card reflex">
+            <div class="test-content">
+                <div class="test-icon">⚡</div>
+                <div class="test-info">
+                    <h2>Reflex Analysis</h2>
+                    <p>Measure synchronization with localized dynamic targets.</p>
+                </div>
+            </div>
+            <div class="highscore-box">
+                <div class="highscore-label">Peak Sync</div>
+                <div id="reflex-highscore" class="highscore-value">0</div>
+            </div>
+        </a>
+
+        <a href="cpstest.html" class="test-card impulse">
+            <div class="test-content">
+                <div class="test-icon">🖱️</div>
+                <div class="test-info">
+                    <h2>Impulse Test</h2>
+                    <p>Analyze maximum high-frequency input capabilities.</p>
+                </div>
+            </div>
+            <div class="highscore-box">
+                <div class="highscore-label">Max Impulse</div>
+                <div id="cps-highscore" class="highscore-value">0.0</div>
+            </div>
+        </a>
+
+        <a href="typingtest.html" class="test-card typing">
+            <div class="test-content">
+                <div class="test-icon">⌨️</div>
+                <div class="test-info">
+                    <h2>Neural Typing</h2>
+                    <p>Evaluate manual data entry throughput and accuracy.</p>
+                </div>
+            </div>
+            <div class="highscore-box">
+                <div class="highscore-label">Throughput</div>
+                <div id="typing-highscore" class="highscore-value">0</div>
+            </div>
+        </a>
+
+        <a href="memorytest.html" class="test-card memory">
+            <div class="test-content">
+                <div class="test-icon">🧠</div>
+                <div class="test-info">
+                    <h2>Cognitive Memory</h2>
+                    <p>Test sequential pattern retention limits.</p>
+                </div>
+            </div>
+            <div class="highscore-box">
+                <div class="highscore-label">Max Level</div>
+                <div id="memory-highscore" class="highscore-value">0</div>
+            </div>
+        </a>
+    </main>
+
+    <script src="facility_bg.js"></script>
+    <script>
+        document.getElementById('reflex-highscore').textContent = localStorage.getItem('clickSpeedHighscore') || '0';
+        document.getElementById('cps-highscore').textContent = localStorage.getItem('cpsHighscore') || '0.0';
+        document.getElementById('typing-highscore').textContent = (localStorage.getItem('typingHighscore') || '0') + ' WPM';
+        document.getElementById('memory-highscore').textContent = localStorage.getItem('memoryTestHighscore') || '0';
+    </script>
+
+<!-- Global Hub Navigation -->
+<style>
+    .global-hub-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background: linear-gradient(135deg, #38bdf8 0%, #10b981 100%);
+        color: white !important;
+        text-decoration: none !important;
+        padding: 14px 28px;
+        border-radius: 4px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        z-index: 1000000;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+    .global-hub-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 25px rgba(56, 189, 248, 0.6);
+    }
+</style>
+
+<a href="../index.html" class="global-hub-btn">Return to Hub</a>
 </body>
 </html>

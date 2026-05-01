@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div id="cursor-glow"></div>
+    <canvas id="bg-particles"></canvas>
     <header class="hero">
         <div class="hero-content">
             <div id="clock" class="clock-display">00:00:00</div>
@@ -22,36 +24,38 @@
             <h2 class="section-title">About Me</h2>
             <div class="skills-grid">
                 <div class="skill-card">
-                    <h3 class="skill-category sports">Sports</h3>
-                    <ul>
-                        <li><span class="skill-name">Basketball</span> <span class="stars">⭐⭐⭐⭐</span></li>
-                        <li><span class="skill-name">Swimming</span> <span class="stars">⭐⭐⭐</span></li>
-                        <li><span class="skill-name">Skiing</span> <span class="stars">⭐⭐⭐</span></li>
-                    </ul>
-                </div>
-                <div class="skill-card">
-                    <h3 class="skill-category stem">STEM</h3>
-                    <ul>
-                        <li><span class="skill-name">Math</span> <span class="stars">⭐⭐⭐⭐</span></li>
-                        <li><span class="skill-name">Biology</span> <span class="stars">⭐⭐⭐⭐</span></li>
-                        <li><span class="skill-name">Chemistry</span> <span class="stars">⭐⭐⭐</span></li>
-                        <li><span class="skill-name">Coding</span> <span class="stars">⭐⭐⭐</span></li>
-                        <li><span class="skill-name">Physics</span> <span class="stars">⭐⭐⭐</span></li>
-                    </ul>
-                </div>
-                <div class="skill-card">
                     <h3 class="skill-category art">Arts & Culture</h3>
                     <ul>
+                        <li><span class="skill-name">Art</span> <span class="stars">⭐⭐</span></li>
+                        <li><span class="skill-name">Mandarin</span> <span class="stars">⭐⭐⭐</span></li>
                         <li><span class="skill-name">Music Theory</span> <span class="stars">⭐⭐⭐</span></li>
                         <li><span class="skill-name">Piano</span> <span class="stars">⭐⭐⭐</span></li>
-                        <li><span class="skill-name">Mandarin</span> <span class="stars">⭐⭐⭐</span></li>
-                        <li><span class="skill-name">Art</span> <span class="stars">⭐⭐</span></li>
                     </ul>
                 </div>
                 <div class="skill-card">
                     <h3 class="skill-category hobbies">Hobbies</h3>
                     <ul>
                         <li><span class="skill-name">Reading</span> <span class="stars">⭐⭐⭐⭐⭐</span></li>
+                    </ul>
+                </div>
+                <div class="skill-card">
+                    <h3 class="skill-category sports">Sports</h3>
+                    <ul>
+                        <li><span class="skill-name">Badminton</span> <span class="stars">⭐⭐</span></li>
+                        <li><span class="skill-name">Basketball</span> <span class="stars">⭐⭐⭐⭐</span></li>
+                        <li><span class="skill-name">Skiing</span> <span class="stars">⭐⭐⭐</span></li>
+                        <li><span class="skill-name">Soccer</span> <span class="stars">⭐⭐</span></li>
+                        <li><span class="skill-name">Swimming</span> <span class="stars">⭐⭐⭐</span></li>
+                    </ul>
+                </div>
+                <div class="skill-card">
+                    <h3 class="skill-category stem">STEM</h3>
+                    <ul>
+                        <li><span class="skill-name">Biology</span> <span class="stars">⭐⭐⭐⭐</span></li>
+                        <li><span class="skill-name">Chemistry</span> <span class="stars">⭐⭐⭐</span></li>
+                        <li><span class="skill-name">Coding</span> <span class="stars">⭐⭐⭐</span></li>
+                        <li><span class="skill-name">Math</span> <span class="stars">⭐⭐⭐⭐</span></li>
+                        <li><span class="skill-name">Physics</span> <span class="stars">⭐⭐⭐</span></li>
                     </ul>
                 </div>
             </div>
@@ -62,28 +66,11 @@
             <h2 class="section-title">My Projects & Games</h2>
             <div class="project-grid">
                 
-                <!-- RPGs & Strategy -->
-                <a class="project-card epic" href="Game/index.html">
-                    <div class="project-icon">⚔️</div>
+                <a class="project-card art-project" href="P5/Flower/index.html">
+                    <div class="project-icon">🌸</div>
                     <div class="project-info">
-                        <h3>Shadow Realm RPG</h3>
-                        <p>Turn-based tactical combat.</p>
-                    </div>
-                </a>
-                
-                <a class="project-card epic" href="Tanks/element_tank.html">
-                    <div class="project-icon">🔥</div>
-                    <div class="project-info">
-                        <h3>Elemental Tanks</h3>
-                        <p>Roguelike dungeon crawler.</p>
-                    </div>
-                </a>
-
-                <a class="project-card strategy" href="towerdefense/nexus_defense.html">
-                    <div class="project-icon">🛡️</div>
-                    <div class="project-info">
-                        <h3>Nexus Defense</h3>
-                        <p>Sci-fi tower defense.</p>
+                        <h3>A Flower</h3>
+                        <p>Generative art.</p>
                     </div>
                 </a>
 
@@ -95,15 +82,6 @@
                     </div>
                 </a>
 
-                <a class="project-card strategy" href="towerdefense/towerdefense.html">
-                    <div class="project-icon">🏹</div>
-                    <div class="project-info">
-                        <h3>Tower Defense Classic</h3>
-                        <p>The ultimate strategy game.</p>
-                    </div>
-                </a>
-
-                <!-- Arcade & Action -->
                 <a class="project-card action" href="Breakout Ball Game/Breakout.html">
                     <div class="project-icon">🧱</div>
                     <div class="project-info">
@@ -112,23 +90,6 @@
                     </div>
                 </a>
 
-                <a class="project-card action" href="Catch/Index.html">
-                    <div class="project-icon">🗑️</div>
-                    <div class="project-info">
-                        <h3>Dodge Game</h3>
-                        <p>Survive the falling objects.</p>
-                    </div>
-                </a>
-
-                <a class="project-card action" href="P5/AI GAME/AI.html">
-                    <div class="project-icon">🚦</div>
-                    <div class="project-info">
-                        <h3>Stop & Go</h3>
-                        <p>AI-driven reflex game.</p>
-                    </div>
-                </a>
-
-                <!-- Interactive Arts & Tests -->
                 <a class="project-card art-project" href="P5/Caterpiller/Caterpiller.html">
                     <div class="project-icon">🐛</div>
                     <div class="project-info">
@@ -137,31 +98,6 @@
                     </div>
                 </a>
 
-                <a class="project-card art-project" href="P5/Flower/index.html">
-                    <div class="project-icon">🌸</div>
-                    <div class="project-info">
-                        <h3>A Flower</h3>
-                        <p>Generative art.</p>
-                    </div>
-                </a>
-
-                <a class="project-card art-project" href="P5/sunset/Sun.html">
-                    <div class="project-icon">🌅</div>
-                    <div class="project-info">
-                        <h3>Sunset</h3>
-                        <p>Beautiful scenic animation.</p>
-                    </div>
-                </a>
-
-                <a class="project-card art-project" href="P5/Circles/index.html">
-                    <div class="project-icon">🫧</div>
-                    <div class="project-info">
-                        <h3>Some Circles</h3>
-                        <p>Particle physics experiment.</p>
-                    </div>
-                </a>
-
-                <!-- Web Pages & Fun -->
                 <a class="project-card fun" href="Crazy/Crazy.html">
                     <div class="project-icon">🤪</div>
                     <div class="project-info">
@@ -186,11 +122,67 @@
                     </div>
                 </a>
 
+                <a class="project-card action" href="Catch/Index.html">
+                    <div class="project-icon">🗑️</div>
+                    <div class="project-info">
+                        <h3>Dodge Game</h3>
+                        <p>Survive the falling objects.</p>
+                    </div>
+                </a>
+
+                <a class="project-card epic" href="Tanks/element_tank.html">
+                    <div class="project-icon">🔥</div>
+                    <div class="project-info">
+                        <h3>Elemental Tanks</h3>
+                        <p>Roguelike dungeon crawler.</p>
+                    </div>
+                </a>
+
+                <a class="project-card strategy" href="towerdefense/nexus_defense.html">
+                    <div class="project-icon">🛡️</div>
+                    <div class="project-info">
+                        <h3>Nexus Defense</h3>
+                        <p>Sci-fi tower defense.</p>
+                    </div>
+                </a>
+
                 <a class="project-card misc" href="test.html">
                     <div class="project-icon">👨‍🎨</div>
                     <div class="project-info">
                         <h3>Self-Portrait</h3>
                         <p>My digital self.</p>
+                    </div>
+                </a>
+
+                <a class="project-card epic" href="Game/index.html">
+                    <div class="project-icon">⚔️</div>
+                    <div class="project-info">
+                        <h3>Shadow Realm RPG</h3>
+                        <p>Turn-based tactical combat.</p>
+                    </div>
+                </a>
+
+                <a class="project-card art-project" href="P5/Circles/index.html">
+                    <div class="project-icon">🫧</div>
+                    <div class="project-info">
+                        <h3>Some Circles</h3>
+                        <p>Particle physics experiment.</p>
+                    </div>
+                </a>
+
+                <a class="project-card action" href="P5/AI GAME/AI.html">
+                    <div class="project-icon">🚦</div>
+                    <div class="project-info">
+                        <h3>Stop & Go</h3>
+                        <p>AI-driven reflex game.</p>
+                    </div>
+                </a>
+
+                <a class="project-card art-project" href="P5/sunset/Sun.html">
+                    <div class="project-icon">🌅</div>
+                    <div class="project-info">
+                        <h3>Sunset</h3>
+                        <p>Beautiful scenic animation.</p>
                     </div>
                 </a>
 
@@ -202,10 +194,18 @@
                     </div>
                 </a>
 
+                <a class="project-card strategy" href="towerdefense/towerdefense.html">
+                    <div class="project-icon">🏹</div>
+                    <div class="project-info">
+                        <h3>Tower Defense Classic</h3>
+                        <p>The ultimate strategy game.</p>
+                    </div>
+                </a>
+
             </div>
         </section>
     </main>
-
+    
     <footer>
         <p id="copyright">&copy; 2025 Martin's Creative Hub. Built with code and creativity.</p>
     </footer>

@@ -5,50 +5,59 @@ function findHtmlFiles(dir, fileList = []) {
   const files = fs.readdirSync(dir);
   for (const file of files) {
     const filePath = path.join(dir, file);
-    if (fs.statSync(filePath).isDirectory() && !filePath.includes('.git') && !filePath.includes('node_modules')) {
-      findHtmlFiles(filePath, fileList);
-    } else if (filePath.endsWith('.html') || filePath.endsWith('.htm')) {
-      fileList.push(filePath);
+    const stat = fs.statSync(filePath);
+    if (stat.isDirectory()) {
+      if (!['.git', 'node_modules', 'libraries'].includes(file)) {
+        findHtmlFiles(filePath, fileList);
+      }
+    } else {
+      const ext = path.extname(file).toLowerCase();
+      if (ext === '.html' || ext === '.htm') {
+        fileList.push(filePath);
+      }
     }
   }
   return fileList;
 }
 
 const htmlFiles = findHtmlFiles(__dirname);
-const rootIndex = path.join(__dirname, 'index.html');
+const rootIndex = path.resolve(__dirname, 'index.html');
 
 const homeButtonStyle = `
-<!-- Unified Global Home Button -->
+<!-- Global Hub Navigation -->
 <style>
-    .global-home-btn {
+    .global-hub-btn {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #ff0055 0%, #ff4d88 100%);
+        bottom: 25px;
+        right: 25px;
+        background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
         color: white !important;
         text-decoration: none !important;
-        padding: 12px 24px;
+        padding: 14px 28px;
         border-radius: 50px;
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-family: 'Poppins', 'Segoe UI', sans-serif;
         font-weight: 800;
-        font-size: 14px;
-        letter-spacing: 1px;
-        box-shadow: 0 4px 15px rgba(255, 0, 85, 0.4);
-        z-index: 999999;
-        border: 2px solid #fff;
-        transition: all 0.3s ease;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+        z-index: 1000000;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
         text-transform: uppercase;
+        cursor: pointer;
     }
-    .global-home-btn:hover {
-        transform: scale(1.1) translateY(-3px);
-        box-shadow: 0 6px 20px rgba(255, 0, 85, 0.6);
-        filter: brightness(1.1);
+    .global-hub-btn:hover {
+        transform: scale(1.1) translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6);
+        background: linear-gradient(135deg, #0077ff 0%, #00f2ff 100%);
+        border-color: #fff;
     }
-    .global-home-btn:active {
-        transform: scale(0.95);
+    .global-hub-btn::before {
+        content: '🏠';
+        font-size: 18px;
     }
 </style>
 `;
@@ -56,31 +65,34 @@ const homeButtonStyle = `
 let updatedCount = 0;
 
 for (const file of htmlFiles) {
-    // Skip the main index page
-    if (path.normalize(file) === path.normalize(rootIndex)) continue;
+    if (path.resolve(file) === rootIndex) continue;
 
     let content = fs.readFileSync(file, 'utf-8');
     
-    // Calculate path back to root index.html
+    // Calculate path back to root
     const relativePath = path.relative(path.dirname(file), __dirname);
     const homeHref = relativePath === '' ? 'index.html' : path.join(relativePath, 'index.html').replace(/\\/g, '/');
 
-    // 1. Remove ANY existing home buttons (old IDs or previous global ones)
+    // 1. Cleanup all previous variations of home buttons/styles
     content = content.replace(/<a id="Home"[^>]*>.*?<\/a>/ig, '');
     content = content.replace(/<a href="[^"]*" class="global-home-btn">.*?<\/a>/ig, '');
-    
-    // 2. Remove old style tags from previous runs
-    content = content.replace(/<style>\s*\/\* Unified Global Home Button \*\/[\s\S]*?<\/style>/ig, '');
-    // Also remove the one with the comment I just added
+    content = content.replace(/<a href="[^"]*" class="global-hub-btn">.*?<\/a>/ig, '');
     content = content.replace(/<!-- Unified Global Home Button -->\s*<style>[\s\S]*?<\/style>/ig, '');
+    content = content.replace(/<!-- Global Hub Navigation -->\s*<style>[\s\S]*?<\/style>/ig, '');
+    content = content.replace(/<style>\s*\.global-home-btn[\s\S]*?<\/style>/ig, '');
+    content = content.replace(/<style>\s*\.global-hub-btn[\s\S]*?<\/style>/ig, '');
 
-    // 3. Inject new button before </body>
+    // 2. Insert new button
+    const btnHtml = `${homeButtonStyle}\n<a href="${homeHref}" class="global-hub-btn">Back to Hub</a>\n`;
+    
     if (content.match(/<\/body>/i)) {
-        const newButtonHtml = `${homeButtonStyle}\n<a href="${homeHref}" class="global-home-btn">🏠 BACK TO HUB</a>\n`;
-        content = content.replace(/<\/body>/i, newButtonHtml + '</body>');
-        fs.writeFileSync(file, content, 'utf-8');
-        updatedCount++;
+        content = content.replace(/<\/body>/i, btnHtml + '</body>');
+    } else {
+        content += btnHtml;
     }
+
+    fs.writeFileSync(file, content, 'utf-8');
+    updatedCount++;
 }
 
-console.log(`Mission Complete: ${updatedCount} pages now linked to Hub.`);
+console.log(`Success: Unified "Back to Hub" navigation added to ${updatedCount} project pages.`);

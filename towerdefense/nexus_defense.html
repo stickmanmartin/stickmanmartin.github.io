@@ -10,12 +10,17 @@
     <div id="game-container">
         <header>
             <div class="stat-group">
-                <div class="stat-box hp">❤️ <span id="base-hp">1200</span></div>
-                <div class="stat-box gold">💰 <span id="gold">1000</span></div>
+                <div class="stat-box hp">❤️ <span id="base-hp">1500</span></div>
+                <div class="stat-box gold">💰 <span id="gold">1200</span></div>
             </div>
             <div class="title-group">
                 <h1>NEXUS DEFENSE</h1>
                 <div id="wave-counter">WAVE: <span id="wave">0</span></div>
+                <!-- Ultimate Meter -->
+                <div id="ult-container">
+                    <div id="ult-fill"></div>
+                    <button id="ult-btn" onclick="triggerUltimate()">ACTIVATE ULTIMATE</button>
+                </div>
             </div>
             <div class="stat-group">
                 <div class="stat-box level">🎖️ LVL <span id="level">1</span></div>
@@ -25,8 +30,21 @@
 
         <div id="canvas-wrapper">
             <canvas id="game-canvas" width="600" height="700"></canvas>
-            
-            <!-- Choice Overlay (FREE) -->
+
+            <!-- Difficulty Selector -->
+            <div id="difficulty-overlay" class="overlay">
+                <div class="overlay-inner">
+                    <h2>TACTICAL INITIALIZATION</h2>
+                    <p>Select Deployment Difficulty:</p>
+                    <div class="overlay-actions" style="flex-direction:column; gap:10px;">
+                        <button class="main-btn" style="border-color:#00ff66; color:#00ff66;" onclick="setDifficulty('EASY')">RECRUIT (EASY)</button>
+                        <button class="main-btn" style="border-color:#00f2ff; color:#00f2ff;" onclick="setDifficulty('NORMAL')">COMMANDER (NORMAL)</button>
+                        <button class="main-btn" style="border-color:#ff0055; color:#ff0055;" onclick="setDifficulty('BRUTAL')">LEGEND (BRUTAL)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Choice Overlay -->
             <div id="choice-overlay" class="overlay" style="display: none;">
                 <div class="overlay-inner">
                     <h2 id="overlay-title">WAVE CLEARED!</h2>
@@ -84,6 +102,45 @@
     </div>
 
     <script src="nexus_defense.js"></script>
-    <a id="Home" href="../index.html">EXIT</a>
+    
+
+<!-- Global Hub Navigation -->
+<style>
+    .global-hub-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
+        color: white !important;
+        text-decoration: none !important;
+        padding: 14px 28px;
+        border-radius: 50px;
+        font-family: 'Poppins', 'Segoe UI', sans-serif;
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+        z-index: 1000000;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+    .global-hub-btn:hover {
+        transform: scale(1.1) translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6);
+        background: linear-gradient(135deg, #0077ff 0%, #00f2ff 100%);
+        border-color: #fff;
+    }
+    .global-hub-btn::before {
+        content: '🏠';
+        font-size: 18px;
+    }
+</style>
+
+<a href="../index.html" class="global-hub-btn">Back to Hub</a>
 </body>
 </html>

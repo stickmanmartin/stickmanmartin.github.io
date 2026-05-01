@@ -3,142 +3,200 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Memory Test Game</title>
+  <title>Cognitive Memory - Testing Facility</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #a78bfa;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Poppins', sans-serif;
       text-align: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background-color: var(--bg-facility);
+      color: var(--text-main);
       margin: 0;
       padding: 20px;
       min-height: 100vh;
+      overflow-x: hidden;
+      cursor: none;
     }
+
+    #facility-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    #facility-pointer {
+        position: fixed;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10001;
+        mix-blend-mode: screen;
+        box-shadow: 
+            0 0 10px #fff,
+            0 0 20px #a78bfa,
+            0 0 40px rgba(167, 139, 250, 0.5);
+        transform: translate(-50%, -50%);
+    }
+
     h1 {
-      margin: 20px 0;
-      font-size: 2.5em;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(to right, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
     }
-    #Home {
-    position: fixed; /* Fixes the button position relative to the viewport */
-    bottom: 20px; /* Distance from the bottom edge of the viewport */
-    right: 20px; /* Distance from the right edge of the viewport */
-    width: 50px;
-    height: 50px;
-    border: 2px solid #000000;
-    border-radius: 50%;
-    background-color: rgb(255, 0, 0);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-decoration: none;
-    color: #fff;
-    font-size: 18px;
-    z-index: 1000;
+
+    .subtitle {
+      color: var(--text-muted);
+      margin-bottom: 30px;
     }
+
+    #game-container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 20px;
+      border: 1px solid #334155;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
     #game {
       display: grid;
-      grid-template-columns: repeat(2, 150px);
-      grid-template-rows: repeat(2, 150px);
+      grid-template-columns: repeat(2, 1fr);
       gap: 15px;
-      margin: 40px auto;
-      width: fit-content;
-      padding: 20px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
+      margin: 20px auto;
+      width: 100%;
     }
+
     .cell {
-      width: 150px;
-      height: 150px;
-      border-radius: 20px;
+      aspect-ratio: 1/1;
+      border-radius: 12px;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      border: 2px solid transparent;
+      opacity: 0.8;
     }
-    .cell:hover { transform: scale(1.05); }
+
+    .cell:hover { transform: scale(1.02); opacity: 1; }
     .cell:active { transform: scale(0.95); }
 
     /* Colors */
-    #red { background: #e74c3c; }
-    #blue { background: #3498db; }
-    #green { background: #2ecc71; }
-    #yellow { background: #f1c40f; }
+    #red { background: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+    #blue { background: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+    #green { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+    #yellow { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
 
     .active { 
-      transform: scale(1.1); 
-      box-shadow: 0 0 30px 5px white !important;
+      transform: scale(1.05); 
+      box-shadow: 0 0 40px 10px white !important;
       filter: brightness(1.5);
+      opacity: 1;
+      z-index: 2;
     }
 
     #controls {
-      margin: 30px;
+      margin-top: 30px;
     }
-    button {
+
+    #startBtn, #resetBtn {
       padding: 12px 30px;
-      font-size: 18px;
-      margin: 10px;
-      border: none;
-      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 700;
       cursor: pointer;
       background: white;
-      color: #764ba2;
-      font-weight: bold;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(255,255,255,0.2);
       transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    }
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
+
+    #startBtn:hover, #resetBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255,255,255,0.4);
     }
 
     #status {
-      font-size: 1.4em;
+      font-size: 1.1rem;
       margin: 20px;
-      min-height: 30px;
+      min-height: 25px;
+      color: var(--text-muted);
     }
+
     #score {
-      font-size: 1.6em;
-      font-weight: bold;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    #highscore-display {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #10b981;
     }
   </style>
 </head>
 <body>
-  <h1>🧠 Memory Test</h1>
-  <p>Watch the sequence... then repeat it!</p>
+  <header>
+    <h1>Cognitive Memory</h1>
+    <p class="subtitle">Neural Sequence Retention Analysis</p>
+  </header>
 
-  <div id="game">
-    <div class="cell" id="red"></div>
-    <div class="cell" id="blue"></div>
-    <div class="cell" id="green"></div>
-    <div class="cell" id="yellow"></div>
-  </div>
+  <main id="game-container">
+    <div id="score">Level: 0</div>
+    <div id="highscore-display">Best Level: 0</div>
+    
+    <div id="status">Initialize Cognitive Protocol</div>
 
-  <div id="controls">
-    <button id="startBtn">Start Game</button>
-    <button id="resetBtn" style="display:none;">Play Again</button>
-  </div>
+    <div id="game">
+      <div class="cell" id="red"></div>
+      <div class="cell" id="blue"></div>
+      <div class="cell" id="green"></div>
+      <div class="cell" id="yellow"></div>
+    </div>
 
-  <div id="status">Click "Start Game" to begin!</div>
-  <div id="score">Level: 0</div>
+    <div id="controls">
+      <button id="startBtn">Begin Analysis</button>
+      <button id="resetBtn" style="display:none;">Restart Protocol</button>
+    </div>
+  </main>
 
+  <script src="facility_bg.js"></script>
   <script>
     const cells = document.querySelectorAll('.cell');
     const startBtn = document.getElementById('startBtn');
     const resetBtn = document.getElementById('resetBtn');
     const status = document.getElementById('status');
     const scoreDisplay = document.getElementById('score');
+    const highscoreDisplay = document.getElementById('highscore-display');
 
     let sequence = [];
     let playerSequence = [];
     let level = 0;
     let isPlaying = false;
     let isPlayerTurn = false;
+
+    // Load Highscore
+    let highscore = localStorage.getItem('memoryTestHighscore') || 0;
+    highscoreDisplay.textContent = `Best Level: ${highscore}`;
 
     const colors = ['red', 'blue', 'green', 'yellow'];
     const cellMap = {
@@ -161,7 +219,7 @@
 
     async function playSequence() {
       isPlaying = true;
-      status.textContent = "Watch carefully...";
+      status.textContent = "Data Transmission in Progress...";
       playerSequence = [];
 
       for (let color of sequence) {
@@ -170,7 +228,7 @@
 
       isPlaying = false;
       isPlayerTurn = true;
-      status.textContent = "Your turn! Click the colors in order.";
+      status.textContent = "Replicate Sequence";
     }
 
     function addToSequence() {
@@ -189,7 +247,7 @@
     async function nextLevel() {
       level++;
       scoreDisplay.textContent = `Level: ${level}`;
-      status.textContent = `Get ready for level ${level}...`;
+      status.textContent = `Preparing Level ${level}...`;
       addToSequence();
 
       await new Promise(r => setTimeout(r, 1000));
@@ -198,17 +256,19 @@
 
     function gameOver() {
       isPlayerTurn = false;
-      status.innerHTML = `<strong>Game Over!</strong> You reached level <strong>${level}</strong>.`;
-      startBtn.style.display = 'inline-block';
-      resetBtn.style.display = 'none';
+      status.innerHTML = `<span style="color:#ef4444">CRITICAL ERROR: Protocol Failed</span>`;
+      
+      if (level > highscore) {
+        highscore = level;
+        localStorage.setItem('memoryTestHighscore', highscore);
+        highscoreDisplay.textContent = `New Best: ${highscore}`;
+      }
+
       setTimeout(() => {
-        if (confirm(`Great job! You remembered ${level} steps!\n\nWant to play again?`)) {
-          startGame();
-        } else {
-          status.textContent = "Thanks for playing! Click 'Start Game' to try again.";
-          startBtn.style.display = 'inline-block';
-          resetBtn.style.display = 'none';
-        }
+        alert(`ANALYSIS COMPLETE\nLevels Cleared: ${level}`);
+        startBtn.style.display = 'inline-block';
+        resetBtn.style.display = 'none';
+        startBtn.textContent = "Re-Initialize";
       }, 500);
     }
 
@@ -220,18 +280,16 @@
         playerSequence.push(color);
         flash(color, 200);
 
-        // Check if current click is correct
         const index = playerSequence.length - 1;
         if (playerSequence[index] !== sequence[index]) {
           gameOver();
           return;
         }
 
-        // If player completed the sequence
         if (playerSequence.length === sequence.length) {
           isPlayerTurn = false;
-          status.textContent = "Correct! Get ready for the next level...";
-          setTimeout(nextLevel, 1500);
+          status.textContent = "Validation Successful";
+          setTimeout(nextLevel, 1200);
         }
       });
     });
@@ -239,6 +297,75 @@
     startBtn.addEventListener('click', startGame);
     resetBtn.addEventListener('click', startGame);
   </script>
-        <a id="Home" href="../../index.html">Home</a>
+
+<!-- Global Hub Navigation -->
+<style>
+    .global-hub-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
+        color: white !important;
+        text-decoration: none !important;
+        padding: 14px 28px;
+        border-radius: 50px;
+        font-family: 'Poppins', 'Segoe UI', sans-serif;
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+        z-index: 1000000;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+    .global-hub-btn:hover {
+        transform: scale(1.1) translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6);
+        background: linear-gradient(135deg, #0077ff 0%, #00f2ff 100%);
+        border-color: #fff;
+    }
+    .global-hub-btn::before {
+        content: '🏠';
+        font-size: 18px;
+    }
+    
+    .facility-nav {
+        position: fixed;
+        top: 25px;
+        left: 25px;
+        background: rgba(30, 41, 59, 0.8);
+        padding: 10px 20px;
+        border-radius: 12px;
+        border: 1px solid #334155;
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+        display: flex;
+        gap: 15px;
+    }
+    
+    .facility-nav a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: color 0.3s;
+    }
+    
+    .facility-nav a:hover {
+        color: var(--accent);
+    }
+</style>
+
+<div class="facility-nav">
+    <a href="tests.html">Facility Dashboard</a>
+    <a href="clickspeed.html">Reflex Test</a>
+</div>
+
+<a href="../index.html" class="global-hub-btn">Back to Hub</a>
 </body>
 </html>

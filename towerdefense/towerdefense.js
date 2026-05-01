@@ -350,8 +350,13 @@ document.getElementById("startButton").addEventListener("click", () => {
 canvas.addEventListener("click", e => {
   if (!selectedTowerType) return;
   const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+  
+  // FIXED: Calculate coordinates based on CSS scale
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+  
   if (isOnPath(x, y)) { alert("Can't place tower on the path!"); return; }
   if (money >= selectedTowerType.cost) {
     towers.push(new Tower(x, y, selectedTowerType));
