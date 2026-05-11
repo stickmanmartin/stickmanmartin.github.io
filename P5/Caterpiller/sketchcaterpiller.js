@@ -25,7 +25,7 @@ let winner = -1;
 let startBtn;
 
 function setup() {
-  createCanvas(4500, 800);
+  createCanvas(windowWidth, windowHeight);
   frameRate(15); 
 
   resetRace();
@@ -235,4 +235,9 @@ function drawWinnerScreen() {
   fill(255);
   textSize(20);
   text("Click to RESET", width / 2, height - 50);
+}
+
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
 }

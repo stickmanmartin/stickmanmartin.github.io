@@ -218,3 +218,11 @@ canvas.onclick = (e) => {
 
 updateHUD(); requestAnimationFrame(gameLoop);
 window.setDifficulty = setDifficulty;
+
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();

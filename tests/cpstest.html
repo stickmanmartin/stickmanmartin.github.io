@@ -7,23 +7,47 @@
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-facility: #0a0a0c;
-      --card-facility: #141418;
-      --accent-facility: #10b981; /* High-Energy Green */
-      --text-main: #e2e8f0;
-      --text-muted: #94a3b8;
+        --bg-facility: #141418;
+        --card-facility: rgba(20, 20, 24, 0.8);
+        --accent-facility: #38bdf8;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
-      text-align: center;
-      background-color: var(--bg-facility);
-      color: var(--text-main);
-      margin: 0;
-      padding: 20px;
-      min-height: 100vh;
-      overflow-x: hidden;
-      cursor: none;
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--bg-facility);
+        color: var(--text-main);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-x: hidden;
+        cursor: none !important;
+        perspective: 1000px;
+    }
+
+    /* Digital Vignette */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.5) 100%);
+        pointer-events: none;
+        z-index: 100;
+    }
+
+    /* Noise Overlay */
+    body::after {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        filter: url(#noise);
+        opacity: 0.15;
+        pointer-events: none;
+        z-index: 99;
     }
 
     #facility-canvas {
@@ -34,23 +58,51 @@
         height: 100%;
         z-index: -1;
         pointer-events: none;
+        transform: rotateX(15deg) scale(1.1);
+        transform-origin: top;
     }
 
-    #facility-pointer {
-        position: fixed;
-        width: 12px;
-        height: 12px;
-        background: #fff;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 10001;
-        mix-blend-mode: screen;
-        box-shadow: 
-            0 0 10px #fff,
-            0 0 20px #10b981,
-            0 0 40px rgba(16, 185, 129, 0.5);
-        transform: translate(-50%, -50%);
+    
+    
+    
+    @keyframes rotatePointer {
+        0% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.1); }
+        100% { transform: rotate(360deg) scale(1); }
     }
+
+    /* Hide cursor on all interactives */
+    a, button, input, select, textarea, [role="button"], #target, .cell {
+        cursor: none !important;
+    }
+
+        
+
+        
+
+        /* Digital Vignette */
+        
+
+        /* Noise Overlay */
+        
+
+        
+
+    
+
+    
+
+    
+
+    
+    
+    
+    
+    
+        50% { transform: rotate(180deg) scale(1.2); }
+        100% { transform: rotate(360deg) scale(1); }
+    }
+
 
     h1 {
       font-size: 3rem;
@@ -135,6 +187,54 @@
         cursor: pointer;
     }
   </style>
+
+
+
+
+<style>
+    #neural-pointer {
+        position: fixed;
+        width: 32px;
+        height: 32px;
+        pointer-events: none;
+        z-index: 9999999;
+        transform: translate(0, 0);
+        display: block;
+        /* Apply shadow to the parent so it doesn't get clipped */
+        filter: 
+            drop-shadow(2px 0 0 #000) 
+            drop-shadow(-2px 0 0 #000) 
+            drop-shadow(0 2px 0 #000) 
+            drop-shadow(0 -2px 0 #000)
+            drop-shadow(1px 1px 0 #000)
+            drop-shadow(-1px -1px 0 #000);
+    }
+    #neural-pointer::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        clip-path: polygon(0% 0%, 100% 70%, 40% 70%, 40% 100%);
+        transition: background 0.3s ease;
+    }
+    
+    /* Day Mode: Glowing White (with Black Outline from parent) */
+    #neural-pointer.day-mode::before {
+        background: #ffffff;
+    }
+    
+    /* Night Mode: Black (with White inner glow then Black Outline from parent) */
+    #neural-pointer.night-mode::before {
+        background: #000000;
+        /* Add a small white inner glow to distinguish from the black background */
+        box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.8); /* Border inside clip-path helps */
+    }
+
+    /* Hide original cursor project-wide */
+    *, html, body, a, button, input, select, textarea, canvas {
+        cursor: none !important;
+    }
+</style>
 </head>
 <body>
   <header>
@@ -221,6 +321,18 @@
 
 
 <style>
+        
+
+        
+
+        /* Digital Vignette */
+        
+
+        /* Noise Overlay */
+        
+
+        
+
     .facility-nav-btn {
         position: fixed;
         bottom: 25px;
@@ -257,6 +369,18 @@
 
 <!-- Global Hub Navigation -->
 <style>
+        
+
+        
+
+        /* Digital Vignette */
+        
+
+        /* Noise Overlay */
+        
+
+        
+
     .global-hub-btn {
         position: fixed;
         bottom: 25px;
@@ -292,6 +416,56 @@
     }
 </style>
 
-<a href="../index.html" class="global-hub-btn">Back to Hub</a>
+<a href="../index.html" class="global-hub-btn">Back to the Hub</a>
+
+    
+
+
+    <!-- Atmospheric Post-Processing Filters -->
+    <svg style="display: none;">
+        <filter id="noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+            <feComponentTransfer>
+                <feFuncR type="linear" slope="0.1" />
+                <feFuncG type="linear" slope="0.1" />
+                <feFuncB type="linear" slope="0.1" />
+            </feComponentTransfer>
+        </filter>
+    </svg>
+
+
+
+
+
+
+
+
+<div id="neural-pointer"></div>
+<script>
+    (function() {
+        const pointer = document.getElementById('neural-pointer');
+        if (!pointer) return;
+
+        function isDayTime() {
+            const hour = new Date().getHours();
+            return hour >= 6 && hour < 18;
+        }
+
+        function updatePointerMode() {
+            const isDay = isDayTime();
+            pointer.classList.toggle('day-mode', isDay);
+            pointer.classList.toggle('night-mode', !isDay);
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            pointer.style.left = e.clientX + 'px';
+            pointer.style.top = e.clientY + 'px';
+        });
+
+        updatePointerMode();
+        setInterval(updatePointerMode, 60000);
+    })();
+</script>
 </body>
 </html>

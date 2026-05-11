@@ -6,9 +6,57 @@
     <title>Martin's Creative Hub</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+
+
+
+<style>
+    #neural-pointer {
+        position: fixed;
+        width: 32px;
+        height: 32px;
+        pointer-events: none;
+        z-index: 9999999;
+        transform: translate(0, 0);
+        display: block;
+        /* Apply shadow to the parent so it doesn't get clipped */
+        filter: 
+            drop-shadow(2px 0 0 #000) 
+            drop-shadow(-2px 0 0 #000) 
+            drop-shadow(0 2px 0 #000) 
+            drop-shadow(0 -2px 0 #000)
+            drop-shadow(1px 1px 0 #000)
+            drop-shadow(-1px -1px 0 #000);
+    }
+    #neural-pointer::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        clip-path: polygon(0% 0%, 100% 70%, 40% 70%, 40% 100%);
+        transition: background 0.3s ease;
+    }
+    
+    /* Day Mode: Glowing White (with Black Outline from parent) */
+    #neural-pointer.day-mode::before {
+        background: #ffffff;
+    }
+    
+    /* Night Mode: Black (with White inner glow then Black Outline from parent) */
+    #neural-pointer.night-mode::before {
+        background: #000000;
+        /* Add a small white inner glow to distinguish from the black background */
+        box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.8); /* Border inside clip-path helps */
+    }
+
+    /* Hide original cursor project-wide */
+    *, html, body, a, button, input, select, textarea, canvas {
+        cursor: none !important;
+    }
+</style>
 </head>
 <body>
-    <div id="cursor-glow"></div>
+    
     <canvas id="bg-particles"></canvas>
     <header class="hero">
         <div class="hero-content">
@@ -63,146 +111,143 @@
 
         <!-- Projects Section -->
         <section class="projects-section">
-            <h2 class="section-title">My Projects & Games</h2>
-            <div class="project-grid">
-                
-                <a class="project-card art-project" href="P5/Flower/index.html">
-                    <div class="project-icon">🌸</div>
-                    <div class="project-info">
-                        <h3>A Flower</h3>
-                        <p>Generative art.</p>
-                    </div>
-                </a>
-
-                <a class="project-card strategy" href="towerdefense/basedefense.html">
-                    <div class="project-icon">🏰</div>
-                    <div class="project-info">
-                        <h3>Base Defense</h3>
-                        <p>Defend against hordes.</p>
-                    </div>
-                </a>
-
-                <a class="project-card action" href="Breakout Ball Game/Breakout.html">
-                    <div class="project-icon">🧱</div>
-                    <div class="project-info">
-                        <h3>Breakout</h3>
-                        <p>Classic arcade block breaker.</p>
-                    </div>
-                </a>
-
-                <a class="project-card art-project" href="P5/Caterpiller/Caterpiller.html">
-                    <div class="project-icon">🐛</div>
-                    <div class="project-info">
-                        <h3>Caterpillar Race</h3>
-                        <p>Interactive racing animation.</p>
-                    </div>
-                </a>
-
-                <a class="project-card fun" href="Crazy/Crazy.html">
-                    <div class="project-icon">🤪</div>
-                    <div class="project-info">
-                        <h3>Crazy Page</h3>
-                        <p>Mind-bending visuals.</p>
-                    </div>
-                </a>
-
-                <a class="project-card fun" href="Crazy/Crazy copy.html">
-                    <div class="project-icon">🌀</div>
-                    <div class="project-info">
-                        <h3>Crazy Page 2</h3>
-                        <p>More visual madness.</p>
-                    </div>
-                </a>
-
-                <a class="project-card fun" href="joke.html">
-                    <div class="project-icon">😂</div>
-                    <div class="project-info">
-                        <h3>Dad Jokes</h3>
-                        <p>Laugh out loud.</p>
-                    </div>
-                </a>
-
-                <a class="project-card action" href="Catch/Index.html">
-                    <div class="project-icon">🗑️</div>
-                    <div class="project-info">
-                        <h3>Dodge Game</h3>
-                        <p>Survive the falling objects.</p>
-                    </div>
-                </a>
-
-                <a class="project-card epic" href="Tanks/element_tank.html">
-                    <div class="project-icon">🔥</div>
-                    <div class="project-info">
-                        <h3>Elemental Tanks</h3>
-                        <p>Roguelike dungeon crawler.</p>
-                    </div>
-                </a>
-
-                <a class="project-card strategy" href="towerdefense/nexus_defense.html">
-                    <div class="project-icon">🛡️</div>
-                    <div class="project-info">
-                        <h3>Nexus Defense</h3>
-                        <p>Sci-fi tower defense.</p>
-                    </div>
-                </a>
-
-                <a class="project-card misc" href="test.html">
-                    <div class="project-icon">👨‍🎨</div>
-                    <div class="project-info">
-                        <h3>Self-Portrait</h3>
-                        <p>My digital self.</p>
-                    </div>
-                </a>
-
-                <a class="project-card epic" href="Game/index.html">
-                    <div class="project-icon">⚔️</div>
-                    <div class="project-info">
-                        <h3>Shadow Realm RPG</h3>
-                        <p>Turn-based tactical combat.</p>
-                    </div>
-                </a>
-
-                <a class="project-card art-project" href="P5/Circles/index.html">
-                    <div class="project-icon">🫧</div>
-                    <div class="project-info">
-                        <h3>Some Circles</h3>
-                        <p>Particle physics experiment.</p>
-                    </div>
-                </a>
-
-                <a class="project-card action" href="P5/AI GAME/AI.html">
-                    <div class="project-icon">🚦</div>
-                    <div class="project-info">
-                        <h3>Stop & Go</h3>
-                        <p>AI-driven reflex game.</p>
-                    </div>
-                </a>
-
-                <a class="project-card art-project" href="P5/sunset/Sun.html">
-                    <div class="project-icon">🌅</div>
-                    <div class="project-info">
-                        <h3>Sunset</h3>
-                        <p>Beautiful scenic animation.</p>
-                    </div>
-                </a>
-
-                <a class="project-card misc" href="tests/tests.html">
-                    <div class="project-icon">🧪</div>
-                    <div class="project-info">
-                        <h3>Tests</h3>
-                        <p>Development sandbox.</p>
-                    </div>
-                </a>
-
-                <a class="project-card strategy" href="towerdefense/towerdefense.html">
-                    <div class="project-icon">🏹</div>
-                    <div class="project-info">
-                        <h3>Tower Defense Classic</h3>
-                        <p>The ultimate strategy game.</p>
-                    </div>
-                </a>
-
+            
+            <div class="category-block">
+                <h2 class="section-title">🚀 Action & Combat</h2>
+                <div class="project-grid">
+                    <a class="project-card action" href="Catch/Index.html">
+                        <div class="project-icon">🗑️</div>
+                        <div class="project-info">
+                            <h3>Dodge Game</h3>
+                            <p>Survive the falling objects.</p>
+                        </div>
+                    </a>
+                    <a class="project-card action" href="Breakout Ball Game/Breakout.html">
+                        <div class="project-icon">🧱</div>
+                        <div class="project-info">
+                            <h3>Neural Breakout</h3>
+                            <p>High-speed block breaker.</p>
+                        </div>
+                    </a>
+                    <a class="project-card action" href="P5/AI GAME/AI.html">
+                        <div class="project-icon">🚦</div>
+                        <div class="project-info">
+                            <h3>Stop & Go</h3>
+                            <p>AI-driven reflex game.</p>
+                        </div>
+                    </a>
+                    <a class="project-card action" href="Tanks/tankwars.html">
+                        <div class="project-icon">🚀</div>
+                        <div class="project-info">
+                            <h3>Tank Wars</h3>
+                            <p>3D Tank Combat Evolution.</p>
+                        </div>
+                    </a>
+                </div>
             </div>
+
+            <div class="category-block">
+                <h2 class="section-title">🎨 Art & Experiments</h2>
+                <div class="project-grid">
+                    <a class="project-card art-project" href="P5/Caterpiller/Caterpiller.html">
+                        <div class="project-icon">🐛</div>
+                        <div class="project-info">
+                            <h3>Caterpillar Race</h3>
+                            <p>Interactive racing animation.</p>
+                        </div>
+                    </a>
+                    <a class="project-card art-project" href="P5/Circles/index.html">
+                        <div class="project-icon">🫧</div>
+                        <div class="project-info">
+                            <h3>Circle Physics</h3>
+                            <p>Particle interaction study.</p>
+                        </div>
+                    </a>
+                    <a class="project-card fun" href="joke.html">
+                        <div class="project-icon">😂</div>
+                        <div class="project-info">
+                            <h3>Dad Jokes</h3>
+                            <p>Manual laugh protocols.</p>
+                        </div>
+                    </a>
+                    <a class="project-card art-project" href="P5/Flower/index.html">
+                        <div class="project-icon">🌸</div>
+                        <div class="project-info">
+                            <h3>Neural Flower</h3>
+                            <p>Generative growth art.</p>
+                        </div>
+                    </a>
+                    <a class="project-card art-project" href="P5/sunset/Sun.html">
+                        <div class="project-icon">🌅</div>
+                        <div class="project-info">
+                            <h3>Solar Fade</h3>
+                            <p>Atmospheric visual scene.</p>
+                        </div>
+                    </a>
+                    <a class="project-card fun" href="Crazy/Crazy.html">
+                        <div class="project-icon">🤪</div>
+                        <div class="project-info">
+                            <h3>Warp Zone</h3>
+                            <p>Mind-bending visuals.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category-block">
+                <h2 class="section-title">🧪 Neural Evaluation & Testing</h2>
+                <div class="project-grid">
+                    <a class="project-card misc" href="test.html">
+                        <div class="project-icon">👨‍🎨</div>
+                        <div class="project-info">
+                            <h3>Neural Face</h3>
+                            <p>Interactive character simulation.</p>
+                        </div>
+                    </a>
+                    <a class="project-card misc" href="tests/tests.html">
+                        <div class="project-icon">🧪</div>
+                        <div class="project-info">
+                            <h3>Testing Facility</h3>
+                            <p>Neural performance diagnostics.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="category-block">
+                <h2 class="section-title">🏹 Strategy & Defense</h2>
+                <div class="project-grid">
+                    <a class="project-card strategy" href="towerdefense/towerdefense.html">
+                        <div class="project-icon">🏹</div>
+                        <div class="project-info">
+                            <h3>Classic Defense</h3>
+                            <p>Ultimate tactical strategy.</p>
+                        </div>
+                    </a>
+                    <a class="project-card epic" href="Tanks/element_tank.html">
+                        <div class="project-icon">🔥</div>
+                        <div class="project-info">
+                            <h3>Elemental Tanks</h3>
+                            <p>Roguelike dungeon crawler.</p>
+                        </div>
+                    </a>
+                    <a class="project-card strategy" href="towerdefense/nexus_defense.html">
+                        <div class="project-icon">🛡️</div>
+                        <div class="project-info">
+                            <h3>Nexus Defense</h3>
+                            <p>Sci-fi tower defense.</p>
+                        </div>
+                    </a>
+                    <a class="project-card epic" href="Game/index.html">
+                        <div class="project-icon">⚔️</div>
+                        <div class="project-info">
+                            <h3>Shadow Realm RPG</h3>
+                            <p>Turn-based tactical combat.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
         </section>
     </main>
     
@@ -210,5 +255,39 @@
         <p id="copyright">&copy; 2025 Martin's Creative Hub. Built with code and creativity.</p>
     </footer>
     <script src="main.js"></script>
+
+
+
+
+
+
+
+
+<div id="neural-pointer"></div>
+<script>
+    (function() {
+        const pointer = document.getElementById('neural-pointer');
+        if (!pointer) return;
+
+        function isDayTime() {
+            const hour = new Date().getHours();
+            return hour >= 6 && hour < 18;
+        }
+
+        function updatePointerMode() {
+            const isDay = isDayTime();
+            pointer.classList.toggle('day-mode', isDay);
+            pointer.classList.toggle('night-mode', !isDay);
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            pointer.style.left = e.clientX + 'px';
+            pointer.style.top = e.clientY + 'px';
+        });
+
+        updatePointerMode();
+        setInterval(updatePointerMode, 60000);
+    })();
+</script>
 </body>
 </html>

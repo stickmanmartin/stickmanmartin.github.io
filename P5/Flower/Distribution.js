@@ -1,5 +1,5 @@
 function setup() {
-    createCanvas(800, 800);
+    createCanvas(windowWidth, windowHeight);
     background(0);
     frameRate(30)
 }
@@ -71,4 +71,8 @@ function draw() {
     circle(330, 330, 30);
     textSize(27)
     textSize(15)
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
 }

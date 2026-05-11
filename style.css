@@ -31,46 +31,9 @@ body {
     cursor: none; /* Hide default cursor to make the glow become the cursor */
 }
 
-#cursor-glow {
-    position: fixed;
-    width: 20px;
-    height: 20px;
-    pointer-events: none;
-    z-index: 10001;
-    mix-blend-mode: screen;
-    transform: translate(0, 0); /* Tip of the arrow is the coordinate */
-    transition: opacity 0.3s;
-}
 
-#cursor-glow::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 16px;
-    height: 16px;
-    background: white;
-    /* Custom techy arrow shape */
-    clip-path: polygon(0 0, 100% 70%, 50% 70%, 50% 100%);
-    transform: rotate(-10deg);
-    filter: drop-shadow(0 0 2px white);
-}
 
-#cursor-glow::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    /* The core glow center */
-    box-shadow: 
-        0 0 15px 10px #fff,
-        0 0 30px 20px var(--glow-color, rgba(56, 189, 248, 0.8)),
-        0 0 60px 40px var(--glow-secondary, rgba(56, 189, 248, 0.4)),
-        0 0 100px 60px var(--glow-tertiary, rgba(56, 189, 248, 0.2));
-}
+
 
 /* Ensure links and buttons still feel interactive */
 a, button, .project-card, .tower-button {
@@ -138,10 +101,21 @@ a, button, .project-card, .tower-button {
 /* Sections */
 .section-title {
     font-size: 2rem;
-    font-weight: 600;
+    font-weight: 800;
     margin: 60px 0 30px;
-    text-align: center;
+    text-align: left;
     color: var(--text-main);
+    border-left: 5px solid var(--accent);
+    padding-left: 20px;
+    letter-spacing: 1px;
+}
+
+.category-block {
+    margin-bottom: 80px;
+}
+
+.category-block:last-child {
+    margin-bottom: 0;
 }
 
 /* Skills Grid */

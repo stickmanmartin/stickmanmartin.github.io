@@ -264,17 +264,30 @@ function init() {
     }
 }
 
+function isDayTime() {
+    const hour = new Date().getHours();
+    return hour >= 6 && hour < 18;
+}
+
 function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const isDay = isDayTime();
+    
+    // Update Hub Background & Colors based on time
+    ctx.fillStyle = isDay ? '#f1f5f9' : '#0f172a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    document.documentElement.style.setProperty('--bg-dark', isDay ? '#f1f5f9' : '#0f172a');
+    document.documentElement.style.setProperty('--text-main', isDay ? '#0f172a' : '#f8fafc');
+    document.documentElement.style.setProperty('--card-bg', isDay ? '#ffffff' : '#1e293b');
 
-    // Dynamic Color Cycle (Red -> ... -> Red)
+    // Dynamic Color Cycle
     hue = (hue + 0.5) % 360;
-    let currentColor = `hsl(${hue}, 80%, 60%)`;
-    let glowColor = `hsla(${hue}, 80%, 60%, 0.8)`;
-    let glowSecondary = `hsla(${hue}, 80%, 60%, 0.4)`;
-    let glowTertiary = `hsla(${hue}, 80%, 60%, 0.2)`;
+    let lightness = isDay ? 40 : 60; // Darker colors for light mode
+    let currentColor = `hsl(${hue}, 80%, ${lightness}%)`;
+    let glowColor = `hsla(${hue}, 80%, ${lightness}%, 0.8)`;
+    let glowSecondary = `hsla(${hue}, 80%, ${lightness}%, 0.4)`;
+    let glowTertiary = `hsla(${hue}, 80%, ${lightness}%, 0.2)`;
 
-    // Update DOM cursor glow intensity and color via CSS variables
     if (mouse.active && cursorGlow) {
         cursorGlow.style.setProperty('--glow-color', glowColor);
         cursorGlow.style.setProperty('--glow-secondary', glowSecondary);

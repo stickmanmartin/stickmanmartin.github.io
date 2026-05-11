@@ -3,7 +3,7 @@ let flowers = [];
 
 
 function setup() {
-  createCanvas(1300, 900);
+  createCanvas(windowWidth, windowHeight);
   frameRate(10);
   flowerPower();
 
@@ -80,4 +80,8 @@ function createFlower() {
     color: color(random(255), random(255), random(255))
   };
   return flower;
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
 }

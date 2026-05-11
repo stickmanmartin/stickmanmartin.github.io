@@ -8,7 +8,7 @@ let greenVal = 0;
 let blueVal = 0;
 
 function setup() {
-  createCanvas(600, 400);
+  createCanvas(windowWidth, windowHeight);
   frameRate(17)
 }
 function draw(){
@@ -89,3 +89,8 @@ function tree(x,y,size) {
   function mousePressed(){
     tree(mouseX, mouseY,5);
   }
+
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+}

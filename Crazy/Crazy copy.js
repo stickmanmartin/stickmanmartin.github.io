@@ -4,7 +4,7 @@ let emoji = ['💩', '☠️', '👻', '🤑', '🌏', '', '🐲', '💸', '😎
 let numberofflowers = 1
 
 function setup() {
-  createCanvas(1300, 900);
+  createCanvas(windowWidth, windowHeight);
   frameRate(1);
   flowerPower();
 
@@ -72,4 +72,8 @@ function drawFlower(flower) {
   circle(flower.x, flower.y, flower.size / 2);
   textSize(flower.size/8 * 3)
   text(flower.emoji, flower.x - flower.size/128 * 23, flower.y + flower.size/256 * 31.5);
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
 }

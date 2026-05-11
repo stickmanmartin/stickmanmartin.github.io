@@ -179,3 +179,8 @@ function keyPressed() {
     resetGame(1);
   }
 }
+
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+}

@@ -1,5 +1,5 @@
 function setup() {
-  createCanvas(1050, 800);
+  createCanvas(windowWidth, windowHeight);
 }
 function draw() {
   //when mouse button is pressed, circles turn black
@@ -14,4 +14,8 @@ function draw() {
   //white circles drawn at mouse position
   circle(mouseX, mouseY, 100); 
     
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
 }

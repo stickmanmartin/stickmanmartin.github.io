@@ -10,7 +10,55 @@
 
     <script src="/P5/libraries/p5.min.js"></script>
     <script src="/P5/libraries/p5.sound.min.js"></script>
-  </head>
+  
+
+
+
+<style>
+    #neural-pointer {
+        position: fixed;
+        width: 32px;
+        height: 32px;
+        pointer-events: none;
+        z-index: 9999999;
+        transform: translate(0, 0);
+        display: block;
+        /* Apply shadow to the parent so it doesn't get clipped */
+        filter: 
+            drop-shadow(2px 0 0 #000) 
+            drop-shadow(-2px 0 0 #000) 
+            drop-shadow(0 2px 0 #000) 
+            drop-shadow(0 -2px 0 #000)
+            drop-shadow(1px 1px 0 #000)
+            drop-shadow(-1px -1px 0 #000);
+    }
+    #neural-pointer::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        clip-path: polygon(0% 0%, 100% 70%, 40% 70%, 40% 100%);
+        transition: background 0.3s ease;
+    }
+    
+    /* Day Mode: Glowing White (with Black Outline from parent) */
+    #neural-pointer.day-mode::before {
+        background: #ffffff;
+    }
+    
+    /* Night Mode: Black (with White inner glow then Black Outline from parent) */
+    #neural-pointer.night-mode::before {
+        background: #000000;
+        /* Add a small white inner glow to distinguish from the black background */
+        box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.8); /* Border inside clip-path helps */
+    }
+
+    /* Hide original cursor project-wide */
+    *, html, body, a, button, input, select, textarea, canvas {
+        cursor: none !important;
+    }
+</style>
+</head>
 
   <body>
     
@@ -26,6 +74,43 @@
 
 <!-- Global Hub Navigation -->
 <style>
+    body { margin: 0; overflow: hidden; background: #0a0a0c; }
+    canvas { display: block; width: 100vw; height: 100vh; }
+
+    .global-hub-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
+        color: white !important;
+        text-decoration: none !important;
+        padding: 14px 28px;
+        border-radius: 50px;
+        font-family: 'Poppins', 'Segoe UI', sans-serif;
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 1.5px;
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+        z-index: 1000000;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+    .global-hub-btn:hover {
+        transform: scale(1.1) translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6);
+        background: linear-gradient(135deg, #0077ff 0%, #00f2ff 100%);
+        border-color: #fff;
+    }
+    .global-hub-btn::before {
+        content: '🏠';
+        font-size: 18px;
+    }
+
     .global-hub-btn {
         position: fixed;
         bottom: 25px;
@@ -61,6 +146,40 @@
     }
 </style>
 
-<a href="../../index.html" class="global-hub-btn">Back to Hub</a>
+<a href="../../index.html" class="global-hub-btn">Back to the Hub</a>
+
+
+
+
+
+
+
+
+<div id="neural-pointer"></div>
+<script>
+    (function() {
+        const pointer = document.getElementById('neural-pointer');
+        if (!pointer) return;
+
+        function isDayTime() {
+            const hour = new Date().getHours();
+            return hour >= 6 && hour < 18;
+        }
+
+        function updatePointerMode() {
+            const isDay = isDayTime();
+            pointer.classList.toggle('day-mode', isDay);
+            pointer.classList.toggle('night-mode', !isDay);
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            pointer.style.left = e.clientX + 'px';
+            pointer.style.top = e.clientY + 'px';
+        });
+
+        updatePointerMode();
+        setInterval(updatePointerMode, 60000);
+    })();
+</script>
 </body>
 </html>

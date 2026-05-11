@@ -3,291 +3,516 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Layout</title>
+    <title>Neural Face v2.0 - Interactive Simulation</title>
     <style>
+        :root {
+            --bg-color: #1a1a20;
+            --face-skin: #FFE5B4;
+            --eye-bg: #ffffff;
+            --accent: #38bdf8;
+            --heat-color: rgba(255, 0, 0, 0);
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f0f0;
+            background-color: var(--bg-color);
             position: relative;
+            overflow: hidden;
+            cursor: none;
         }
+
+        /* Ambient Neural Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 70%),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 50px 50px, 50px 50px;
+            z-index: -1;
+        }
+
         .container {
             position: relative;
-            width: 400px; /* Container size remains unchanged */
-            height: 500px; /* Container size remains unchanged */
+            width: 500px;
+            height: 600px;
+            background: var(--face-skin);
+            border-radius: 150px 150px 100px 100px;
+            box-shadow: 
+                0 20px 50px rgba(0,0,0,0.5),
+                inset 0 -20px 40px rgba(0,0,0,0.1);
+            transition: background-color 0.5s;
         }
-        .item {
+
+        /* Flushing effect when eating */
+        .container.flushing {
+            background-color: #ffb38a;
+        }
+
+        /* --- EYES --- */
+        .eyes {
+            position: absolute;
+            top: 120px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 40px;
+            box-sizing: border-box;
+        }
+
+        .eye-socket {
+            width: 120px;
+            height: 120px;
+            background: var(--eye-bg);
+            border: 6px solid #2d2d35;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: absolute;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.2);
         }
-        .eyebrows {
-    position: absolute;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    top: 10px; /* Positioning above the eyes */
-    padding: 0 20px; /* Added padding to ensure eyebrows are centered */
-}
 
-.eyebrow {
-    width: 120px; /* Width of eyebrow */
-    height: 20px; /* Height of eyebrow */
-    background-color: #000; /* Eyebrow color */
-    border-radius: 10px; /* Rounded edges */
-}
-
-.eyes {
-    position: absolute;
-    top: 40px; /* Adjusted position */
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 20px; /* Added padding to ensure eyes are centered */
-}
-
-.eye {
-    width: 100px; /* Increased size */
-    height: 100px; /* Increased size */
-    border: 4px solid #000; /* Increased border width */
-    border-radius: 50%;
-    background-color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px; /* Increased font size */
-    animation: blink 4s infinite; /* Apply animation */
-    overflow: hidden; /* Ensure the eye content is clipped */
-}
-
-@keyframes blink {
-    25%, 80% {
-        height: 0px; /* Eye open */
-    }
-    50% {
-        height: 100px; /* Eye closed completely */
-    }
-}
-
-.nose {
-    position: absolute;
-    top: 240px; /* Adjusted position */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 100px solid transparent;
-    border-right: 100px solid transparent;
-    border-bottom: 100px solid transparent;
-    background-color: transparent;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1; /* Ensure nostrils appear above the nose */
-}
-
-.nose::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 100px solid transparent;
-    border-right: 100px solid transparent;
-    border-bottom: 100px solid #FFE5B4;
-    z-index: 1;
-}
-
-.nose img {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-}
-.nostril {
-            position: absolute;
+        .pupil {
             width: 40px;
             height: 40px;
-            background-color: #c4bfb5;
+            background: #1a1a20;
             border-radius: 50%;
-            top: 80px;
-            transform: translateY(-50%);
-            z-index: 2;
-        }
-        .nostril.left {
-            left: 20px;
-        }
-        .nostril.right {
-            right: 20px;
-        }
-       .hexagon {
             position: absolute;
-            top: 160px; /* Adjusted position */
+            transition: transform 0.1s ease-out;
+        }
+
+        .pupil::after {
+            content: '';
+            position: absolute;
+            top: 8px; left: 8px;
+            width: 12px; height: 12px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .eyelid {
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--face-skin);
+            z-index: 10;
+            border-bottom: 4px solid #2d2d35;
+            animation: blinkAction 5s infinite;
+        }
+
+        @keyframes blinkAction {
+            0%, 96%, 100% { top: -100%; }
+            98% { top: 0%; }
+        }
+
+        /* --- NOSE --- */
+        .nose {
+            position: absolute;
+            top: 280px;
             left: 50%;
             transform: translateX(-50%);
-            width: 120px; /* Increased size */
-            height: 120px; /* Increased size */
-            background: transparent;
-            color: transparent;
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            width: 80px;
+            height: 100px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 40px;
+            z-index: 20;
+        }
+
+        .nostrils {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .nostril {
+            width: 20px;
+            height: 15px;
+            background: #333;
+            border-radius: 50%;
+        }
+
+        /* --- SMOKE --- */
+        .smoke-emitter {
+            position: absolute;
+            top: -20px;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .smoke-particle {
+            position: absolute;
+            background: rgba(200, 200, 200, 0.6);
+            border-radius: 50%;
+            filter: blur(8px);
+            opacity: 0;
+            animation: riseAndFade 2s infinite ease-out;
+        }
+
+        @keyframes riseAndFade {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            20% { opacity: 0.5; }
+            100% { transform: translateY(-150px) scale(5); opacity: 0; }
+        }
+
+        /* --- MOUTH --- */
+        .mouth-container {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 120px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px; /* Increased font size */
         }
-        @keyframes mouthAnimation {
-    0%, 100% {
-        height: 0; /* Mouth closed */
-        opacity: 0; /* Teeth hidden */
-    }
-    50% {
-        height: 120px; /* Mouth open */
-        opacity: 1; /* Teeth visible */
-    }
-}
 
-.mouth {
-    position: absolute;
-    bottom: -50px; /* Adjust as needed */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 320px;
-    height: 100px; /* Initial height */
-    border: 2px solid #000;
-    border-radius: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: red;
-    overflow: hidden; /* Ensures teeth are hidden */
-    animation: mouthAnimation 7s infinite; /* Apply animation */
-}
-.mouth img {
+        .mouth {
+            width: 100%;
+            height: 20px;
+            background: #8b1a1a;
+            border: 6px solid #2d2d35;
+            border-radius: 100px;
+            position: relative;
+            overflow: hidden;
+            transition: height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .mouth.open {
+            height: 140px;
+        }
+
+        .teeth-row {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            padding: 2px 10px;
+        }
+
+        .tooth {
+            width: 25px;
+            height: 30px;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #ddd;
+        }
+
+        .teeth-row.bottom .tooth {
+            border-radius: 8px 8px 0 0;
+        }
+
+        /* --- FOOD --- */
+        .chicken-leg {
             position: absolute;
-            width: 100px; /* Adjusted size */
-            height: 100px; /* Ensure it fits within the nose */
-            object-fit: cover; /* Ensures image covers the div */
-            top: 50%; /* Center image vertically */
-            left: 50%; /* Center image horizontally */
-            transform: translate(-50%, -50%); /* Adjust position to center */
-            z-index: 2;
+            width: 120px;
+            height: 120px;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+            transform-origin: center;
         }
-.teeth {
-    display: flex; /* Ensure teeth are laid out */
-    flex-direction: column;
-    justify-content: space-between;
-    width: 100%;
-    height: 100%;
-    position: relative;
-    padding: 5px; /* Padding for spacing */
-    opacity: 0; /* Teeth hidden initially */
-    animation: mouthAnimation 7s infinite; /* Apply animation */
-}
 
+        /* --- UI ELEMENTS --- */
+        .metabolism-meter {
+            position: absolute;
+            right: -100px;
+            top: 50px;
+            width: 20px;
+            height: 400px;
+            background: #2d2d35;
+            border-radius: 10px;
+            border: 2px solid var(--accent);
+            overflow: hidden;
+        }
 
-.row {
-    display: flex;
-    justify-content: space-between; /* Space teeth horizontally */
-    width: 100%;
-}
+        .meter-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(to top, #10b981, #fbbf24, #ef4444);
+            transition: height 0.5s;
+        }
 
-/* Normal (Pointing Up) Teeth */
-.tooth {
-    width: 0;
-    height: 0;
-    border-left: 20px solid transparent; /* Triangle width */
-    border-right: 20px solid transparent; /* Triangle width */
-    border-bottom: 40px solid; /* Triangle height and color */
-    margin: 0 5px; /* Space between teeth */
-}
+        
 
-/* Flipped (Pointing Down) Teeth */
-.toothflipped {
-    border-bottom: 0%; /* Remove bottom border */
-    border-top: 40px solid; /* Top border to form a downward triangle */
-    border-left: 20px solid transparent; /* Triangle width */
-    border-right: 20px solid transparent; /* Triangle width */
-}
+        
 
-/* Optional: Adjust positioning of rows */
-.row:first-child {
-    margin-bottom: 20px; /* Space between rows */
-}
+        @keyframes rotatePointer {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
 
-
-
-.circle {
-    position: fixed; /* Fixes the button position relative to the viewport */
-    bottom: 20px; /* Distance from the bottom edge of the viewport */
-    right: 20px; /* Distance from the right edge of the viewport */
-    width: 50px;
-    height: 50px;
-    border: 2px solid #000;
-    border-radius: 50%;
-    background-color: #f00;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-decoration: none;
-    color: #fff;
-    font-size: 18px;
-    z-index: 1000; /* Ensures the button is above other content */
-}
+        .global-hub-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 800;
+            z-index: 10000;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+            border: 2px solid white;
+        }
     </style>
+
+
+
+
+<style>
+    #neural-pointer {
+        position: fixed;
+        width: 32px;
+        height: 32px;
+        pointer-events: none;
+        z-index: 9999999;
+        transform: translate(0, 0);
+        display: block;
+        /* Apply shadow to the parent so it doesn't get clipped */
+        filter: 
+            drop-shadow(2px 0 0 #000) 
+            drop-shadow(-2px 0 0 #000) 
+            drop-shadow(0 2px 0 #000) 
+            drop-shadow(0 -2px 0 #000)
+            drop-shadow(1px 1px 0 #000)
+            drop-shadow(-1px -1px 0 #000);
+    }
+    #neural-pointer::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        clip-path: polygon(0% 0%, 100% 70%, 40% 70%, 40% 100%);
+        transition: background 0.3s ease;
+    }
+    
+    /* Day Mode: Glowing White (with Black Outline from parent) */
+    #neural-pointer.day-mode::before {
+        background: #ffffff;
+    }
+    
+    /* Night Mode: Black (with White inner glow then Black Outline from parent) */
+    #neural-pointer.night-mode::before {
+        background: #000000;
+        /* Add a small white inner glow to distinguish from the black background */
+        box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.8); /* Border inside clip-path helps */
+    }
+
+    /* Hide original cursor project-wide */
+    *, html, body, a, button, input, select, textarea, canvas {
+        cursor: none !important;
+    }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="eyebrows">
-            <div class="eyebrow">Link 1</div>
-            <div class="eyebrow">Link 2</div>
+
+    <div class="container" id="face">
+        <div class="metabolism-meter">
+            <div class="meter-fill" id="meter"></div>
         </div>
+
         <div class="eyes">
-            <div class="eye" style="font-size: small; text-align: center; background-color: rgb(34, 0, 255); color:white">My name is optimus prime</div>
-            <div class="eye" style="font-size: small; text-align: center; background-color: rgb(255, 0, 0); color:white"> And I am going to take over the world</div>
+            <div class="eye-socket">
+                <div class="eyelid"></div>
+                <div class="pupil" id="pupil-l"></div>
+            </div>
+            <div class="eye-socket">
+                <div class="eyelid"></div>
+                <div class="pupil" id="pupil-r"></div>
+            </div>
         </div>
-        <div class="hexagon">Img</div>
+
         <div class="nose">
-            <img src="https://news.tfw2005.com/wp-content/uploads/sites/10/2021/12/3Z-DLX-ROTF-Prime-61.jpg" alt="Nose Image">
-            <div class="nostril left"></div>
-            <div class="nostril right"></div>
-        </div>        
-        <div class="mouth"><img src="data:image/jpeg;base64,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" alt="Chicken leg">
-            <div class="teeth">
-                <div class="row">
-                    <div class="toothflipped"></div>
-                    <div class="toothflipped"></div>
-                    <div class="toothflipped"></div>
-                    <div class="toothflipped"></div>
-                    <div class="toothflipped"></div>
-                    <div class="toothflipped"></div>
-                    <!-- Add more teeth if needed -->
+            <div class="nostrils">
+                <div class="nostril"></div>
+                <div class="nostril"></div>
+            </div>
+            <div class="smoke-emitter" id="smoke-l" style="left: 10px;"></div>
+            <div class="smoke-emitter" id="smoke-r" style="right: 10px;"></div>
+        </div>
+
+        <div class="mouth-container">
+            <div class="mouth" id="mouth">
+                <div class="teeth-row">
+                    <div class="tooth"></div>
+                    <div class="tooth"></div>
+                    <div class="tooth"></div>
+                    <div class="tooth"></div>
                 </div>
-                <div class="row">
+                <div class="teeth-row bottom">
                     <div class="tooth"></div>
                     <div class="tooth"></div>
                     <div class="tooth"></div>
                     <div class="tooth"></div>
-                    <div class="tooth"></div>
-                    <div class="tooth"></div>
-                    <!-- Add more teeth if needed -->
                 </div>
             </div>
         </div>
+    </div>
+
+    <img src="https://img.icons8.com/color/512/poultry-leg.png" class="chicken-leg" id="chicken">
+
+    
+
+    <a href="index.html" class="global-hub-btn">Back to the Hub</a>
+
+    <script>
+        function isDayTime() {
+            const hour = new Date().getHours();
+            return hour >= 6 && hour < 18;
+        }
+
+        const face = document.getElementById('face');
+        const mouth = document.getElementById('mouth');
+        const chicken = document.getElementById('chicken');
+        const meter = document.getElementById('meter');
+        const pupilL = document.getElementById('pupil-l');
+        const pupilR = document.getElementById('pupil-r');
+        const pointer = document.getElementById('facility-pointer');
         
-        
-    <a href="index.html" class="circle" >Home</a>
+        let metabolism = 0;
+        let isEating = false;
+
+        // Apply initial circadian colors
+        const isDay = isDayTime();
+        document.body.style.backgroundColor = isDay ? '#f0f0f0' : '#0a0a0c';
+        face.style.backgroundColor = isDay ? '#FFE5B4' : '#d2b48c';
+
+        window.addEventListener('mousemove', (e) => {
+            pointer.style.left = e.clientX + 'px';
+            pointer.style.top = e.clientY + 'px';
+
+            // Eye Tracking
+            const movePupil = (pupil) => {
+                const rect = pupil.parentElement.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const dx = e.clientX - centerX;
+                const dy = e.clientY - centerY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const maxMove = 30;
+                const angle = Math.atan2(dy, dx);
+                const moveX = Math.cos(angle) * Math.min(dist/10, maxMove);
+                const moveY = Math.sin(angle) * Math.min(dist/10, maxMove);
+                pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            };
+            movePupil(pupilL);
+            movePupil(pupilR);
+
+            // Trigger Eating Interaction
+            const mouthRect = mouth.getBoundingClientRect();
+            const distToMouth = Math.sqrt(
+                Math.pow(e.clientX - (mouthRect.left + mouthRect.width/2), 2) +
+                Math.pow(e.clientY - (mouthRect.top + mouthRect.height/2), 2)
+            );
+
+            if (distToMouth < 100 && !isEating) {
+                startEating(e.clientX, e.clientY);
+            }
+        });
+
+        function startEating(x, y) {
+            isEating = true;
+            mouth.classList.add('open');
+            chicken.style.display = 'block';
+            chicken.style.left = (x - 60) + 'px';
+            chicken.style.top = (y - 60) + 'px';
+            
+            // Animation for chicken being "eaten"
+            let progress = 0;
+            const eatInterval = setInterval(() => {
+                progress += 0.05;
+                const mouthRect = mouth.getBoundingClientRect();
+                const targetX = mouthRect.left + mouthRect.width/2 - 60;
+                const targetY = mouthRect.top + mouthRect.height/2 - 60;
+                
+                const curX = parseFloat(chicken.style.left);
+                const curY = parseFloat(chicken.style.top);
+                
+                chicken.style.left = (curX + (targetX - curX) * 0.2) + 'px';
+                chicken.style.top = (curY + (targetY - curY) * 0.2) + 'px';
+                chicken.style.transform = `scale(${1 - progress}) rotate(${progress * 360}deg)`;
+
+                if (progress >= 1) {
+                    clearInterval(eatInterval);
+                    finishEating();
+                }
+            }, 30);
+        }
+
+        function finishEating() {
+            chicken.style.display = 'none';
+            mouth.classList.remove('open');
+            
+            metabolism = Math.min(100, metabolism + 15);
+            updateMetabolism();
+            
+            // Generate Smoke based on metabolism
+            for(let i=0; i<Math.floor(metabolism/20); i++) {
+                createSmoke('smoke-l');
+                createSmoke('smoke-r');
+            }
+
+            setTimeout(() => { isEating = false; }, 500);
+        }
+
+        function updateMetabolism() {
+            const isDay = isDayTime();
+            meter.style.height = metabolism + '%';
+            if (metabolism > 50) {
+                face.classList.add('flushing');
+                face.style.backgroundColor = isDay ? '#ffcccc' : '#c58e7f';
+            } else {
+                face.classList.remove('flushing');
+                face.style.backgroundColor = isDay ? '#FFE5B4' : '#d2b48c';
+            }
+        }
+
+        function createSmoke(id) {
+            const container = document.getElementById(id);
+            const p = document.createElement('div');
+            p.className = 'smoke-particle';
+            const size = 10 + Math.random() * 20;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = (Math.random() * 20 - 10) + 'px';
+            container.appendChild(p);
+            setTimeout(() => p.remove(), 2000);
+        }
+
+        // Metabolism decay
+        setInterval(() => {
+            if (metabolism > 0) {
+                metabolism -= 0.5;
+                updateMetabolism();
+                if (Math.random() < metabolism/200) {
+                    createSmoke('smoke-l');
+                    createSmoke('smoke-r');
+                }
+            }
+        }, 100);
+
+    </script>
 
 
 
@@ -296,60 +521,31 @@
 
 
 
+<div id="neural-pointer"></div>
+<script>
+    (function() {
+        const pointer = document.getElementById('neural-pointer');
+        if (!pointer) return;
 
+        function isDayTime() {
+            const hour = new Date().getHours();
+            return hour >= 6 && hour < 18;
+        }
 
+        function updatePointerMode() {
+            const isDay = isDayTime();
+            pointer.classList.toggle('day-mode', isDay);
+            pointer.classList.toggle('night-mode', !isDay);
+        }
 
+        window.addEventListener('mousemove', (e) => {
+            pointer.style.left = e.clientX + 'px';
+            pointer.style.top = e.clientY + 'px';
+        });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- Global Hub Navigation -->
-<style>
-    .global-hub-btn {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
-        color: white !important;
-        text-decoration: none !important;
-        padding: 14px 28px;
-        border-radius: 50px;
-        font-family: 'Poppins', 'Segoe UI', sans-serif;
-        font-weight: 800;
-        font-size: 13px;
-        letter-spacing: 1.5px;
-        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
-        z-index: 1000000;
-        border: 2px solid rgba(255, 255, 255, 0.8);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-transform: uppercase;
-        cursor: pointer;
-    }
-    .global-hub-btn:hover {
-        transform: scale(1.1) translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6);
-        background: linear-gradient(135deg, #0077ff 0%, #00f2ff 100%);
-        border-color: #fff;
-    }
-    .global-hub-btn::before {
-        content: '🏠';
-        font-size: 18px;
-    }
-</style>
-
-<a href="index.html" class="global-hub-btn">Back to Hub</a>
+        updatePointerMode();
+        setInterval(updatePointerMode, 60000);
+    })();
+</script>
 </body>
 </html>
