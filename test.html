@@ -3,549 +3,403 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Face v2.0 - Interactive Simulation</title>
+    <title>Cyber Visage: Feed the Machine</title>
     <style>
         :root {
-            --bg-color: #1a1a20;
+            --bg-day: #f1f5f9;
+            --bg-night: #0a0a0c;
+            --text-day: #0f172a;
+            --text-night: #f8fafc;
             --face-skin: #FFE5B4;
-            --eye-bg: #ffffff;
             --accent: #38bdf8;
-            --heat-color: rgba(255, 0, 0, 0);
         }
 
-        body {
+        body { 
+            margin: 0; overflow: hidden; background: var(--bg-night); 
             font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: var(--bg-color);
-            position: relative;
-            overflow: hidden;
-            cursor: none;
+            transition: background-color 0.5s ease;
+            display: flex; justify-content: center; align-items: center; height: 100vh;
+            cursor: none !important;
+            user-select: none;
         }
-
-        /* Ambient Neural Background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: 
-                radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 70%),
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 100% 100%, 50px 50px, 50px 50px;
-            z-index: -1;
-        }
+        
+        body.day-theme { background-color: var(--bg-day) !important; color: var(--text-day) !important; }
+        body.night-theme { background-color: var(--bg-night) !important; color: var(--text-night) !important; }
 
         .container {
             position: relative;
-            width: 500px;
-            height: 600px;
+            width: 450px; height: 550px;
             background: var(--face-skin);
-            border-radius: 150px 150px 100px 100px;
-            box-shadow: 
-                0 20px 50px rgba(0,0,0,0.5),
-                inset 0 -20px 40px rgba(0,0,0,0.1);
-            transition: background-color 0.5s;
-        }
-
-        /* Flushing effect when eating */
-        .container.flushing {
-            background-color: #ffb38a;
+            border-radius: 120px 120px 80px 80px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            z-index: 5;
+            transition: background-color 0.3s;
         }
 
         /* --- EYES --- */
         .eyes {
-            position: absolute;
-            top: 120px;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            padding: 0 40px;
-            box-sizing: border-box;
+            position: absolute; top: 100px; width: 100%;
+            display: flex; justify-content: space-around; padding: 0 40px; box-sizing: border-box;
         }
-
         .eye-socket {
-            width: 120px;
-            height: 120px;
-            background: var(--eye-bg);
-            border: 6px solid #2d2d35;
-            border-radius: 50%;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: inset 0 5px 15px rgba(0,0,0,0.2);
+            width: 100px; height: 100px; background: white; border: 5px solid #2d2d35;
+            border-radius: 50%; position: relative; overflow: hidden;
         }
-
         .pupil {
-            width: 40px;
-            height: 40px;
-            background: #1a1a20;
-            border-radius: 50%;
-            position: absolute;
-            transition: transform 0.1s ease-out;
+            width: 35px; height: 35px; background: #1a1a20; border-radius: 50%;
+            position: absolute; left: 50%; top: 50%; margin: -17.5px;
+            transition: transform 0.05s linear;
         }
-
-        .pupil::after {
-            content: '';
-            position: absolute;
-            top: 8px; left: 8px;
-            width: 12px; height: 12px;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.8;
-        }
-
         .eyelid {
-            position: absolute;
-            top: -100%;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--face-skin);
-            z-index: 10;
-            border-bottom: 4px solid #2d2d35;
-            animation: blinkAction 5s infinite;
+            position: absolute; top: -100%; left: 0; width: 100%; height: 100%;
+            background: var(--face-skin); z-index: 10; border-bottom: 2px solid #2d2d35;
+            animation: blink 4s infinite;
         }
-
-        @keyframes blinkAction {
-            0%, 96%, 100% { top: -100%; }
-            98% { top: 0%; }
-        }
+        @keyframes blink { 0%, 96%, 100% { top: -100%; } 98% { top: 0%; } }
 
         /* --- NOSE --- */
         .nose {
-            position: absolute;
-            top: 280px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 100px;
-            background: rgba(0,0,0,0.05);
-            border-radius: 40px;
-            z-index: 20;
+            position: absolute; top: 250px; left: 50%; transform: translateX(-50%);
+            width: 60px; height: 80px; background: rgba(0,0,0,0.05); border-radius: 30px;
         }
-
-        .nostrils {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-        }
-
-        .nostril {
-            width: 20px;
-            height: 15px;
-            background: #333;
-            border-radius: 50%;
-        }
-
-        /* --- SMOKE --- */
-        .smoke-emitter {
-            position: absolute;
-            top: -20px;
-            width: 100%;
-            pointer-events: none;
-        }
-
+        .smoke-emitter { position: absolute; top: 0; width: 100%; pointer-events: none; }
         .smoke-particle {
-            position: absolute;
-            background: rgba(200, 200, 200, 0.6);
-            border-radius: 50%;
-            filter: blur(8px);
-            opacity: 0;
-            animation: riseAndFade 2s infinite ease-out;
+            position: absolute; background: rgba(150, 150, 150, 0.4); border-radius: 50%;
+            filter: blur(5px); animation: rise 2s infinite ease-out; opacity: 0;
         }
-
-        @keyframes riseAndFade {
-            0% { transform: translateY(0) scale(1); opacity: 0; }
-            20% { opacity: 0.5; }
-            100% { transform: translateY(-150px) scale(5); opacity: 0; }
-        }
+        @keyframes rise { 0% { transform: translateY(0) scale(1); opacity: 0; } 20% { opacity: 0.4; } 100% { transform: translateY(-120px) scale(4); opacity: 0; } }
 
         /* --- MOUTH --- */
         .mouth-container {
-            position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            height: 120px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+            width: 250px; height: 100px; display: flex; justify-content: center; align-items: center;
         }
-
         .mouth {
-            width: 100%;
-            height: 20px;
-            background: #8b1a1a;
-            border: 6px solid #2d2d35;
-            border-radius: 100px;
-            position: relative;
-            overflow: hidden;
-            transition: height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            width: 100%; height: 25px; background: #8b1a1a; border: 6px solid #2d2d35;
+            border-radius: 100px; overflow: hidden; transition: height 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; flex-direction: column; justify-content: space-between;
         }
+        .mouth.open { height: 130px; }
+        .teeth-row { display: flex; justify-content: space-around; padding: 2px 10px; }
+        .tooth { width: 20px; height: 25px; background: white; border-radius: 0 0 5px 5px; }
+        .teeth-row.bottom .tooth { border-radius: 5px 5px 0 0; }
 
-        .mouth.open {
-            height: 140px;
+        /* --- GAME ELEMENTS --- */
+        .food-item {
+            position: absolute; width: 60px; height: 60px; z-index: 100;
+            cursor: none !important; transition: transform 0.1s linear;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
         }
+        .food-item img { width: 100%; height: 100%; pointer-events: none; }
 
-        .teeth-row {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            padding: 2px 10px;
+        #game-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 1000; text-align: center; backdrop-filter: blur(10px);
         }
+        .stats { position: fixed; top: 20px; left: 20px; z-index: 50; color: var(--accent); }
+        .meter { width: 20px; height: 350px; background: #2d2d35; border: 2px solid var(--accent); position: absolute; right: -50px; top: 75px; border-radius: 10px; overflow: hidden; }
+        .meter-fill { position: absolute; bottom: 0; width: 100%; height: 0%; background: linear-gradient(to top, #10b981, #fbbf24, #ef4444); transition: height 0.3s; }
 
-        .tooth {
-            width: 25px;
-            height: 30px;
-            background: white;
-            border-radius: 0 0 8px 8px;
-            border: 1px solid #ddd;
+        #neural-pointer {
+            position: fixed; width: 32px; height: 32px; pointer-events: none; z-index: 9999999;
+            filter: drop-shadow(0 0 10px var(--rainbow-glow, #38bdf8)) drop-shadow(0 0 2px #fff) drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
         }
-
-        .teeth-row.bottom .tooth {
-            border-radius: 8px 8px 0 0;
+        #neural-pointer::before {
+            content: ''; position: absolute; inset: 0; 
+            clip-path: polygon(0% 0%, 100% 70%, 40% 70%, 40% 100%);
+            transition: background 0.3s ease;
         }
-
-        /* --- FOOD --- */
-        .chicken-leg {
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            pointer-events: none;
-            z-index: 100;
-            display: none;
-            transform-origin: center;
-        }
-
-        /* --- UI ELEMENTS --- */
-        .metabolism-meter {
-            position: absolute;
-            right: -100px;
-            top: 50px;
-            width: 20px;
-            height: 400px;
-            background: #2d2d35;
-            border-radius: 10px;
-            border: 2px solid var(--accent);
-            overflow: hidden;
-        }
-
-        .meter-fill {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 0%;
-            background: linear-gradient(to top, #10b981, #fbbf24, #ef4444);
-            transition: height 0.5s;
-        }
-
-        
-
-        
-
-        @keyframes rotatePointer {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        #neural-pointer.day-mode::before { background: #ffffff; }
+        #neural-pointer.night-mode::before { background: #000000; }
 
         .global-hub-btn {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
+            position: fixed; bottom: 25px; right: 25px; z-index: 10000;
             background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
-            color: white;
-            text-decoration: none;
-            padding: 14px 28px;
-            border-radius: 50px;
-            font-weight: 800;
-            z-index: 10000;
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
-            border: 2px solid white;
+            color: white !important; text-decoration: none !important;
+            padding: 14px 28px; border-radius: 50px; font-weight: 800; font-size: 13px;
+            letter-spacing: 1.5px; box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.8); transition: all 0.4s;
+            display: flex; align-items: center; gap: 10px; text-transform: uppercase;
         }
+        .global-hub-btn:hover { transform: scale(1.1) translateY(-5px); box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6); }
+
+        *, html, body { cursor: none !important; }
     </style>
-
-
-
-
-<style>
-    #neural-pointer {
-        position: fixed;
-        width: 32px;
-        height: 32px;
-        pointer-events: none;
-        z-index: 9999999;
-        transform: translate(0, 0);
-        display: block;
-        /* Apply shadow to the parent so it doesn't get clipped */
-        filter: 
-            drop-shadow(2px 0 0 #000) 
-            drop-shadow(-2px 0 0 #000) 
-            drop-shadow(0 2px 0 #000) 
-            drop-shadow(0 -2px 0 #000)
-            drop-shadow(1px 1px 0 #000)
-            drop-shadow(-1px -1px 0 #000);
-    }
-    #neural-pointer::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        clip-path: polygon(0% 0%, 100% 70%, 40% 70%, 40% 100%);
-        transition: background 0.3s ease;
-    }
-    
-    /* Day Mode: Glowing White (with Black Outline from parent) */
-    #neural-pointer.day-mode::before {
-        background: #ffffff;
-    }
-    
-    /* Night Mode: Black (with White inner glow then Black Outline from parent) */
-    #neural-pointer.night-mode::before {
-        background: #000000;
-        /* Add a small white inner glow to distinguish from the black background */
-        box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.8); /* Border inside clip-path helps */
-    }
-
-    /* Hide original cursor project-wide */
-    *, html, body, a, button, input, select, textarea, canvas {
-        cursor: none !important;
-    }
-</style>
 </head>
-<body>
+<body class="night-theme">
+
+    <div class="stats">
+        <h2 id="score-text" style="margin:0">SYNC: 0</h2>
+        <p id="high-score-text" style="margin:0; opacity:0.7">PEAK: 0</p>
+    </div>
+
+    <div id="game-overlay">
+        <h1 style="color: var(--accent); font-size: 4rem; margin: 0; text-transform: uppercase; letter-spacing: 5px;">Feed the Machine</h1>
+        <p style="color: #fff; margin-bottom: 30px; font-size: 1.1rem;">Grab GOOD FOOD and drag it to the mouth.<br>Avoid RUBBISH and HOT PEPPERS.<br>Don't let the Core Overheat.</p>
+        <button onclick="startGame()" style="background: var(--accent); border: none; padding: 15px 45px; font-weight: 900; cursor: pointer; border-radius: 5px; color: #0a0a0c; text-transform: uppercase; letter-spacing: 2px;">Begin Digestion</button>
+    </div>
 
     <div class="container" id="face">
-        <div class="metabolism-meter">
-            <div class="meter-fill" id="meter"></div>
-        </div>
-
+        <div class="meter"><div class="meter-fill" id="heat-meter"></div></div>
         <div class="eyes">
-            <div class="eye-socket">
-                <div class="eyelid"></div>
-                <div class="pupil" id="pupil-l"></div>
-            </div>
-            <div class="eye-socket">
-                <div class="eyelid"></div>
-                <div class="pupil" id="pupil-r"></div>
-            </div>
+            <div class="eye-socket"><div class="eyelid"></div><div class="pupil" id="p-l"></div></div>
+            <div class="eye-socket"><div class="eyelid"></div><div class="pupil" id="p-r"></div></div>
         </div>
-
         <div class="nose">
-            <div class="nostrils">
-                <div class="nostril"></div>
-                <div class="nostril"></div>
-            </div>
-            <div class="smoke-emitter" id="smoke-l" style="left: 10px;"></div>
-            <div class="smoke-emitter" id="smoke-r" style="right: 10px;"></div>
+            <div class="smoke-emitter" id="sm-l" style="left: 5px;"></div>
+            <div class="smoke-emitter" id="sm-r" style="right: 5px;"></div>
         </div>
-
         <div class="mouth-container">
             <div class="mouth" id="mouth">
-                <div class="teeth-row">
-                    <div class="tooth"></div>
-                    <div class="tooth"></div>
-                    <div class="tooth"></div>
-                    <div class="tooth"></div>
-                </div>
-                <div class="teeth-row bottom">
-                    <div class="tooth"></div>
-                    <div class="tooth"></div>
-                    <div class="tooth"></div>
-                    <div class="tooth"></div>
-                </div>
+                <div class="teeth-row"><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div></div>
+                <div class="teeth-row bottom"><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div><div class="tooth"></div></div>
             </div>
         </div>
     </div>
 
-    <img src="https://img.icons8.com/color/512/poultry-leg.png" class="chicken-leg" id="chicken">
-
-    
-
+    <div id="neural-pointer"></div>
     <a href="index.html" class="global-hub-btn">Back to the Hub</a>
 
     <script>
-        function isDayTime() {
-            const hour = new Date().getHours();
-            return hour >= 6 && hour < 18;
-        }
-
         const face = document.getElementById('face');
         const mouth = document.getElementById('mouth');
-        const chicken = document.getElementById('chicken');
-        const meter = document.getElementById('meter');
-        const pupilL = document.getElementById('pupil-l');
-        const pupilR = document.getElementById('pupil-r');
-        const pointer = document.getElementById('facility-pointer');
-        
-        let metabolism = 0;
-        let isEating = false;
+        const heatFill = document.getElementById('heat-meter');
+        const pointer = document.getElementById('neural-pointer');
+        const overlay = document.getElementById('game-overlay');
+        const scoreEl = document.getElementById('score-text');
+        const highEl = document.getElementById('high-score-text');
 
-        // Apply initial circadian colors
-        const isDay = isDayTime();
-        document.body.style.backgroundColor = isDay ? '#f0f0f0' : '#0a0a0c';
-        face.style.backgroundColor = isDay ? '#FFE5B4' : '#d2b48c';
+        let gameState = 'MENU';
+        let score = 0;
+        let heat = 0;
+        let highScore = localStorage.getItem('visageHighscore') || 0;
+        let foodItems = [];
+        let lastSpawn = 0;
+        let fallSpeed = 2.5;
+        let grabbedItem = null;
+
+        const ASSETS = {
+            GOOD: [
+                'https://img.icons8.com/color/96/apple.png',
+                'https://img.icons8.com/color/96/hamburger.png',
+                'https://img.icons8.com/color/96/pizza.png',
+                'https://img.icons8.com/color/96/poultry-leg.png',
+                'https://img.icons8.com/color/96/doughnut.png'
+            ],
+            BAD: [
+                'https://img.icons8.com/color/96/chili-pepper.png',
+                'https://img.icons8.com/color/96/trash.png'
+            ]
+        };
+
+        highEl.innerText = `PEAK: ${highScore}`;
+
+        function startGame() {
+            gameState = 'PLAYING';
+            overlay.style.display = 'none';
+            score = 0; heat = 0; fallSpeed = 2.5;
+            foodItems.forEach(o => o.el.remove());
+            foodItems = [];
+            scoreEl.innerText = `SYNC: 0`;
+        }
+
+        function gameOver(reason) {
+            gameState = 'MENU';
+            overlay.style.display = 'flex';
+            overlay.querySelector('h1').innerText = "CORE MELTDOWN";
+            overlay.querySelector('p').innerText = `${reason}\nFinal Score: ${score}`;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('visageHighscore', highScore);
+                highEl.innerText = `PEAK: ${highScore}`;
+            }
+            grabbedItem = null;
+        }
+
+        window.addEventListener('mousedown', (e) => {
+            if (gameState !== 'PLAYING') return;
+            // Check if we clicked on an item
+            foodItems.forEach(item => {
+                const rect = item.el.getBoundingClientRect();
+                if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                    grabbedItem = item;
+                    item.el.style.transition = 'none';
+                    item.el.style.zIndex = '200';
+                }
+            });
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (grabbedItem) {
+                grabbedItem.el.style.zIndex = '100';
+                grabbedItem = null;
+            }
+        });
 
         window.addEventListener('mousemove', (e) => {
             pointer.style.left = e.clientX + 'px';
             pointer.style.top = e.clientY + 'px';
 
-            // Eye Tracking
-            const movePupil = (pupil) => {
-                const rect = pupil.parentElement.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                const dx = e.clientX - centerX;
-                const dy = e.clientY - centerY;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                const maxMove = 30;
-                const angle = Math.atan2(dy, dx);
-                const moveX = Math.cos(angle) * Math.min(dist/10, maxMove);
-                const moveY = Math.sin(angle) * Math.min(dist/10, maxMove);
-                pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
-            };
-            movePupil(pupilL);
-            movePupil(pupilR);
-
-            // Trigger Eating Interaction
-            const mouthRect = mouth.getBoundingClientRect();
-            const distToMouth = Math.sqrt(
-                Math.pow(e.clientX - (mouthRect.left + mouthRect.width/2), 2) +
-                Math.pow(e.clientY - (mouthRect.top + mouthRect.height/2), 2)
-            );
-
-            if (distToMouth < 100 && !isEating) {
-                startEating(e.clientX, e.clientY);
+            if (grabbedItem) {
+                grabbedItem.x = e.clientX - 30;
+                grabbedItem.y = e.clientY - 30;
+                grabbedItem.el.style.left = grabbedItem.x + 'px';
+                grabbedItem.el.style.top = grabbedItem.y + 'px';
             }
+
+            // Eye Tracking
+            [document.getElementById('p-l'), document.getElementById('p-r')].forEach(p => {
+                const rect = p.parentElement.getBoundingClientRect();
+                const dx = e.clientX - (rect.left + rect.width/2);
+                const dy = e.clientY - (rect.top + rect.height/2);
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const angle = Math.atan2(dy, dx);
+                const move = Math.min(dist/15, 25);
+                p.style.transform = `translate(${Math.cos(angle)*move}px, ${Math.sin(angle)*move}px)`;
+            });
+
+            // Mouth Reactivity
+            const mouthRect = mouth.getBoundingClientRect();
+            const distToMouth = Math.sqrt(Math.pow(e.clientX - (mouthRect.left + mouthRect.width/2), 2) + Math.pow(e.clientY - (mouthRect.top + mouthRect.height/2), 2));
+            if (distToMouth < 150) mouth.classList.add('open');
+            else mouth.classList.remove('open');
         });
 
-        function startEating(x, y) {
-            isEating = true;
-            mouth.classList.add('open');
-            chicken.style.display = 'block';
-            chicken.style.left = (x - 60) + 'px';
-            chicken.style.top = (y - 60) + 'px';
-            
-            // Animation for chicken being "eaten"
-            let progress = 0;
-            const eatInterval = setInterval(() => {
-                progress += 0.05;
-                const mouthRect = mouth.getBoundingClientRect();
-                const targetX = mouthRect.left + mouthRect.width/2 - 60;
-                const targetY = mouthRect.top + mouthRect.height/2 - 60;
-                
-                const curX = parseFloat(chicken.style.left);
-                const curY = parseFloat(chicken.style.top);
-                
-                chicken.style.left = (curX + (targetX - curX) * 0.2) + 'px';
-                chicken.style.top = (curY + (targetY - curY) * 0.2) + 'px';
-                chicken.style.transform = `scale(${1 - progress}) rotate(${progress * 360}deg)`;
+        function spawn() {
+            const isBad = Math.random() < 0.3;
+            const type = isBad ? 'BAD' : 'GOOD';
+            const list = ASSETS[type];
+            const src = list[Math.floor(Math.random() * list.length)];
 
-                if (progress >= 1) {
-                    clearInterval(eatInterval);
-                    finishEating();
+            const el = document.createElement('div');
+            el.className = 'food-item';
+            const img = document.createElement('img');
+            img.src = src;
+            el.appendChild(img);
+            
+            const startX = Math.random() * (window.innerWidth - 60);
+            el.style.left = startX + 'px';
+            el.style.top = '-80px';
+            document.body.appendChild(el);
+            
+            foodItems.push({ 
+                el, 
+                type, 
+                subType: src.includes('pepper') ? 'PEPPER' : (src.includes('trash') ? 'TRASH' : 'GOOD'),
+                y: -80, 
+                x: startX,
+                rotation: Math.random() * 360
+            });
+        }
+
+        function loop() {
+            if (gameState === 'PLAYING') {
+                const now = Date.now();
+                if (now - lastSpawn > Math.max(500, 1500 - score/5)) {
+                    spawn();
+                    lastSpawn = now;
                 }
-            }, 30);
-        }
 
-        function finishEating() {
-            chicken.style.display = 'none';
-            mouth.classList.remove('open');
-            
-            metabolism = Math.min(100, metabolism + 15);
-            updateMetabolism();
-            
-            // Generate Smoke based on metabolism
-            for(let i=0; i<Math.floor(metabolism/20); i++) {
-                createSmoke('smoke-l');
-                createSmoke('smoke-r');
+                foodItems.forEach((item, i) => {
+                    if (item !== grabbedItem) {
+                        item.y += fallSpeed + (score/2000);
+                        item.rotation += 1;
+                        item.el.style.top = item.y + 'px';
+                        item.el.style.transform = `rotate(${item.rotation}deg)`;
+                    }
+
+                    const mRect = mouth.getBoundingClientRect();
+                    // Eating logic: If the item is in the mouth area AND the mouth is open
+                    const centerX = item.x + 30;
+                    const centerY = item.y + 30;
+                    if (centerY > mRect.top && centerY < mRect.bottom && centerX > mRect.left && centerX < mRect.right && mouth.classList.contains('open')) {
+                        if (item.type === 'GOOD') {
+                            score += 250;
+                            heat = Math.max(0, heat - 8);
+                            face.style.backgroundColor = '#bcf5bc'; // Green flash
+                        } else {
+                            if (item.subType === 'PEPPER') {
+                                heat += 35;
+                                face.style.backgroundColor = '#ef4444'; // Red flash
+                                showMessage("SPICY!");
+                            } else {
+                                heat += 20;
+                                face.style.backgroundColor = '#d2b48c'; // Brown flash
+                                showMessage("GROSS!");
+                            }
+                        }
+                        setTimeout(() => face.style.backgroundColor = 'var(--face-skin)', 200);
+                        item.el.remove();
+                        foodItems.splice(i, 1);
+                        if (item === grabbedItem) grabbedItem = null;
+                        scoreEl.innerText = `SYNC: ${score}`;
+                    } else if (item.y > window.innerHeight) {
+                        // Penalize for missing good food
+                        if (item.type === 'GOOD') heat += 12;
+                        item.el.remove();
+                        foodItems.splice(i, 1);
+                    }
+                });
+
+                heat += 0.08; // Passive overheating
+                heatFill.style.height = heat + '%';
+                if (heat >= 100) gameOver("SYSTEM CRITICAL: OVERHEAT");
+                
+                if (Math.random() < heat/400) createSmoke(Math.random() > 0.5 ? 'sm-l' : 'sm-r');
             }
-
-            setTimeout(() => { isEating = false; }, 500);
-        }
-
-        function updateMetabolism() {
-            const isDay = isDayTime();
-            meter.style.height = metabolism + '%';
-            if (metabolism > 50) {
-                face.classList.add('flushing');
-                face.style.backgroundColor = isDay ? '#ffcccc' : '#c58e7f';
-            } else {
-                face.classList.remove('flushing');
-                face.style.backgroundColor = isDay ? '#FFE5B4' : '#d2b48c';
-            }
+            requestAnimationFrame(loop);
         }
 
         function createSmoke(id) {
-            const container = document.getElementById(id);
+            const cont = document.getElementById(id);
+            if (!cont) return;
             const p = document.createElement('div');
             p.className = 'smoke-particle';
-            const size = 10 + Math.random() * 20;
-            p.style.width = size + 'px';
-            p.style.height = size + 'px';
-            p.style.left = (Math.random() * 20 - 10) + 'px';
-            container.appendChild(p);
+            const size = 10 + Math.random() * 25;
+            p.style.width = p.style.height = size + 'px';
+            p.style.left = (Math.random() * 30 - 15) + 'px';
+            cont.appendChild(p);
             setTimeout(() => p.remove(), 2000);
         }
 
-        // Metabolism decay
-        setInterval(() => {
-            if (metabolism > 0) {
-                metabolism -= 0.5;
-                updateMetabolism();
-                if (Math.random() < metabolism/200) {
-                    createSmoke('smoke-l');
-                    createSmoke('smoke-r');
+        function showMessage(txt) {
+            const m = document.createElement('div');
+            m.innerText = txt;
+            m.style.position = 'fixed';
+            m.style.left = '50%';
+            m.style.top = '40%';
+            m.style.transform = 'translate(-50%, -50%)';
+            m.style.fontSize = '3rem';
+            m.style.fontWeight = '900';
+            m.style.color = '#fff';
+            m.style.textShadow = '0 0 20px #000';
+            m.style.pointerEvents = 'none';
+            m.style.zIndex = '500';
+            document.body.appendChild(m);
+            setTimeout(() => m.remove(), 800);
+        }
+
+        // Circadian & Rainbow Pointer Logic
+        (function() {
+            let hue = 0;
+            function updateTheme() {
+                const hour = new Date().getHours();
+                const isDay = hour >= 6 && hour < 18;
+                document.body.classList.toggle('day-theme', isDay);
+                document.body.classList.toggle('night-theme', !isDay);
+                if (pointer) {
+                    pointer.classList.toggle('day-mode', isDay);
+                    pointer.classList.toggle('night-mode', !isDay);
+                    hue = (hue + 2) % 360;
+                    pointer.style.setProperty('--rainbow-glow', `hsl(${hue}, 100%, ${isDay ? 85 : 60}%)`);
                 }
+                requestAnimationFrame(updateTheme);
             }
-        }, 100);
+            updateTheme();
+        })();
 
+        loop();
     </script>
-
-
-
-
-
-
-
-
-<div id="neural-pointer"></div>
-<script>
-    (function() {
-        const pointer = document.getElementById('neural-pointer');
-        if (!pointer) return;
-
-        function isDayTime() {
-            const hour = new Date().getHours();
-            return hour >= 6 && hour < 18;
-        }
-
-        function updatePointerMode() {
-            const isDay = isDayTime();
-            pointer.classList.toggle('day-mode', isDay);
-            pointer.classList.toggle('night-mode', !isDay);
-        }
-
-        window.addEventListener('mousemove', (e) => {
-            pointer.style.left = e.clientX + 'px';
-            pointer.style.top = e.clientY + 'px';
-        });
-
-        updatePointerMode();
-        setInterval(updatePointerMode, 60000);
-    })();
-</script>
 </body>
 </html>

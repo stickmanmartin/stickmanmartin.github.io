@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neural Breakout</title>
+    <title>Shatter Code</title>
     <link rel="stylesheet" href="breakout.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -85,6 +86,10 @@
 
 
 
+
+
+
+
 <style>
     #neural-pointer {
         position: fixed;
@@ -94,14 +99,13 @@
         z-index: 9999999;
         transform: translate(0, 0);
         display: block;
-        /* Apply shadow to the parent so it doesn't get clipped */
         filter: 
-            drop-shadow(2px 0 0 #000) 
-            drop-shadow(-2px 0 0 #000) 
-            drop-shadow(0 2px 0 #000) 
-            drop-shadow(0 -2px 0 #000)
-            drop-shadow(1px 1px 0 #000)
-            drop-shadow(-1px -1px 0 #000);
+            drop-shadow(0 0 10px var(--rainbow-glow, #38bdf8))
+            drop-shadow(0 0 2px #fff) 
+            drop-shadow(1px 0 0 #000) 
+            drop-shadow(-1px 0 0 #000) 
+            drop-shadow(0 1px 0 #000) 
+            drop-shadow(0 -1px 0 #000);
     }
     #neural-pointer::before {
         content: '';
@@ -111,20 +115,9 @@
         transition: background 0.3s ease;
     }
     
-    /* Day Mode: Glowing White (with Black Outline from parent) */
-    #neural-pointer.day-mode::before {
-        background: #ffffff;
-    }
-    
-    /* Night Mode: Black (with White inner glow then Black Outline from parent) */
-    #neural-pointer.night-mode::before {
-        background: #000000;
-        /* Add a small white inner glow to distinguish from the black background */
-        box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.8); /* Border inside clip-path helps */
-    }
+    #neural-pointer.day-mode::before { background: #ffffff; }
+    #neural-pointer.night-mode::before { background: #000000; }
 
-    /* Hide original cursor project-wide */
     *, html, body, a, button, input, select, textarea, canvas {
         cursor: none !important;
     }
@@ -167,7 +160,7 @@
         }
     </style>
     <div id="ui-overlay">
-        Score: <span id="score">0</span> | Speed: <span id="speed">1.0</span>x
+        Score: <span id="score">0</span> | Lives: <span id="lives">3</span> | Speed: <span id="speed">1.0</span>x
     </div>
     
     <div id="game-over">
@@ -235,21 +228,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 <div id="neural-pointer"></div>
 <script>
     (function() {
         const pointer = document.getElementById('neural-pointer');
         if (!pointer) return;
 
+        let hue = 0;
+
         function isDayTime() {
             const hour = new Date().getHours();
             return hour >= 6 && hour < 18;
         }
 
-        function updatePointerMode() {
+        function updatePointer() {
             const isDay = isDayTime();
             pointer.classList.toggle('day-mode', isDay);
             pointer.classList.toggle('night-mode', !isDay);
+
+            hue = (hue + 2) % 360;
+            // High lightness for daytime to prevent "dark" feel, standard for night
+            const lightness = isDay ? 85 : 60; 
+            pointer.style.setProperty('--rainbow-glow', `hsl(${hue}, 100%, ${lightness}%)`);
         }
 
         window.addEventListener('mousemove', (e) => {
@@ -257,8 +267,11 @@
             pointer.style.top = e.clientY + 'px';
         });
 
-        updatePointerMode();
-        setInterval(updatePointerMode, 60000);
+        function animate() {
+            updatePointer();
+            requestAnimationFrame(animate);
+        }
+        animate();
     })();
 </script>
 </body>

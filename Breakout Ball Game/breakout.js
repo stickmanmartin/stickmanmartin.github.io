@@ -2,12 +2,14 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 const scoreEl = document.getElementById("score");
+const livesEl = document.getElementById("lives");
 const speedEl = document.getElementById("speed");
 const gameOverEl = document.getElementById("game-over");
 const finalScoreEl = document.getElementById("final-score");
 const letters = document.querySelectorAll(".letter");
 
 let score = 0;
+let lives = 3;
 let baseSpeed = 4;
 let speedMultiplier = 1.0;
 let gameActive = true;
@@ -149,7 +151,13 @@ function moveBall() {
 
     // Death floor
     if (ball.y + ball.radius > canvas.height) {
-        endGame();
+        lives--;
+        livesEl.textContent = lives;
+        if (lives <= 0) {
+            endGame();
+        } else {
+            resetBall();
+        }
     }
 
     // Paddle collision
@@ -191,6 +199,8 @@ function moveBall() {
     // Check Section Clear
     if (bricks.every(b => !b.active)) {
         currentSection++;
+        lives += 3;
+        livesEl.textContent = lives;
         if (currentSection >= 8) {
             victory();
         } else {
@@ -218,9 +228,11 @@ function victory() {
 
 window.resetGame = function() {
     score = 0;
+    lives = 3;
     speedMultiplier = 1.0;
     currentSection = 0;
     scoreEl.textContent = score;
+    livesEl.textContent = lives;
     speedEl.textContent = "1.00";
     gameOverEl.style.display = "none";
     gameActive = true;

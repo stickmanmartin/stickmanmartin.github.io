@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Martin's Creative Hub</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+
+
+
 
 
 
@@ -19,14 +24,13 @@
         z-index: 9999999;
         transform: translate(0, 0);
         display: block;
-        /* Apply shadow to the parent so it doesn't get clipped */
         filter: 
-            drop-shadow(2px 0 0 #000) 
-            drop-shadow(-2px 0 0 #000) 
-            drop-shadow(0 2px 0 #000) 
-            drop-shadow(0 -2px 0 #000)
-            drop-shadow(1px 1px 0 #000)
-            drop-shadow(-1px -1px 0 #000);
+            drop-shadow(0 0 10px var(--rainbow-glow, #38bdf8))
+            drop-shadow(0 0 2px #fff) 
+            drop-shadow(1px 0 0 #000) 
+            drop-shadow(-1px 0 0 #000) 
+            drop-shadow(0 1px 0 #000) 
+            drop-shadow(0 -1px 0 #000);
     }
     #neural-pointer::before {
         content: '';
@@ -36,20 +40,9 @@
         transition: background 0.3s ease;
     }
     
-    /* Day Mode: Glowing White (with Black Outline from parent) */
-    #neural-pointer.day-mode::before {
-        background: #ffffff;
-    }
-    
-    /* Night Mode: Black (with White inner glow then Black Outline from parent) */
-    #neural-pointer.night-mode::before {
-        background: #000000;
-        /* Add a small white inner glow to distinguish from the black background */
-        box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.8); /* Border inside clip-path helps */
-    }
+    #neural-pointer.day-mode::before { background: #ffffff; }
+    #neural-pointer.night-mode::before { background: #000000; }
 
-    /* Hide original cursor project-wide */
     *, html, body, a, button, input, select, textarea, canvas {
         cursor: none !important;
     }
@@ -118,28 +111,28 @@
                     <a class="project-card action" href="Catch/Index.html">
                         <div class="project-icon">🗑️</div>
                         <div class="project-info">
-                            <h3>Dodge Game</h3>
-                            <p>Survive the falling objects.</p>
+                            <h3>Zenith Reflex</h3>
+                            <p>Survive the falling data hazards.</p>
                         </div>
                     </a>
                     <a class="project-card action" href="Breakout Ball Game/Breakout.html">
                         <div class="project-icon">🧱</div>
                         <div class="project-info">
-                            <h3>Neural Breakout</h3>
+                            <h3>Shatter Code</h3>
                             <p>High-speed block breaker.</p>
                         </div>
                     </a>
                     <a class="project-card action" href="P5/AI GAME/AI.html">
                         <div class="project-icon">🚦</div>
                         <div class="project-info">
-                            <h3>Stop & Go</h3>
+                            <h3>Neon Sprint</h3>
                             <p>AI-driven reflex game.</p>
                         </div>
                     </a>
                     <a class="project-card action" href="Tanks/tankwars.html">
                         <div class="project-icon">🚀</div>
                         <div class="project-info">
-                            <h3>Tank Wars</h3>
+                            <h3>Titan Warfare</h3>
                             <p>3D Tank Combat Evolution.</p>
                         </div>
                     </a>
@@ -152,42 +145,50 @@
                     <a class="project-card art-project" href="P5/Caterpiller/Caterpiller.html">
                         <div class="project-icon">🐛</div>
                         <div class="project-info">
-                            <h3>Caterpillar Race</h3>
+                            <h3>Modular Racer</h3>
                             <p>Interactive racing animation.</p>
                         </div>
                     </a>
                     <a class="project-card art-project" href="P5/Circles/index.html">
                         <div class="project-icon">🫧</div>
                         <div class="project-info">
-                            <h3>Circle Physics</h3>
+                            <h3>Kinetic Orbs</h3>
                             <p>Particle interaction study.</p>
                         </div>
                     </a>
                     <a class="project-card fun" href="joke.html">
                         <div class="project-icon">😂</div>
                         <div class="project-info">
-                            <h3>Dad Jokes</h3>
+                            <h3>Comedy Core</h3>
                             <p>Manual laugh protocols.</p>
                         </div>
                     </a>
                     <a class="project-card art-project" href="P5/Flower/index.html">
                         <div class="project-icon">🌸</div>
                         <div class="project-info">
-                            <h3>Neural Flower</h3>
+                            <h3>Digital Petals</h3>
                             <p>Generative growth art.</p>
                         </div>
                     </a>
+                    <a class="project-card art-project" href="sand-sandbox/index.html">
+                        <div class="project-icon">⏳</div>
+                        <div class="project-info">
+                            <h3>Entropy Sandbox</h3>
+                            <p>High-fidelity particle simulation.</p>
+                        </div>
+                    </a>
                     <a class="project-card art-project" href="P5/sunset/Sun.html">
+
                         <div class="project-icon">🌅</div>
                         <div class="project-info">
-                            <h3>Solar Fade</h3>
+                            <h3>Light Cascade</h3>
                             <p>Atmospheric visual scene.</p>
                         </div>
                     </a>
                     <a class="project-card fun" href="Crazy/Crazy.html">
                         <div class="project-icon">🤪</div>
                         <div class="project-info">
-                            <h3>Warp Zone</h3>
+                            <h3>Paradox Void</h3>
                             <p>Mind-bending visuals.</p>
                         </div>
                     </a>
@@ -195,19 +196,19 @@
             </div>
 
             <div class="category-block">
-                <h2 class="section-title">🧪 Neural Evaluation & Testing</h2>
+                <h2 class="section-title">🔬 System Diagnostics & Feedback</h2>
                 <div class="project-grid">
                     <a class="project-card misc" href="test.html">
                         <div class="project-icon">👨‍🎨</div>
                         <div class="project-info">
-                            <h3>Neural Face</h3>
+                            <h3>Cyber Visage</h3>
                             <p>Interactive character simulation.</p>
                         </div>
                     </a>
                     <a class="project-card misc" href="tests/tests.html">
                         <div class="project-icon">🧪</div>
                         <div class="project-info">
-                            <h3>Testing Facility</h3>
+                            <h3>Performance Sandbox</h3>
                             <p>Neural performance diagnostics.</p>
                         </div>
                     </a>
@@ -220,28 +221,28 @@
                     <a class="project-card strategy" href="towerdefense/towerdefense.html">
                         <div class="project-icon">🏹</div>
                         <div class="project-info">
-                            <h3>Classic Defense</h3>
+                            <h3>Vanguard Strategy</h3>
                             <p>Ultimate tactical strategy.</p>
                         </div>
                     </a>
                     <a class="project-card epic" href="Tanks/element_tank.html">
                         <div class="project-icon">🔥</div>
                         <div class="project-info">
-                            <h3>Elemental Tanks</h3>
+                            <h3>Primal Grinder</h3>
                             <p>Roguelike dungeon crawler.</p>
                         </div>
                     </a>
                     <a class="project-card strategy" href="towerdefense/nexus_defense.html">
                         <div class="project-icon">🛡️</div>
                         <div class="project-info">
-                            <h3>Nexus Defense</h3>
+                            <h3>Sentinel Shield</h3>
                             <p>Sci-fi tower defense.</p>
                         </div>
                     </a>
                     <a class="project-card epic" href="Game/index.html">
                         <div class="project-icon">⚔️</div>
                         <div class="project-info">
-                            <h3>Shadow Realm RPG</h3>
+                            <h3>Ebon Tactical</h3>
                             <p>Turn-based tactical combat.</p>
                         </div>
                     </a>
@@ -263,21 +264,38 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 <div id="neural-pointer"></div>
 <script>
     (function() {
         const pointer = document.getElementById('neural-pointer');
         if (!pointer) return;
 
+        let hue = 0;
+
         function isDayTime() {
             const hour = new Date().getHours();
             return hour >= 6 && hour < 18;
         }
 
-        function updatePointerMode() {
+        function updatePointer() {
             const isDay = isDayTime();
             pointer.classList.toggle('day-mode', isDay);
             pointer.classList.toggle('night-mode', !isDay);
+
+            hue = (hue + 2) % 360;
+            // High lightness for daytime to prevent "dark" feel, standard for night
+            const lightness = isDay ? 85 : 60; 
+            pointer.style.setProperty('--rainbow-glow', `hsl(${hue}, 100%, ${lightness}%)`);
         }
 
         window.addEventListener('mousemove', (e) => {
@@ -285,8 +303,11 @@
             pointer.style.top = e.clientY + 'px';
         });
 
-        updatePointerMode();
-        setInterval(updatePointerMode, 60000);
+        function animate() {
+            updatePointer();
+            requestAnimationFrame(animate);
+        }
+        animate();
     })();
 </script>
 </body>

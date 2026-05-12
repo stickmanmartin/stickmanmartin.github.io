@@ -17,8 +17,8 @@ let width, height;
 let points = [];
 let charTargets = [];
 let flyingBalls = [];
-const targetMouse = { x: -1000, y: -1000 };
-const mouse = { x: -1000, y: -1000 };
+const targetMouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
 const GRID_SPACING = 60;
 const STIFFNESS = 0.12;
@@ -152,12 +152,6 @@ function init() {
         }
     }
     mapTitleCharacters();
-    
-    // Update CSS variables for dark/light mode
-    const isDay = isDayTime();
-    document.documentElement.style.setProperty('--bg-facility', isDay ? '#f8fafc' : '#141418');
-    document.documentElement.style.setProperty('--text-main', isDay ? '#0f172a' : '#f8fafc');
-    document.documentElement.style.setProperty('--text-muted', isDay ? '#475569' : '#94a3b8');
 }
 
 function drawGridLines() {
@@ -201,48 +195,50 @@ function drawGridLines() {
             ctx.lineTo(points[i+1].x, points[i+1].y);
             ctx.stroke();
         }
-    let flyingBalls = [];
-    const targetMouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-    const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-    ...
-    function animate() {
-        const isDay = isDayTime();
-        ctx.fillStyle = isDay ? '#f8fafc' : '#141418';
-        ctx.fillRect(0, 0, width, height);
+    }
+    ctx.globalAlpha = 1.0;
+}
 
-        mouse.x += (targetMouse.x - mouse.x) * 0.15;
-        mouse.y += (targetMouse.y - mouse.y) * 0.15;
+function animate() {
+    const isDay = isDayTime();
+    ctx.fillStyle = isDay ? '#f8fafc' : '#141418';
+    ctx.fillRect(0, 0, width, height);
 
-        drawGridLines();
+    mouse.x += (targetMouse.x - mouse.x) * 0.15;
+    mouse.y += (targetMouse.y - mouse.y) * 0.15;
 
-        if (Math.random() < 0.1) {
-            const unrevealed = charTargets.filter(c => !c.revealed);
-            if (unrevealed.length > 0) {
-                const target = unrevealed[Math.floor(Math.random() * unrevealed.length)];
-                if (!flyingBalls.some(b => b.target === target)) {
-                    const randomPoint = points[Math.floor(Math.random() * points.length)];
-                    flyingBalls.push(new LightBall(target, { x: randomPoint.x, y: randomPoint.y }));
-                }
+    drawGridLines();
+
+    if (Math.random() < 0.1) {
+        const unrevealed = charTargets.filter(c => !c.revealed);
+        if (unrevealed.length > 0) {
+            const target = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+            if (!flyingBalls.some(b => b.target === target)) {
+                const randomPoint = points[Math.floor(Math.random() * points.length)];
+                flyingBalls.push(new LightBall(target, { x: randomPoint.x, y: randomPoint.y }));
             }
         }
+    }
 
-        flyingBalls = flyingBalls.filter(ball => {
-            const finished = ball.update();
-            ball.draw();
-            return !finished;
-        });
+    flyingBalls = flyingBalls.filter(ball => {
+        const finished = ball.update();
+        ball.draw();
+        return !finished;
+    });
 
-        const activePointer = document.getElementById('facility-pointer');
-        
+    const activePointer = document.getElementById('neural-pointer');
+    if (activePointer) {
+        activePointer.style.left = mouse.x + 'px';
+        activePointer.style.top = mouse.y + 'px';
+    }
 
-        requestAnimationFrame(animate);
-        }
+    requestAnimationFrame(animate);
+}
 
-        window.addEventListener('mousemove', (e) => {
-        targetMouse.x = e.clientX;
-        targetMouse.y = e.clientY;
-        });
-
+window.addEventListener('mousemove', (e) => {
+    targetMouse.x = e.clientX;
+    targetMouse.y = e.clientY;
+});
 
 window.addEventListener('resize', init);
 init();

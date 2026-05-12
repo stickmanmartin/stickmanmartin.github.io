@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Sandbox Engine - Particle Evolution</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body class="night-theme">
+
+    <div class="stats-bar">
+        <span>CORE_ENGINE_v3.0 | 250x200 CLUSTER | REACTION_MATRIX_ACTIVE</span>
+        <div id="lock-status">⚠️ NUCLEAR_ELEMENT_LOCKED: Achive 100+ Reflex Score to enable.</div>
+    </div>
+
+    <div class="controls">
+        <button class="ctrl-btn" onclick="clearGrid()">🗑️</button>
+        <button class="ctrl-btn" onclick="changeZoom(1)">➕</button>
+        <button class="ctrl-btn" onclick="changeZoom(-1)">➖</button>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="sandCanvas"></canvas>
+    </div>
+
+    <div id="ui-panel">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showCategory('land', this)">Land</button>
+            <button class="tab-btn" onclick="showCategory('liquid', this)">Liquids</button>
+            <button class="tab-btn" onclick="showCategory('life', this)">Life</button>
+            <button class="tab-btn" onclick="showCategory('energy', this)">Energy</button>
+            <button class="tab-btn" onclick="showCategory('special', this)">Special</button>
+        </div>
+
+        <div id="land" class="element-grid category-land active">
+            <button class="element-btn" onclick="selectElement('SAND', this)">Sand</button>
+            <button class="element-btn" onclick="selectElement('DIRT', this)">Dirt</button>
+            <button class="element-btn" onclick="selectElement('ROCK', this)">Rock</button>
+            <button class="element-btn" onclick="selectElement('MUD', this)">Mud</button>
+            <button class="element-btn" onclick="selectElement('WALL', this)">Wall</button>
+        </div>
+
+        <div id="liquid" class="element-grid category-liquid">
+            <button class="element-btn" onclick="selectElement('WATER', this)">Water</button>
+            <button class="element-btn" onclick="selectElement('OIL', this)">Oil</button>
+            <button class="element-btn" onclick="selectElement('ACID', this)">Acid</button>
+            <button class="element-btn" onclick="selectElement('LAVA', this)">Lava</button>
+        </div>
+
+        <div id="life" class="element-grid category-life">
+            <button class="element-btn" onclick="selectElement('PLANT', this)">Plant</button>
+            <button class="element-btn" onclick="selectElement('ALGAE', this)">Algae</button>
+            <button class="element-btn" onclick="selectElement('VIRUS', this)">Virus</button>
+        </div>
+
+        <div id="energy" class="element-grid category-energy">
+            <button class="element-btn" onclick="selectElement('FIRE', this)">Fire</button>
+            <button class="element-btn" onclick="selectElement('FLASH', this)">Flash</button>
+            <button class="element-btn" id="nuclear-btn" onclick="selectElement('NUCLEAR', this)" style="display:none">Nuclear</button>
+        </div>
+
+        <div id="special" class="element-grid category-special">
+            <button class="element-btn" onclick="selectElement('EMPTY', this)">Erase</button>
+            <button class="element-btn" onclick="selectElement('VOID', this)">Void</button>
+            <button class="element-btn" onclick="selectElement('SPOUT', this)">Spout</button>
+        </div>
+    </div>
+
+    <a href="../index.html" class="global-hub-btn">Back to the Hub</a>
+    <div id="neural-pointer"></div>
+
+    <script src="sand.js"></script>
+
+    <script>
+        // Tab Management
+        function showCategory(id, btn) {
+            document.querySelectorAll('.element-grid').forEach(g => g.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // --- Standard Hub Circadian / Pointer Logic ---
+        (function() {
+            const pointer = document.getElementById('neural-pointer');
+            let hue = 0;
+            function update() {
+                const isDay = new Date().getHours() >= 6 && new Date().getHours() < 18;
+                document.body.classList.toggle('day-theme', isDay);
+                document.body.classList.toggle('night-theme', !isDay);
+                if (pointer) {
+                    pointer.classList.toggle('day-mode', isDay);
+                    pointer.classList.toggle('night-mode', !isDay);
+                    hue = (hue + 2) % 360;
+                    pointer.style.setProperty('--rainbow-glow', `hsl(${hue}, 100%, ${isDay?85:60}%)`);
+                }
+                requestAnimationFrame(update);
+            }
+            window.addEventListener('mousemove', e => { if(pointer) { pointer.style.left = e.clientX+'px'; pointer.style.top = e.clientY+'px'; }});
+            update();
+
+            // Reflex Check
+            const score = parseInt(localStorage.getItem('clickSpeedHighscore') || 0);
+            if (score >= 100) {
+                document.getElementById('nuclear-btn').style.display = 'block';
+                document.getElementById('lock-status').style.display = 'none';
+            } else {
+                document.getElementById('lock-status').style.display = 'block';
+            }
+        })();
+    </script>
+</body>
+</html>
