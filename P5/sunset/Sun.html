@@ -1,185 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Sketch</title>
-
-    <link rel="stylesheet" type="text/css" href="Sun.css">
-
+    <title>Light Cascade: Detailed Earth System</title>
     <script src="/P5/libraries/p5.min.js"></script>
     <script src="/P5/libraries/p5.sound.min.js"></script>
-  
+    <style>
+        body { margin: 0; overflow: hidden; background: #0a0a0c; cursor: none !important; }
+        canvas { display: block; width: 100vw; height: 100vh; cursor: none !important; }
 
+        /* Seasonal UI Sidebar */
+        #seasonal-ctrl {
+            position: fixed; top: 50%; right: 20px; transform: translateY(-50%);
+            background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 15px; border-radius: 12px; display: flex; flex-direction: column;
+            gap: 10px; z-index: 2000000; backdrop-filter: blur(10px); color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+        .ctrl-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #38bdf8; text-align: center; margin-bottom: 5px; }
+        .season-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8; padding: 8px 15px; border-radius: 6px; cursor: pointer;
+            font-size: 11px; font-weight: 700; transition: all 0.2s; text-align: left;
+        }
+        .season-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .season-btn.active { 
+            background: #38bdf8; color: #0f172a; border-color: #fff; 
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
 
+        /* Standard Hub Navigation */
+        .global-hub-btn {
+            position: fixed; bottom: 25px; right: 25px;
+            background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
+            color: white !important; text-decoration: none !important;
+            padding: 14px 28px; border-radius: 50px; font-family: 'Poppins', sans-serif;
+            font-weight: 800; font-size: 13px; letter-spacing: 1.5px;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); z-index: 1000000;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; gap: 10px; text-transform: uppercase;
+        }
+        .global-hub-btn:hover { transform: scale(1.1) translateY(-5px); box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6); }
 
-<style>
-    #neural-pointer {
-        position: fixed;
-        width: 32px;
-        height: 32px;
-        pointer-events: none;
-        z-index: 9999999;
-        transform: translate(0, 0);
-        display: block;
-        /* Apply shadow to the parent so it doesn't get clipped */
-        filter: 
-            drop-shadow(2px 0 0 #000) 
-            drop-shadow(-2px 0 0 #000) 
-            drop-shadow(0 2px 0 #000) 
-            drop-shadow(0 -2px 0 #000)
-            drop-shadow(1px 1px 0 #000)
-            drop-shadow(-1px -1px 0 #000);
-    }
-    #neural-pointer::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        clip-path: polygon(0% 0%, 100% 70%, 40% 70%, 40% 100%);
-        transition: background 0.3s ease;
-    }
-    
-    /* Day Mode: Glowing White (with Black Outline from parent) */
-    #neural-pointer.day-mode::before {
-        background: #ffffff;
-    }
-    
-    /* Night Mode: Black (with White inner glow then Black Outline from parent) */
-    #neural-pointer.night-mode::before {
-        background: #000000;
-        /* Add a small white inner glow to distinguish from the black background */
-        box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.8); /* Border inside clip-path helps */
-    }
+        /* Neural Pointer */
+        #neural-pointer {
+            position: fixed; width: 32px; height: 32px; pointer-events: none; z-index: 9999999;
+            filter: drop-shadow(0 0 10px var(--rainbow-glow, #38bdf8)) drop-shadow(0 0 2px #fff);
+        }
+        #neural-pointer::before {
+            content: ''; position: absolute; inset: 0; 
+            clip-path: polygon(0% 0%, 100% 70%, 40% 70%, 40% 100%);
+            transition: background 0.3s;
+        }
+        #neural-pointer.day-mode::before { background: #ffffff; }
+        #neural-pointer.night-mode::before { background: #000000; }
 
-    /* Hide original cursor project-wide */
-    *, html, body, a, button, input, select, textarea, canvas {
-        cursor: none !important;
-    }
-</style>
+        *, html, body, a, button { cursor: none !important; }
+    </style>
 </head>
-
-  <body>
-    
+<body>
     <script src="Sun.js"></script>
-  
 
+    <div id="seasonal-ctrl">
+        <span class="ctrl-title">Season_Ctrl</span>
+        <button class="season-btn active" onclick="setSeason('SPRING', this)">🌸 Spring</button>
+        <button class="season-btn" onclick="setSeason('SUMMER', this)">🌳 Summer</button>
+        <button class="season-btn" onclick="setSeason('AUTUMN', this)">🍂 Autumn</button>
+        <button class="season-btn" onclick="setSeason('WINTER', this)">❄️ Winter</button>
+    </div>
 
-
-
-
-
-
-
-<!-- Global Hub Navigation -->
-<style>
-    body { margin: 0; overflow: hidden; background: #0a0a0c; }
-    canvas { display: block; width: 100vw; height: 100vh; }
-
-    .global-hub-btn {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
-        color: white !important;
-        text-decoration: none !important;
-        padding: 14px 28px;
-        border-radius: 50px;
-        font-family: 'Poppins', 'Segoe UI', sans-serif;
-        font-weight: 800;
-        font-size: 13px;
-        letter-spacing: 1.5px;
-        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
-        z-index: 1000000;
-        border: 2px solid rgba(255, 255, 255, 0.8);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-transform: uppercase;
-        cursor: pointer;
-    }
-    .global-hub-btn:hover {
-        transform: scale(1.1) translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6);
-        background: linear-gradient(135deg, #0077ff 0%, #00f2ff 100%);
-        border-color: #fff;
-    }
-    .global-hub-btn::before {
-        content: '🏠';
-        font-size: 18px;
-    }
-
-    .global-hub-btn {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
-        color: white !important;
-        text-decoration: none !important;
-        padding: 14px 28px;
-        border-radius: 50px;
-        font-family: 'Poppins', 'Segoe UI', sans-serif;
-        font-weight: 800;
-        font-size: 13px;
-        letter-spacing: 1.5px;
-        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
-        z-index: 1000000;
-        border: 2px solid rgba(255, 255, 255, 0.8);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-transform: uppercase;
-        cursor: pointer;
-    }
-    .global-hub-btn:hover {
-        transform: scale(1.1) translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6);
-        background: linear-gradient(135deg, #0077ff 0%, #00f2ff 100%);
-        border-color: #fff;
-    }
-    .global-hub-btn::before {
-        content: '🏠';
-        font-size: 18px;
-    }
-</style>
-
-<a href="../../index.html" class="global-hub-btn">Back to the Hub</a>
-
-
-
-
-
-
-
-
-<div id="neural-pointer"></div>
-<script>
-    (function() {
-        const pointer = document.getElementById('neural-pointer');
-        if (!pointer) return;
-
-        function isDayTime() {
-            const hour = new Date().getHours();
-            return hour >= 6 && hour < 18;
+    <a href="../../index.html" class="global-hub-btn">🏠 Back to the Hub</a>
+    <div id="neural-pointer"></div>
+    <script>
+        // Season state management
+        window.currentSeason = 'SPRING';
+        function setSeason(s, btn) {
+            window.currentSeason = s;
+            document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
         }
 
-        function updatePointerMode() {
-            const isDay = isDayTime();
-            pointer.classList.toggle('day-mode', isDay);
-            pointer.classList.toggle('night-mode', !isDay);
-        }
-
-        window.addEventListener('mousemove', (e) => {
-            pointer.style.left = e.clientX + 'px';
-            pointer.style.top = e.clientY + 'px';
-        });
-
-        updatePointerMode();
-        setInterval(updatePointerMode, 60000);
-    })();
-</script>
+        (function() {
+            const pointer = document.getElementById('neural-pointer');
+            let hue = 0;
+            function update() {
+                const isDay = new Date().getHours() >= 6 && new Date().getHours() < 18;
+                pointer.classList.toggle('day-mode', isDay);
+                pointer.classList.toggle('night-mode', !isDay);
+                hue = (hue + 2) % 360;
+                pointer.style.setProperty('--rainbow-glow', `hsl(${hue}, 100%, ${isDay?85:60}%)`);
+                requestAnimationFrame(update);
+            }
+            window.addEventListener('mousemove', e => {
+                pointer.style.left = e.clientX + 'px';
+                pointer.style.top = e.clientY + 'px';
+            });
+            update();
+        })();
+    </script>
 </body>
 </html>
