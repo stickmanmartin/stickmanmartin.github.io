@@ -30,34 +30,29 @@ const homeButtonStyle = `
         position: fixed;
         bottom: 25px;
         right: 25px;
-        background: linear-gradient(135deg, #00f2ff 0%, #0077ff 100%);
+        background: linear-gradient(135deg, #00f5d4 0%, #00b4d8 100%);
         color: white !important;
         text-decoration: none !important;
         padding: 14px 28px;
         border-radius: 50px;
         font-family: 'Poppins', 'Segoe UI', sans-serif;
-        font-weight: 800;
+        font-weight: 700;
         font-size: 13px;
-        letter-spacing: 1.5px;
-        box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+        letter-spacing: 1.2px;
+        box-shadow: 0 4px 15px rgba(0, 245, 212, 0.4);
         z-index: 1000000;
-        border: 2px solid rgba(255, 255, 255, 0.8);
+        border: 2px solid rgba(255, 255, 255, 0.6);
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         display: flex;
         align-items: center;
-        gap: 10px;
         text-transform: uppercase;
         cursor: pointer;
     }
     .global-hub-btn:hover {
-        transform: scale(1.1) translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 242, 255, 0.6);
-        background: linear-gradient(135deg, #0077ff 0%, #00f2ff 100%);
+        transform: scale(1.08) translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0, 245, 212, 0.5);
+        background: linear-gradient(135deg, #00b4d8 0%, #00f5d4 100%);
         border-color: #fff;
-    }
-    .global-hub-btn::before {
-        content: '🏠';
-        font-size: 18px;
     }
 </style>
 `;
@@ -80,9 +75,9 @@ for (const file of htmlFiles) {
     content = content.replace(/<a href="index.html" class="circle">Home<\/a>/ig, '');
     content = content.replace(/<!-- Unified Global Home Button -->\s*<style>[\s\S]*?<\/style>/ig, '');
     content = content.replace(/<!-- Global Hub Navigation -->\s*<style>[\s\S]*?<\/style>/ig, '');
-    content = content.replace(/<style>\s*\.global-home-btn[\s\S]*?<\/style>/ig, '');
-    content = content.replace(/<style>\s*\.global-hub-btn[\s\S]*?<\/style>/ig, '');
-    content = content.replace(/#Home\s*\{[\s\S]*?\}/ig, ''); // Remove #Home CSS rules
+    content = content.replace(/\.global-home-btn[^{]*\{[\s\S]*?\}/ig, '');
+    content = content.replace(/\.global-hub-btn[^{]*\{[\s\S]*?\}/ig, '');
+    content = content.replace(/#Home[^{]*\{[\s\S]*?\}/ig, ''); // Remove #Home CSS rules
 
     // 2. Insert new button
     const btnHtml = `${homeButtonStyle}\n<a href="${homeHref}" class="global-hub-btn">Back to the Hub</a>\n`;
