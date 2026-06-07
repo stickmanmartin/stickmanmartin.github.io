@@ -90,7 +90,7 @@ def update_file(file_path, rel_path):
             new_content = f'<style>{standard_css}\n</style>\n' + new_content
 
     # 2. Update/Add HTML
-    standard_html = f'<a href="{rel_path}" class="global-hub-btn">🏠 Back to the Hub</a>'
+    standard_html = f'<a href="{rel_path}" class="global-hub-btn">Back to Hub</a>'
     
     html_pattern = re.compile(r'<a\s+href="[^"]*"\s+class="global-hub-btn">.*?</a>', re.DOTALL)
     

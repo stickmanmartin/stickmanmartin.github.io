@@ -80,7 +80,7 @@ for (const file of htmlFiles) {
     content = content.replace(/#Home[^{]*\{[\s\S]*?\}/ig, ''); // Remove #Home CSS rules
 
     // 2. Insert new button
-    const btnHtml = `${homeButtonStyle}\n<a href="${homeHref}" class="global-hub-btn">Back to the Hub</a>\n`;
+    const btnHtml = `${homeButtonStyle}\n<a href="${homeHref}" class="global-hub-btn">Back to Hub</a>\n`;
     
     if (content.match(/<\/body>/i)) {
         content = content.replace(/<\/body>/i, btnHtml + '</body>');
