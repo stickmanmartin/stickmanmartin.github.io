@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Astro-Quest ARCADE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body { margin: 0; background-color: #0f172a; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // --- Lucide Icons SVGs (as simple functional components for React) ---
+    const Icon = ({ name, size = 24, className = '', fill = 'none' }) => {
+        const iconData = lucide.icons[name];
+        if (!iconData) return null;
+        
+        const svgAttrs = {
+            xmlns: "http://www.w3.org/2000/svg",
+            viewBox: "0 0 24 24",
+            width: size,
+            height: size,
+            className,
+            fill,
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinecap: "round",
+            strokeLinejoin: "round",
+        };
+
+        const createEl = (node, i) => {
+            const [nodeTag, nodeAttrs, nodeChildren] = node;
+            return React.createElement(nodeTag, { ...nodeAttrs, key: i }, 
+                (nodeChildren || []).map((child, j) => createEl(child, j))
+            );
+        };
+
+        return React.createElement('svg', svgAttrs, 
+            iconData.map((child, i) => createEl(child, i))
+        );
+    };
+    const Rocket = (props) => <Icon name="Rocket" {...props} />;
+    const ShieldAlert = (props) => <Icon name="ShieldAlert" {...props} />;
+    const BatteryCharging = (props) => <Icon name="BatteryCharging" {...props} />;
+    const Flame = (props) => <Icon name="Flame" {...props} />;
+    const Play = (props) => <Icon name="Play" {...props} />;
+    const CheckCircle2 = (props) => <Icon name="CheckCircle2" {...props} />;
+    const XCircle = (props) => <Icon name="XCircle" {...props} />;
+    const Zap = (props) => <Icon name="Zap" {...props} />;
+    const ChevronRight = (props) => <Icon name="ChevronRight" {...props} />;
+    const Pause = (props) => <Icon name="Pause" {...props} />;
+    const RotateCcw = (props) => <Icon name="RotateCcw" {...props} />;
+    const AlertTriangle = (props) => <Icon name="AlertTriangle" {...props} />;
+    const Shield = (props) => <Icon name="Shield" {...props} />;
+
+    const allQuestions = [
+  // Original Questions
+  { id: 1, topic: "Models of the Universe", question: "Historically, people believed the Earth was the center of the universe. What is the name of this model, and what is the correct model we use today?", options: ["Heliocentric (old) vs. Geocentric (new)", "Geocentric (old) vs. Heliocentric (new)", "Nebular (old) vs. Universal (new)", "Equinox (old) vs. Solstice (new)"], correctAnswer: 1, explanation: "Geo = Earth, Helio = Sun. The Geocentric model placed Earth at the center. The Heliocentric model places the Sun at the center of our solar system!" },
+  { id: 2, topic: "Vocabulary", question: "Which of the following is defined as a massive cloud of gas and dust in space, often where new stars are born?", options: ["Galaxy", "Universe", "Nebula", "Black Hole"], correctAnswer: 2, explanation: "A Nebula is a cosmic cloud of gas and dust. A galaxy is a huge collection of gas, dust, and billions of stars." },
+  { id: 3, topic: "Distances in Space", question: "If you want to measure the distance from the Earth to the Sun, which unit of measurement is most appropriate?", options: ["Light Year", "Kilometer", "Astronomical Unit (AU)", "Parsec"], correctAnswer: 2, explanation: "1 Astronomical Unit (AU) is exactly the average distance from the Earth to the Sun." },
+  { id: 4, topic: "Seasons & Earth's Orbit", question: "What is the primary reason Earth experiences seasons (Summer, Autumn, Winter, Spring)?", options: ["The Earth moves closer to and farther from the Sun.", "The Earth's axis is tilted at a 23.5° angle as it orbits the Sun.", "The Sun's temperature changes throughout the year.", "The Moon blocks the Sun's light during winter."], correctAnswer: 1, explanation: "Earth's 23.5° tilt means different parts of the Earth receive more direct sunlight at different times of the year as it revolves around the Sun." },
+  { id: 5, topic: "Seasons & Earth's Orbit", question: "What is the difference between an Equinox and a Solstice?", options: ["Equinox = equal day/night; Solstice = longest/shortest day.", "Solstice = equal day/night; Equinox = longest/shortest day.", "Equinox happens in summer; Solstice happens in winter.", "There is no difference; they are the same thing."], correctAnswer: 0, explanation: "Equinox ('equal night') occurs in Spring and Fall. Solstices occur in Summer and Winter, marking the longest and shortest days." },
+  { id: 6, topic: "Solar System Order", question: "Starting from the Sun and moving outward, what is the correct order of the inner rocky planets?", options: ["Venus, Earth, Mercury, Mars", "Mercury, Venus, Earth, Mars", "Mars, Earth, Venus, Mercury", "Mercury, Earth, Venus, Mars"], correctAnswer: 1, explanation: "Remember: 'My Very Educated Mother...' (Mercury, Venus, Earth, Mars)." },
+  { id: 7, topic: "Planetary Motion", question: "A 'year' on Mars is almost twice as long as an Earth year. If you are 10 Earth-years old, roughly how old would you be in Mars-years?", options: ["20 years old", "10 years old", "5 years old", "1 year old"], correctAnswer: 2, explanation: "Since a Mars year is twice as long, you divide your Earth age by 2. 10 Earth years is only about 5 Mars years!" },
+  { id: 8, topic: "Exoplanet Transit Graphs", question: "You are looking at a light curve graph for a star. If the dip in brightness is VERY DEEP, what does that tell you about the exoplanet orbiting it?", options: ["The planet has a very fast orbit.", "The planet is very hot.", "The planet has a large size (radius).", "The planet has a small size (radius)."], correctAnswer: 2, explanation: "A deeper dip means more of the star's light is being blocked, indicating the transiting exoplanet has a very large radius!" },
+  { id: 9, topic: "Exoplanet Transit Graphs", question: "You notice the dips in brightness happen very frequently (e.g., every 3 days). What does this tell you?", options: ["The planet has a short orbital period (it's close to the star).", "The planet has a long orbital period (it's far from the star).", "The star is very small.", "There are multiple planets."], correctAnswer: 0, explanation: "Frequent dips mean a short orbital period, which means it orbits very close to its star." },
+  { id: 10, topic: "Cosmic Scale", question: "If a star is 5 'Light Years' away, what does that actually mean?", options: ["It will take 5 years to travel there in a rocket.", "The star is 5 times older than the Sun.", "It takes light 5 years to travel from that star to our eyes.", "The star will burn out in 5 years."], correctAnswer: 2, explanation: "A light year is a measure of distance, not time. It is the distance light travels in one Earth year. We are seeing that star as it looked 5 years ago!" },
+  { id: 11, topic: "Solar System Order", question: "Which of the following represents the correct order of the OUTER gas and ice giant planets?", options: ["Saturn, Jupiter, Neptune, Uranus", "Jupiter, Saturn, Uranus, Neptune", "Neptune, Uranus, Saturn, Jupiter", "Jupiter, Uranus, Saturn, Neptune"], correctAnswer: 1, explanation: "After the inner planets, the order continues with the gas giants (Jupiter, Saturn) followed by the ice giants (Uranus, Neptune)." },
+  { id: 12, topic: "Planetary Characteristics", question: "Venus is the hottest planet in our solar system, even though Mercury is closer to the Sun. Why?", options: ["Venus has a core made of lava.", "Venus is closer to the Sun during the summer.", "Venus has a thick atmosphere that traps heat (greenhouse effect).", "Mercury has ice on its surface."], correctAnswer: 2, explanation: "Venus's incredibly thick atmosphere is full of carbon dioxide, which traps heat like a giant greenhouse, making it hotter than Mercury!" },
+  { id: 13, topic: "Planetary Characteristics", question: "Which planet is known for its extreme tilt, causing it to effectively rotate on its side like a rolling barrel?", options: ["Saturn", "Neptune", "Mars", "Uranus"], correctAnswer: 3, explanation: "Uranus has an axial tilt of about 98°, meaning it orbits the Sun on its side!" },
+  { id: 14, topic: "Planetary Characteristics", question: "Why does Mars appear red in the night sky?", options: ["It is covered in volcanoes.", "Its surface contains a lot of iron oxide (rust).", "It is very hot, making it glow.", "Its atmosphere is made of red gas."], correctAnswer: 1, explanation: "Mars is covered in iron oxide dust—the exact same chemical compound that makes rust on Earth!" },
+  { id: 15, topic: "Scale Models", question: "If we made a scale model of the solar system where the Earth is the size of a peppercorn, the Sun would roughly be the size of a...", options: ["Golf ball", "Bowling ball", "House", "Car"], correctAnswer: 1, explanation: "The Sun is huge! If Earth were a peppercorn, the Sun would be about the size of a bowling ball (roughly 8 inches across in the model)." },
+  { id: 16, topic: "Planetary Motion", question: "Which major planet takes the longest time to orbit the Sun?", options: ["Jupiter", "Uranus", "Neptune", "Saturn"], correctAnswer: 2, explanation: "Because Neptune is the furthest major planet from the Sun, it has the largest orbit and moves the slowest. One Neptune year is 165 Earth years!" },
+  { id: 17, topic: "Exoplanet Transit Graphs", question: "If a light curve graph shows very SHALLOW dips (not deep at all), what does it suggest about the exoplanet?", options: ["The planet is very large.", "The planet is very small compared to the star.", "The planet has a fast orbit.", "The planet is completely made of gas."], correctAnswer: 1, explanation: "A shallow dip means only a tiny fraction of the star's light is blocked. This means the transiting planet is relatively small." },
+  { id: 18, topic: "Exoplanet Transit Graphs", question: "When we use the transit method to find exoplanets, what exactly are we measuring?", options: ["The color of a star changing over time.", "The gravitational pull of a planet.", "The brightness of a star over time.", "The heat signature of a planet."], correctAnswer: 2, explanation: "The transit method measures a star's brightness. When a planet passes (transits) in front of the star, the brightness dips slightly!" },
+  { id: 19, topic: "Seasons", question: "During the Summer Solstice in the Northern Hemisphere, which part of Earth is tilted TOWARD the Sun?", options: ["The South Pole", "The Equator", "The North Pole", "None, the Earth is not tilted."], correctAnswer: 2, explanation: "During the Northern Hemisphere's summer, the North Pole is tilted toward the Sun, giving the north longer days and more direct sunlight." },
+  { id: 20, topic: "Seasons", question: "If the Earth had NO tilt (0° instead of 23.5°), how would our seasons change?", options: ["Summers would be hotter and winters colder.", "We would not experience seasons.", "Winter would last all year.", "It would randomly change every month."], correctAnswer: 1, explanation: "Without a tilt, every location on Earth would get the same amount of sunlight year-round. We wouldn't have seasons!" },
+  { id: 21, topic: "Seasons", question: "During Winter in the Northern Hemisphere, how do the daylight hours compare to Summer?", options: ["There are more daylight hours.", "There are fewer daylight hours.", "Daylight hours stay exactly the same.", "There is no sunlight at all."], correctAnswer: 1, explanation: "Because the Northern Hemisphere is tilted away from the Sun in winter, the Sun's path across the sky is shorter, leading to fewer daylight hours." },
+  { id: 22, topic: "Models of the Universe", question: "Who was the famous astronomer that used a telescope to observe Jupiter's moons, providing evidence for the Heliocentric model?", options: ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Edwin Hubble"], correctAnswer: 2, explanation: "Galileo saw moons orbiting Jupiter, proving that not everything in the universe orbits the Earth! This supported the Heliocentric (Sun-centered) model." },
+  { id: 23, topic: "Vocabulary", question: "What is the best definition of a galaxy?", options: ["A single star and its planets.", "A cloud of gas where stars die.", "A massive system of stars, gas, dust, and dark matter bound together by gravity.", "The entire known universe."], correctAnswer: 2, explanation: "A galaxy is a massive collection of stars, dust, and gas held together by gravity. Our galaxy is the Milky Way!" },
+  { id: 24, topic: "Cosmic Scale", question: "Place these objects in order from SMALLEST to LARGEST:", options: ["Planet, Star, Galaxy, Universe", "Star, Planet, Universe, Galaxy", "Galaxy, Universe, Planet, Star", "Universe, Galaxy, Star, Planet"], correctAnswer: 0, explanation: "Planets orbit Stars. Billions of Stars make up a Galaxy. Billions of Galaxies make up the Universe!" },
+  { id: 25, topic: "Distances in Space", question: "Why do astronomers use Astronomical Units (AU) instead of kilometers to measure distances within the solar system?", options: ["Kilometers are only used for driving cars.", "AU is more accurate than kilometers.", "Kilometers are too small, making the numbers massive and hard to work with.", "AU is the only measurement recognized by aliens."], correctAnswer: 2, explanation: "Space is incredibly vast. Using kilometers for space distances would require writing out billions or trillions, so astronomers use larger units like AU to simplify the math." },
+  { id: 26, topic: "Planetary Motion", question: "Mercury is the closest planet to the Sun. How does this affect its orbital period (its 'year') compared to Earth?", options: ["It has a much longer orbital period.", "It has a much shorter orbital period.", "Its orbital period is the same as Earth's.", "Mercury does not have an orbit."], correctAnswer: 1, explanation: "Because it's so close to the Sun, Mercury has a shorter distance to travel and moves faster due to stronger gravity. A year on Mercury is only 88 Earth days!" },
+  { id: 27, topic: "Planetary Motion", question: "Jupiter takes about 12 Earth years to orbit the Sun once. If you are 12 years old on Earth, how old are you in 'Jupiter years'?", options: ["1 year old", "12 years old", "24 years old", "144 years old"], correctAnswer: 0, explanation: "If you have lived on Earth for 12 years, Jupiter has only completed exactly one trip around the Sun. You are 1 Jupiter-year old!" },
+  { id: 28, topic: "Planetary Characteristics", question: "Which planet is closest to the Sun but is incredibly cold on its night side because it has no atmosphere to hold in heat?", options: ["Venus", "Mars", "Mercury", "Earth"], correctAnswer: 2, explanation: "Mercury has basically no atmosphere. So while the day side cooks, the night side freezes solid because there's no air to trap the heat!" },
+  { id: 29, topic: "Exoplanet Transit Graphs", question: "Why is it easier to find large, Jupiter-sized exoplanets that orbit close to their stars using the transit method?", options: ["They shine brighter than the star.", "They block out a lot of light and transit frequently.", "They are the only planets that exist.", "They emit a special radio signal."], correctAnswer: 1, explanation: "Large planets block more light (making a deeper dip to see), and if they are close to their star, they transit often, giving scientists more chances to spot the dip!" },
+  { id: 30, topic: "Seasons", question: "When it is Spring in the Northern Hemisphere, what season is it in the Southern Hemisphere?", options: ["Summer", "Winter", "Spring", "Autumn (Fall)"], correctAnswer: 3, explanation: "The seasons in the Northern and Southern Hemispheres are always opposite. When we have Spring, they have Autumn!" },
+  { id: 31, topic: "Models of the Universe", question: "In the ancient Geocentric model, what was believed to be the center of the universe?", options: ["The Sun", "The Earth", "The Moon", "Jupiter"], correctAnswer: 1, explanation: "Geo = Earth. Ancient astronomers like Ptolemy believed the Earth was stationary at the center of the universe, and everything revolved around it." },
+  { id: 32, topic: "Vocabulary", question: "What exactly is an 'exoplanet'?", options: ["A planet that has exploded.", "A planet inside our solar system without a moon.", "A dwarf planet like Pluto.", "A planet that orbits a star OUTSIDE our solar system."], correctAnswer: 3, explanation: "The prefix 'exo' means outside. Exoplanets are planets that orbit stars other than our Sun!" },
+  { id: 33, topic: "Advanced Astrophysics", question: "What are the three main types of galaxies classified by Edwin Hubble?", options: ["Spiral, Elliptical, Irregular", "Circular, Triangular, Spherical", "Nebular, Planetary, Stellar", "Active, Dormant, Extinct"], correctAnswer: 0, explanation: "Edwin Hubble classified galaxies based on their shapes into Spiral (like our Milky Way), Elliptical (oval-shaped), and Irregular (no distinct shape)." },
+  { id: 34, topic: "Planetary Motion", question: "According to Kepler's First Law, what is the shape of a planetary orbit around the Sun?", options: ["A perfect circle", "A figure-eight", "An ellipse, with the Sun at one focus", "A straight line"], correctAnswer: 2, explanation: "Johannes Kepler discovered that orbits are not perfectly circular; they are elliptical, with the Sun slightly off-center at one of the focal points." },
+  { id: 35, topic: "Stellar Life Cycles", question: "What is the primary process that powers the Sun and other main-sequence stars?", options: ["Chemical combustion of oxygen", "Friction from gravity", "Nuclear fission of uranium", "Nuclear fusion of hydrogen into helium"], correctAnswer: 3, explanation: "Stars generate massive amounts of energy by crushing hydrogen atoms together under extreme heat and pressure to form helium, a process called nuclear fusion." },
+  { id: 36, topic: "Solar System Structure", question: "What is the Oort Cloud?", options: ["A storm system on Jupiter", "A spherical shell of icy objects at the outermost reaches of the solar system", "The asteroid belt between Mars and Jupiter", "A massive nebula where the Sun was born"], correctAnswer: 1, explanation: "The Oort Cloud is a massive, theoretical spherical cloud of icy debris surrounding our solar system, extending light-years away. It's the source of long-period comets!" },
+  { id: 37, topic: "Advanced Astrophysics", question: "Which phenomenon provides strong evidence that the universe is currently expanding?", options: ["The redshift of light from distant galaxies", "The changing phases of the Moon", "The occurrence of solar flares", "The formation of black holes"], correctAnswer: 0, explanation: "As galaxies move away from us due to the expanding universe, their light waves stretch out, shifting them toward the red end of the light spectrum (redshift)." },
+  { id: 38, topic: "Stellar Life Cycles", question: "What happens to a massive star (much larger than our Sun) at the very end of its life cycle?", options: ["It turns into a planet", "It explodes in a supernova and may become a black hole or neutron star", "It slowly cools down and becomes a white dwarf", "It splits into two smaller stars"], correctAnswer: 1, explanation: "When massive stars run out of fuel, their core collapses and triggers a massive explosion called a supernova, leaving behind either a dense neutron star or a black hole." },
+  { id: 39, topic: "Exoplanets", question: "What is a 'Habitable Zone' (or Goldilocks Zone) around a star?", options: ["An area filled with breathable oxygen", "A region where gravity is exactly like Earth's", "The region where conditions are just right for liquid water to exist on a planet's surface", "An area safe from asteroids"], correctAnswer: 2, explanation: "The Habitable Zone is the distance from a star where it's not too hot and not too cold, allowing liquid water (a key ingredient for life) to potentially exist." },
+  { id: 40, topic: "Planetary Characteristics", question: "Why do gas giants like Jupiter have such incredibly strong magnetic fields?", options: ["Because they are so close to the Sun", "Because they have rapid rotation and deep layers of metallic liquid hydrogen", "Because they are entirely made of iron", "Because they steal magnetic energy from their moons"], correctAnswer: 1, explanation: "Jupiter spins incredibly fast, and deep inside its atmosphere, hydrogen is crushed into a liquid metal state. This churning metallic liquid acts like a massive dynamo, generating a huge magnetic field." },
+  { id: 41, topic: "Earth and Moon", question: "What causes the cycle of day and night on Earth?", options: ["The Earth orbiting the Sun", "The Sun moving around the Earth", "The Earth rotating on its own axis", "The Moon blocking the Sun"], correctAnswer: 2, explanation: "Earth spins (rotates) on its axis like a top. It takes 24 hours to complete one spin, giving us day and night!" },
+  { id: 42, topic: "Earth and Moon", question: "Why do we see different phases of the Moon?", options: ["The Moon makes its own light and turns it on and off", "Earth's shadow covers the Moon", "The Moon changes shape as it grows", "As the Moon orbits Earth, we see different amounts of its sunlit half"], correctAnswer: 3, explanation: "The Moon reflects sunlight. As it revolves around Earth, the angle of the sunlit side changes from our perspective, creating phases." },
+  { id: 43, topic: "Solar System Structure", question: "What is the main difference between an asteroid and a comet?", options: ["Asteroids are made of ice, comets are made of rock", "Asteroids are rocky/metallic, comets are made of ice, dust, and gas", "Comets orbit planets, asteroids orbit the Sun", "Asteroids are found in the Oort cloud"], correctAnswer: 1, explanation: "Asteroids are mostly rocky or metallic, while comets are 'dirty snowballs' made of ice, dust, and frozen gases that form a glowing tail when they get near the Sun." },
+  { id: 44, topic: "Gravity and Forces", question: "What invisible force keeps all the planets orbiting the Sun instead of floating away?", options: ["Magnetism", "Friction", "Gravity", "Solar Wind"], correctAnswer: 2, explanation: "Gravity is the attractive force between all objects with mass. The Sun's massive gravity pulls the planets, keeping them perfectly in orbit." },
+  { id: 45, topic: "Space Exploration", question: "Why do astronomers put telescopes like the Hubble and James Webb in space?", options: ["To be closer to the stars", "Because there is no gravity in space", "To avoid Earth's atmosphere, which blurs and blocks light", "Because telescopes on Earth are too heavy"], correctAnswer: 2, explanation: "Earth's atmosphere causes stars to twinkle and blocks certain types of light (like ultraviolet and infrared). Space telescopes get a clear, unobstructed view!" },
+  { id: 46, topic: "Planetary Characteristics", question: "Why is Pluto classified as a 'Dwarf Planet' instead of a regular planet?", options: ["It is too cold", "It does not have any moons", "It orbits the Sun backwards", "It has not cleared its neighboring region of other objects"], correctAnswer: 3, explanation: "To be a full planet, an object must clear its orbit of other debris. Pluto shares its orbit with many other icy objects in the Kuiper Belt." },
+  { id: 47, topic: "Eclipses", question: "What happens during a Solar Eclipse?", options: ["The Earth passes between the Sun and Moon", "The Moon passes between the Earth and the Sun, blocking sunlight", "The Sun turns off for a few minutes", "A comet blocks the Sun"], correctAnswer: 1, explanation: "During a solar eclipse, the Moon's orbit brings it perfectly in line between Earth and the Sun, casting a shadow on Earth." },
+  { id: 48, topic: "Eclipses", question: "What happens during a Lunar Eclipse?", options: ["The Moon passes between the Earth and the Sun", "The Earth passes between the Moon and the Sun, casting a shadow on the Moon", "The Moon explodes", "The Sun turns red"], correctAnswer: 1, explanation: "During a lunar eclipse, the Earth is right between the Sun and the Moon. Earth's shadow falls on the Moon, sometimes making it look red!" },
+  { id: 49, topic: "Vocabulary", question: "What is a constellation?", options: ["A group of planets in a line", "A group of stars that form a recognizable pattern or picture in the sky", "A dying star", "A galaxy that is very close to ours"], correctAnswer: 1, explanation: "Constellations are human-made patterns of stars in the night sky, like Orion or the Big Dipper, used for navigation and storytelling." },
+  { id: 50, topic: "The Sun", question: "What are sunspots?", options: ["Storms on the Sun that are cooler and darker than the surrounding area", "Mountains on the surface of the Sun", "Holes where the Sun's fire has gone out", "Shadows cast by passing planets"], correctAnswer: 0, explanation: "Sunspots are areas of intense magnetic activity on the Sun's surface that are cooler than the surrounding plasma, making them appear dark." },
+  { id: 51, topic: "Models of the Universe", question: "When comparing the geocentric and heliocentric models, what is the main difference in their structures?", options: ["Geocentric has no gravity; Heliocentric relies on gravity", "Geocentric places Earth at the center; Heliocentric places the Sun at the center", "Geocentric uses light years; Heliocentric uses AU", "Geocentric says the Earth is flat; Heliocentric says it's round"], correctAnswer: 1, explanation: "The prefix 'Geo' means Earth (Earth-centered), and 'Helio' means Sun (Sun-centered)!" },
+  { id: 52, topic: "Exoplanet Transit Graphs", question: "In a transit light curve graph, how can you determine the planet's orbital period (its year)?", options: ["By measuring how deep the dip is", "By seeing how bright the star normally is", "By measuring the time between the start of one dip and the start of the next dip", "By the color of the light curve"], correctAnswer: 2, explanation: "The orbital period is the time it takes the planet to complete one full orbit and cross in front of the star again. This is seen as the time gap between two identical dips!" },
+  { id: 53, topic: "Planetary Motion Math", question: "If you are 10 years old on Earth, and you magically move to a planet that takes 2 Earth-years to orbit the Sun, how old are you in that planet's years?", options: ["20 years old", "5 years old", "10 years old", "2 years old"], correctAnswer: 1, explanation: "If one of their years takes TWO of our years, they age half as fast! 10 Earth years / 2 = 5 Planet years." },
+  { id: 54, topic: "Scale Models", question: "When building a scale model of the solar system in class, what do we notice about the distances between the outer planets (Jupiter to Neptune)?", options: ["They are evenly spaced like the inner planets", "They are extremely far apart compared to the inner planets", "They are squished very close together", "They share the exact same orbit"], correctAnswer: 1, explanation: "The inner planets (Mercury, Venus, Earth, Mars) are relatively close together, but the distances across the outer solar system are incredibly vast!" },
+  { id: 55, topic: "Vocabulary", question: "Which vocabulary word represents the moment when Earth's tilt causes the longest or shortest amount of daylight in the year?", options: ["Solstice", "Equinox", "Eclipse", "Transit"], correctAnswer: 0, explanation: "A Solstice occurs in Summer (longest day) and Winter (shortest day) when the Earth's pole is tilted at its maximum toward or away from the Sun." },
+  { id: 56, topic: "Distances in Space", question: "Why do we use the Astronomical Unit (AU) instead of miles or light years to measure distances within our own solar system?", options: ["Because miles are too large and light years are too small", "Because AU is the only unit telescopes understand", "Because miles are too small (creating huge numbers) and light years are too large for our solar system", "Because one AU is exactly the distance to the edge of the galaxy"], correctAnswer: 2, explanation: "An AU (Earth-to-Sun distance) is the perfect 'yardstick' for our solar system. Using miles would give us billions, and using light years would give us tiny fractions." },
+  { id: 57, topic: "Exoplanet Transit Graphs", question: "If a transit light curve shows very frequent, quick dips in brightness, what does this tell you about the exoplanet's orbit?", options: ["It has a very short orbital period (it's close to its star)", "It has a very long orbital period (it's far from its star)", "The planet is freezing cold", "The planet has many moons"], correctAnswer: 0, explanation: "Frequent dips mean the planet completes its orbit very quickly, which means it must be orbiting very close to its host star!" },
+  { id: 58, topic: "Planetary Characteristics", question: "Which planet is famous for its spectacular, complex ring system and is the 6th planet from the Sun?", options: ["Jupiter", "Uranus", "Neptune", "Saturn"], correctAnswer: 3, explanation: "While all gas giants have rings, Saturn (the 6th planet) has the brightest, most extensive, and most famous ring system made mostly of ice!" },
+  { id: 59, topic: "Seasons", question: "What happens to the amount of daylight during an Equinox?", options: ["The day is 24 hours long", "There is no daylight at all", "Daylight and nighttime are almost exactly equal everywhere on Earth", "The Northern Hemisphere gets more daylight than the Southern"], correctAnswer: 2, explanation: "The word 'Equinox' literally means 'equal night'. During this time in Spring and Fall, the Earth's tilt is sideways relative to the Sun, giving us about 12 hours of day and night." },
+  { id: 60, topic: "Seasons & Earth's Orbit", question: "If Earth's tilt were to drastically increase from 23.5° to 45°, how would this affect our seasons?", options: ["We would stop having seasons entirely", "Seasons would become much more extreme (hotter summers, colder winters)", "It would always be winter everywhere", "Seasons would flip every month"], correctAnswer: 1, explanation: "A larger tilt means the hemispheres would point even more directly at (or away from) the Sun, making summers boiling hot and winters freezing cold!" },
+  { id: 61, topic: "Orbit Extremes", question: "Earth is closest to the Sun at 'Perihelion' and furthest at 'Aphelion'. What is the primary factor that determines these orbital extremes?", options: ["The planet's speed changes dynamically because of solar winds", "The shape of Earth's orbit is slightly elliptical (eccentric) rather than a perfect circle", "The Earth wobbles on its axis every 10,000 years", "The gravitational pull of the Moon squeezes the orbit"], correctAnswer: 1, explanation: "Due to Kepler's First Law, Earth's orbit is an ellipse. This elliptical eccentricity means Earth reaches its closest point (1.47 × 10^8 km) at Perihelion and its furthest point (1.52 × 10^8 km) at Aphelion." },
+  { id: 62, topic: "Kepler's Laws", question: "Kepler's Second Law (the Law of Equal Areas) states that a line segment joining a planet and the Sun sweeps out equal areas during equal intervals of time. What does this mean for a planet's speed?", options: ["The planet moves fastest when it is closest to the Sun (Perihelion)", "The planet moves slowest when it is closest to the Sun (Perihelion)", "The planet travels at a completely constant speed throughout its entire orbit", "The planet stops moving entirely at Aphelion"], correctAnswer: 0, explanation: "To sweep out equal areas, the planet must travel a greater orbital path distance in the same amount of time when it is closer to the Sun. Thus, it moves fastest at Perihelion and slowest at Aphelion!" },
+  { id: 63, topic: "Kepler's Laws Math", question: "According to Kepler's Third Law (P² = a³), if an exoplanet orbits at an average distance of a = 4 AU from its star, what is its orbital period P in Earth years?", options: ["2 Earth years", "4 Earth years", "8 Earth years", "64 Earth years"], correctAnswer: 2, explanation: "Let's use the formula: P² = a³. Since a = 4, then P² = 4³ = 64. Taking the square root of 64, we get P = 8 years!" },
+  { id: 64, topic: "Astronomical Coordinates", question: "When looking up at the sky, what do astronomers call the point directly above an observer's head, and the point directly below their feet?", options: ["Horizon and Meridian", "Zenith and Nadir", "Apex and Base", "Polaris and Solstice"], correctAnswer: 1, explanation: "The Zenith is the imaginary point directly overhead (90° altitude), and the Nadir is the direction pointing directly below the observer, toward the center of the Earth." },
+  { id: 65, topic: "Celestial Coordinates", question: "What is the projection of Earth's equator out into space onto the imaginary celestial sphere called?", options: ["The Celestial Equator", "The Ecliptic", "The Prime Meridian", "The Horizon Line"], correctAnswer: 0, explanation: "The Celestial Equator is a great circle on the imaginary celestial sphere that lies in the exact same plane as Earth's equator." },
+  { id: 66, topic: "Planetary Motion and Wobble", question: "Earth has a slow 'wobble' in its rotational axis that takes about 26,000 years to complete one cycle. What is this phenomenon called?", options: ["Precession", "Retrograde Motion", "Revolution", "Eccentricity"], correctAnswer: 0, explanation: "Precession is the gravity-induced, slow, conical wobble of Earth's rotational axis. It slowly shifts which stars point to our North Pole over thousands of years!" },
+  { id: 67, topic: "Orbit Dynamics", question: "The point in space around which two celestial bodies orbit (such as the Earth and the Moon, or a binary star system) is called the...", options: ["Barycenter", "Focal Point", "Nadir", "Zenith"], correctAnswer: 0, explanation: "The Barycenter is the shared center of mass around which two or more orbiting bodies revolve. For the Earth and Sun, the barycenter is deep inside the Sun due to its massive mass." },
+  { id: 68, topic: "Orbits & Math", question: "The measure of how much an orbit deviates from a perfect circle is known as its...", options: ["Eccentricity", "Declination", "Ignition", "Obliquity"], correctAnswer: 0, explanation: "Orbital eccentricity ranges from 0 to 1. An eccentricity of 0 is a perfect circle, while values closer to 1 indicate highly elongated ellipses." },
+  { id: 69, topic: "Exoplanet Transit Math", question: "If the radius of an exoplanet is 1/10 the radius of its host star, what fraction of the star's light will be blocked during a perfect transit?", options: ["1/10 of the light", "1/20 of the light", "1/100 of the light", "1/1000 of the light"], correctAnswer: 2, explanation: "The transit depth is equal to the ratio of the areas: (Radius of Planet / Radius of Star)². Since the ratio is 1/10, we calculate (1/10)² = 1/100 (or 1% of the star's light is blocked)." },
+  { id: 70, topic: "Exoplanet Methods", question: "How does the 'Radial Velocity' method of detecting exoplanets differ from the 'Transit' method?", options: ["Radial Velocity detects the chemical output of the planet", "Radial Velocity detects the star's 'wobble' caused by gravity, while Transit detects the drop in star brightness", "Transit is only used for stars inside our own solar system", "Radial Velocity measures the heat of the planet directly"], correctAnswer: 1, explanation: "Transit method requires the planet to cross directly in front of the star, blocking light. Radial Velocity measures spectral shifts (Doppler effect) in the star's light as it is pulled back and forth by the planet's gravity." },
+  { id: 71, topic: "Exoplanet Transit Graphs", question: "When analyzing a transit light curve, what physical property of the exoplanet determines the WIDTH (duration) of the transit dip?", options: ["The planet's temperature", "The planet's atmosphere thickness", "The planet's mass", "The planet's orbital speed and distance from its star"], correctAnswer: 3, explanation: "The width of the dip is how long the planet takes to cross the star. Fast-moving planets close to their stars create short, narrow dips, while distant, slow planets create wider dips." },
+  { id: 72, topic: "Scale Model Calculations", question: "In a scale model where the Sun is represented by a large ball 1 meter in diameter, approximately how far away would you have to place the Earth peppercorn to match its true relative distance?", options: ["1 meter", "10 meters", "100 meters", "1000 meters"], correctAnswer: 2, explanation: "At a scale of 1 meter for the Sun, Earth (which is 109x smaller) sits about 107 meters away! This shows just how incredibly empty space truly is." },
+  { id: 73, topic: "Extreme Seasons", question: "Earth is at Perihelion (closest to the Sun) in January and Aphelion (furthest) in July. Why is summer in the Southern Hemisphere (December-February) slightly warmer than summer in the Northern Hemisphere?", options: ["The Southern Hemisphere has more oceans", "The Southern Hemisphere points closer to Polaris", "The Southern Hemisphere's summer coincides with Perihelion, meaning Earth is physically closer to the Sun", "The Sun burns brighter in January"], correctAnswer: 2, explanation: "While seasons are caused by Earth's tilt, Southern Hemisphere summer occurs when Earth is physically closest to the Sun at Perihelion, resulting in about 7% more solar radiation!" },
+  { id: 74, topic: "Solar Angle of Incidence", question: "At what location on Earth will the Sun be directly overhead (at the Zenith) at noon during the June Summer Solstice?", options: ["The Equator", "The Tropic of Cancer (23.5° North latitude)", "The Tropic of Capricorn (23.5° South latitude)", "The North Pole"], correctAnswer: 1, explanation: "During the June Solstice, Earth is tilted so that the Northern Hemisphere is tilted maximally towards the Sun, placing the subsolar point directly at the Tropic of Cancer (23.5° N)." },
+  { id: 75, topic: "Advanced Astrophysics", question: "According to the barycenter model, why doesn't the Sun sit perfectly still at the center of the solar system?", options: ["Solar flares push it around", "It is pulled dynamically by the collective gravitational influence of all the planets, especially massive Jupiter", "It is revolving around Earth in a geocentric pattern", "It is riding on a cosmic current"], correctAnswer: 1, explanation: "Every object exerts gravity! While the Sun is extremely massive, the planets (mostly Jupiter) pull on it slightly, causing the Sun to orbit a shared barycenter that wobbles just outside the Sun's surface." }
+];
+
+const AVAILABLE_POWERUPS = [
+  { id: 'speed', name: "Greased Gears", desc: "+0.2 Ship Speed.", icon: "💨", rarity: "Common" },
+  { id: 'bulletSize', name: "Magnifier", desc: "Lasers are 0.5px wider.", icon: "🔍", rarity: "Common" },
+  { id: 'bulletSpeed', name: "Extra Powder", desc: "Lasers fly slightly faster.", icon: "🚀", rarity: "Common" },
+  { id: 'shrink', name: "Diet Plan", desc: "Ship size reduced by 1%.", icon: "🐜", rarity: "Common" },
+  { id: 'slowEnemies', name: "Space Molasses", desc: "Enemies move 1% slower.", icon: "🐌", rarity: "Common" },
+  { id: 'slowEnemyBullets', name: "Defective Guns", desc: "Enemy lasers are 2% slower.", icon: "🐢", rarity: "Common" },
+  { id: 'scoreMulti', name: "Coupons", desc: "+5% Score earned.", icon: "🎟️", rarity: "Common" },
+  
+  { id: 'backShot', name: "Rearview Gun", desc: "Fires 1 laser backwards.", icon: "🔙", rarity: "Uncommon" },
+  { id: 'weakEnemies', name: "Mean Insults", desc: "Enemies spawn with 2% less HP.", icon: "💔", rarity: "Uncommon" },
+  
+  { id: 'rapid', name: "Cooling Fan", desc: "Shoot 3% faster.", icon: "⚡", rarity: "Rare" },
+  { id: 'poison', name: "Corrosive Acid", desc: "Adds +0.02 Acid DPS.", icon: "🧪", rarity: "Rare" },
+  { id: 'energyGain', name: "Fuzzy Battery", desc: "+1 Auto-Energy per kill.", icon: "🔋", rarity: "Rare" },
+  { id: 'pacify', name: "Boring Podcast", desc: "Enemies spawn slightly less often.", icon: "🥱", rarity: "Rare" },
+
+  { id: 'damage', name: "Micro Plasma", desc: "+0.1 Damage per laser.", icon: "🔥", rarity: "Epic" },
+  { id: 'hull', name: "Titanium Plating", desc: "+1 Max Hull and heals 1 HP.", icon: "🛡️", rarity: "Epic" },
+  { id: 'autoAim', name: "Tracking Chip", desc: "Lasers track nearby hostiles.", icon: "🎯", rarity: "Epic" },
+  
+  { id: 'spread', name: "Splitter", desc: "Adds 1 forward spread laser.", icon: "☄️", rarity: "Legendary" },
+  { id: 'diagonal', name: "Crooked Barrel", desc: "Adds diagonal 45-degree lasers.", icon: "✖️", rarity: "Legendary" },
+  
+  { id: 'sideShot', name: "Side Blaster", desc: "Fires lasers sideways.", icon: "↔️", rarity: "Mythical" },
+  { id: 'regen', name: "Nanobot Swarm", desc: "Slowly regenerates Hull over time.", icon: "🩹", rarity: "Mythical" },
+  { id: 'leech', name: "Vampire Tooth", desc: "1% chance to heal 1 HP on kill.", icon: "🦇", rarity: "Mythical" }
+];
+
+const RARITY_COLORS = {
+  Common: { text: 'text-white', border: 'border-slate-300', glow: 'shadow-[0_0_15px_rgba(255,255,255,0.4)] hover:shadow-[0_0_30px_rgba(255,255,255,0.8)]', bg: 'bg-slate-800' },
+  Uncommon: { text: 'text-green-400', border: 'border-green-500', glow: 'shadow-[0_0_15px_rgba(74,222,128,0.5)] hover:shadow-[0_0_30px_rgba(74,222,128,0.9)]', bg: 'bg-green-950/40' },
+  Rare: { text: 'text-blue-400', border: 'border-blue-500', glow: 'shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_rgba(59,130,246,0.9)]', bg: 'bg-blue-950/40' },
+  Epic: { text: 'text-purple-400', border: 'border-purple-500', glow: 'shadow-[0_0_15px_rgba(168,85,247,0.5)] hover:shadow-[0_0_30px_rgba(168,85,247,0.9)]', bg: 'bg-purple-950/40' },
+  Legendary: { text: 'text-yellow-400', border: 'border-yellow-500', glow: 'shadow-[0_0_20px_rgba(250,204,21,0.6)] hover:shadow-[0_0_40px_rgba(250,204,21,1)]', bg: 'bg-yellow-950/40' },
+  Mythical: { text: 'text-red-500', border: 'border-red-600', glow: 'shadow-[0_0_25px_rgba(239,68,68,0.7)] hover:shadow-[0_0_50px_rgba(239,68,68,1)] animate-pulse', bg: 'bg-red-950/40' }
+};
+
+const RARITY_WEIGHT = {
+  Mythical: 6,
+  Legendary: 5,
+  Epic: 4,
+  Rare: 3,
+  Uncommon: 2,
+  Common: 1
+};
+
+// Base drop chance weights (Higher number = more common)
+const BASE_DROP_CHANCES = {
+  Common: 100,
+  Uncommon: 50,
+  Rare: 25,
+  Epic: 10,
+  Legendary: 3,
+  Mythical: 1
+};
+
+function App() {
+  const canvasRef = useRef(null);
+  
+  // High-level App State
+  const [gameState, setGameState] = useState('start'); // start, start-select, playing, question, inter-question, powerup-select, feedback, gameover, paused
+  
+  // UI Synced State
+  const [uiStats, setUiStats] = useState({ hp: 5, maxHp: 5, score: 0, energy: 0, maxEnergy: 50, level: 1, kills: 0 });
+  const [activePowerUps, setActivePowerUps] = useState([]);
+  
+  // Start select, Question & Upgrade State
+  const [startOfferedPowerUps, setStartOfferedPowerUps] = useState([]);
+  const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [questionsNeeded, setQuestionsNeeded] = useState(1);
+  const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const [interFeedback, setInterFeedback] = useState(null);
+  const [offeredPowerUps, setOfferedPowerUps] = useState([]);
+  const [grantedPowerUp, setGrantedPowerUp] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+
+  const [playMode, setPlayMode] = useState('normal'); // 'normal' (fast upgrades) or 'study' (original questions)
+  const playModeRef = useRef('normal');
+  const [godPicks, setGodPicks] = useState(0);
+  const handleModeChange = (mode) => {
+      setPlayMode(mode);
+      playModeRef.current = mode;
+  };
+
+  // --- GAME ENGINE STATE (Stored in Refs for performance) ---
+  const engine = useRef({
+    isActive: false,
+    width: 800,
+    height: 600,
+    keys: {},
+    frameCount: 0,
+    
+    // Core stats
+    score: 0,
+    energy: 0,
+    maxEnergy: 50,
+    level: 1,
+    enemiesToNextLevel: 10,
+    kills: 0,
+    
+    // Entities
+    player: { x: 400, y: 500, w: 30, h: 40, speed: 5, hp: 5, maxHp: 5, shootCooldown: 0, baseFireRate: 15 },
+    bullets: [],
+    enemyBullets: [],
+    enemies: [],
+    particles: [],
+    
+    // 21 Powerups - Stores STACK COUNTS instead of booleans
+    powerups: { 
+        damage: 0, rapid: 0, speed: 0, hull: 0, poison: 0, autoAim: 0,
+        bulletSize: 0, bulletSpeed: 0, spread: 0, backShot: 0, sideShot: 0, 
+        energyGain: 0, shrink: 0, regen: 0, slowEnemies: 0, weakEnemies: 0, 
+        slowEnemyBullets: 0, scoreMulti: 0, diagonal: 0, pacify: 0, leech: 0 
+    },
+    
+    // Question queue for tracking shuffled questions
+    questionQueue: [],
+
+    // Starfield background
+    stars: Array.from({length: 100}).map(() => ({
+        x: Math.random() * 800, 
+        y: Math.random() * 600, 
+        size: Math.random() * 2 + 1, 
+        speed: Math.random() * 2 + 0.5
+    }))
+  });
+
+  const syncUI = useCallback(() => {
+    setUiStats({
+      hp: engine.current.player.hp,
+      maxHp: engine.current.player.maxHp,
+      score: Math.floor(engine.current.score),
+      energy: engine.current.energy,
+      maxEnergy: engine.current.maxEnergy,
+      level: engine.current.level,
+      kills: engine.current.kills
+    });
+  }, []);
+
+  const createParticle = (x, y, color, count = 5) => {
+    for(let i=0; i<count; i++) {
+      engine.current.particles.push({
+        x, y, 
+        vx: (Math.random() - 0.5) * 8, 
+        vy: (Math.random() - 0.5) * 8, 
+        life: 1.0, 
+        color,
+        size: Math.random() * 4 + 2
+      });
+    }
+  };
+
+  const generateGodPowerups = useCallback(() => {
+      let pool = [...AVAILABLE_POWERUPS];
+      let picked = [];
+      for (let i = 0; i < 10; i++) {
+          if (pool.length === 0) break;
+          let randIdx = Math.floor(Math.random() * pool.length);
+          picked.push(pool[randIdx]);
+          pool.splice(randIdx, 1);
+      }
+      setOfferedPowerUps(picked);
+  }, []);
+
+  const triggerGodModeUpgrades = useCallback(() => {
+      engine.current.isActive = false;
+      setGodPicks(5);
+      generateGodPowerups();
+      setGameState('powerup-select');
+  }, [generateGodPowerups]);
+
+  const loadNextQuestion = useCallback(() => {
+    if (engine.current.questionQueue.length === 0) {
+      engine.current.questionQueue = [...allQuestions].sort(() => 0.5 - Math.random());
+    }
+
+    const q = engine.current.questionQueue.pop();
+    setCurrentQuestion(q);
+    setSelectedAnswer(null);
+    setGameState('question');
+  }, []);
+
+  const triggerQuestionPhase = useCallback(() => {
+    engine.current.isActive = false; 
+    engine.current.energy = 0; 
+    
+    // Scaling Difficulty: Max Energy required goes up slightly each time
+    engine.current.maxEnergy += 5;
+    syncUI(); 
+    
+    // Determine how many questions are needed based on current upgrade count
+    const totalUpgrades = activePowerUps.reduce((sum, p) => sum + p.count, 0);
+    // Harder Scaling: Start at needing 2, up by 1 every 3 upgrades (Starts prompting after 15 stacks)
+    const needed = Math.floor(totalUpgrades / 3) + 2;
+    setQuestionsNeeded(needed);
+    setQuestionsAnswered(0);
+
+    loadNextQuestion();
+  }, [activePowerUps, syncUI, loadNextQuestion]);
+
+  // --- STABLE AND NON-RECREATED GAME LOOP (Fixes duplicate loops, freezing inputs, and bullet storms) ---
+  const gameLoop = useCallback(() => {
+    if (!engine.current.isActive) return;
+    
+    const state = engine.current;
+    state.frameCount++;
+    const ctx = canvasRef.current?.getContext('2d');
+    if (!ctx) {
+        return;
+    }
+
+    // 1. UPDATE PHYSICS & LOGIC
+    
+    // --- PLAYER MOVEMENT (Stacked Speed & Shrink) ---
+    const currentSpeed = state.player.speed + (state.powerups.speed * 0.2);
+    let scale = Math.max(0.3, 1 - (state.powerups.shrink * 0.01));
+    state.player.w = 30 * scale;
+    state.player.h = 40 * scale;
+    
+    // Support lowercase and original arrow-key tracking
+    if (state.keys['arrowleft'] || state.keys['a']) state.player.x -= currentSpeed;
+    if (state.keys['arrowright'] || state.keys['d']) state.player.x += currentSpeed;
+    if (state.keys['arrowup'] || state.keys['w']) state.player.y -= currentSpeed;
+    if (state.keys['arrowdown'] || state.keys['s']) state.player.y += currentSpeed;
+    
+    state.player.x = Math.max(state.player.w/2, Math.min(state.width - state.player.w/2, state.player.x));
+    state.player.y = Math.max(state.player.h/2, Math.min(state.height - state.player.h/2, state.player.y));
+
+    // --- REGEN POWERUP ---
+    if (state.powerups.regen > 0) {
+        let regenFrames = Math.max(60, 600 - (state.powerups.regen * 15));
+        if (state.frameCount % regenFrames === 0) {
+            state.player.hp = Math.min(state.player.maxHp, state.player.hp + 1);
+        }
+    }
+
+    // --- PLAYER SHOOTING (Stacked Upgrades) ---
+    if (state.player.shootCooldown > 0) state.player.shootCooldown--;
+    if (state.player.shootCooldown <= 0) {
+      const fireRate = Math.max(2, state.player.baseFireRate - (state.powerups.rapid * 0.5));
+      state.player.shootCooldown = fireRate;
+      
+      const dmg = 1 + (state.powerups.damage * 0.1);
+      const bSize = 4 + (state.powerups.bulletSize * 0.5);
+      const baseVy = -12 - (state.powerups.bulletSpeed * 0.5);
+      
+      // Main Spread
+      let numBullets = 1 + state.powerups.spread;
+      for(let i=0; i<numBullets; i++) {
+         let offset = (i - (numBullets-1)/2); 
+         let vx = offset * 2.5; 
+         let vy = baseVy + Math.abs(offset) * 0.3; 
+         state.bullets.push({ x: state.player.x, y: state.player.y - 20, vx, vy, w: bSize, h: 15, dmg, life: 100 }); // Cap lifetime to prevent lag
+      }
+
+      // Diagonal Shots
+      if (state.powerups.diagonal > 0) {
+          let diagSpeed = 8 + (state.powerups.bulletSpeed * 0.5);
+          for(let i=0; i<state.powerups.diagonal; i++) {
+              state.bullets.push({ x: state.player.x, y: state.player.y, vx: diagSpeed, vy: -diagSpeed, w: bSize, h: 15, dmg, life: 100 });
+              state.bullets.push({ x: state.player.x, y: state.player.y, vx: -diagSpeed, vy: -diagSpeed, w: bSize, h: 15, dmg, life: 100 });
+          }
+      }
+
+      // Back Shots
+      if (state.powerups.backShot > 0) {
+          for(let i=0; i<state.powerups.backShot; i++) {
+              let offset = (i - (state.powerups.backShot-1)/2) * 2;
+              state.bullets.push({ x: state.player.x, y: state.player.y + 20, vx: offset, vy: Math.abs(baseVy), w: bSize, h: 15, dmg, life: 100 });
+          }
+      }
+
+      // Side Shots
+      if (state.powerups.sideShot > 0) {
+          for(let i=0; i<state.powerups.sideShot; i++) {
+              let offset = (i - (state.powerups.sideShot-1)/2) * 2;
+              let speed = Math.abs(baseVy);
+              state.bullets.push({ x: state.player.x + 20, y: state.player.y, vx: speed, vy: offset, w: 15, h: bSize, dmg, life: 100 });
+              state.bullets.push({ x: state.player.x - 20, y: state.player.y, vx: -speed, vy: offset, w: 15, h: bSize, dmg, life: 100 });
+          }
+      }
+    }
+
+    // --- BULLETS LOOP (With Forward-Only seeking Auto-Aim) ---
+    state.bullets.forEach(b => { 
+        b.life--; // Keep tracking bullet decay
+        
+        if (state.powerups.autoAim > 0) {
+            // Locate closest enemy on screen
+            let nearest = null;
+            let minDist = Infinity;
+            state.enemies.forEach(e => {
+                let dist = Math.hypot(e.x - b.x, e.y - b.y);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = e;
+                }
+            });
+            
+            // Fix: Bullets will only home on targets directly in front of them (above).
+            // This prevents lasers from doing 180s and orbiting endlessly around enemies.
+            if (nearest && nearest.y < b.y) {
+                let angle = Math.atan2(nearest.y - b.y, nearest.x - b.x);
+                let currentSpeed = Math.hypot(b.vx, b.vy);
+                let targetVx = Math.cos(angle) * currentSpeed;
+                let targetVy = Math.sin(angle) * currentSpeed;
+                
+                let steerRate = Math.min(0.25, 0.05 * state.powerups.autoAim);
+                b.vx += (targetVx - b.vx) * steerRate;
+                b.vy += (targetVy - b.vy) * steerRate;
+            }
+        }
+        b.x += b.vx; 
+        b.y += b.vy; 
+    });
+    // Filter off-screen and expired bullets
+    state.bullets = state.bullets.filter(b => b.life > 0 && b.y > -20 && b.y < state.height + 20 && b.x > -20 && b.x < state.width + 20);
+
+    state.enemyBullets.forEach(b => { b.x += b.vx; b.y += b.vy; });
+    state.enemyBullets = state.enemyBullets.filter(b => b.y < state.height + 20);
+
+    // --- SPAWN ENEMIES ---
+    let baseSpawnRate = Math.max(15, 70 - (state.level * 3));
+    let finalSpawnRate = baseSpawnRate + (state.powerups.pacify * 1);
+
+    if (state.frameCount % finalSpawnRate === 0) {
+      const type = Math.random() > 0.8 ? 'tank' : 'scout';
+      
+      let rawMaxHp = type === 'tank' ? 3 + Math.floor(state.level * 0.8) : 1 + Math.floor(state.level * 0.3);
+      let maxHp = Math.max(1, rawMaxHp - (state.powerups.weakEnemies * 0.2));
+      
+      let baseVy = type === 'tank' ? 1 + Math.random() : 2 + Math.random() + (state.level * 0.2);
+
+      state.enemies.push({
+        x: Math.random() * (state.width - 40) + 20,
+        y: -40,
+        w: type === 'tank' ? 40 : 25,
+        h: type === 'tank' ? 40 : 25,
+        baseVy: baseVy,
+        hp: maxHp,
+        maxHp: maxHp,
+        type: type,
+        shootCooldown: Math.max(20, Math.random() * 80 + 80 - (state.level * 3)), 
+        poisoned: false
+      });
+    }
+
+    // --- MOVE & UPDATE ENEMIES ---
+    for (let j = state.enemies.length - 1; j >= 0; j--) {
+        let e = state.enemies[j];
+        
+        // Slow enemies down based on powerup
+        e.y += Math.max(0.5, e.baseVy - (state.powerups.slowEnemies * 0.05));
+        
+        e.shootCooldown--;
+        if (e.shootCooldown <= 0 && e.y > 0 && e.y < state.height - 100) {
+            let rawBulletVy = 5 + (state.level * 0.2);
+            let bulletVy = Math.max(2, rawBulletVy - (state.powerups.slowEnemyBullets * 0.2));
+            state.enemyBullets.push({ x: e.x, y: e.y + e.h/2, vx: 0, vy: bulletVy, w: 4, h: 12, dmg: 1 });
+            e.shootCooldown = Math.max(20, Math.random() * 80 + 80 - (state.level * 3)); 
+        }
+
+        // Stacked Poison
+        if (e.poisoned && state.powerups.poison > 0) {
+            e.hp -= 0.02 * state.powerups.poison; 
+            if (state.frameCount % 5 === 0) createParticle(e.x, e.y, '#84cc16', 1); 
+        }
+
+        if (e.hp <= 0) {
+            createParticle(e.x, e.y, e.type === 'tank' ? '#ef4444' : '#a855f7', 15);
+            state.score += (e.maxHp * 10) * (1 + state.powerups.scoreMulti * 0.05);
+            state.kills++;
+            
+            // Leech chance
+            if (Math.random() < state.powerups.leech * 0.01) {
+                state.player.hp = Math.min(state.player.maxHp, state.player.hp + 1);
+            }
+
+            state.enemiesToNextLevel--;
+            if (state.enemiesToNextLevel <= 0) {
+                state.level++;
+                state.enemiesToNextLevel = 10 * state.level;
+            }
+
+            if (playModeRef.current === 'normal') {
+                state.enemies.splice(j, 1);
+                triggerGodModeUpgrades();
+                return;
+            } else {
+                // AUTO-COLLECT ENERGY
+                state.energy += 35 + (state.powerups.energyGain * 3);
+                createParticle(e.x, e.y, '#fbbf24', 5);
+                state.enemies.splice(j, 1);
+
+                if (state.energy >= state.maxEnergy) {
+                    state.energy = state.maxEnergy;
+                    triggerQuestionPhase();
+                    return; 
+                }
+            }
+        }
+    }
+    
+    state.particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.life -= 0.05; });
+    state.particles = state.particles.filter(p => p.life > 0);
+
+    // --- COLLISIONS ---
+    for (let i = state.bullets.length - 1; i >= 0; i--) {
+      let b = state.bullets[i];
+      let hit = false;
+      for (let j = state.enemies.length - 1; j >= 0; j--) {
+        let e = state.enemies[j];
+        if (Math.abs(b.x - e.x) < (b.w/2 + e.w/2) && Math.abs(b.y - e.y) < (b.h/2 + e.h/2)) {
+          e.hp -= b.dmg;
+          if (state.powerups.poison > 0) e.poisoned = true; 
+
+          hit = true;
+          createParticle(b.x, b.y, state.powerups.poison > 0 ? '#84cc16' : '#22d3ee', 3); 
+          
+          if (e.hp <= 0) {
+            createParticle(e.x, e.y, e.type === 'tank' ? '#ef4444' : '#a855f7', 15);
+            state.score += (e.maxHp * 10) * (1 + state.powerups.scoreMulti * 0.05);
+            state.kills++;
+            
+            if (Math.random() < state.powerups.leech * 0.01) {
+                state.player.hp = Math.min(state.player.maxHp, state.player.hp + 1);
+            }
+
+            state.enemiesToNextLevel--;
+            if (state.enemiesToNextLevel <= 0) {
+                state.level++;
+                state.enemiesToNextLevel = 10 * state.level;
+            }
+
+            if (playModeRef.current === 'normal') {
+                state.enemies.splice(j, 1);
+                triggerGodModeUpgrades();
+                return;
+            } else {
+                // AUTO-COLLECT
+                state.energy += 35 + (state.powerups.energyGain * 3);
+                createParticle(e.x, e.y, '#fbbf24', 5);
+                state.enemies.splice(j, 1);
+
+                if (state.energy >= state.maxEnergy) {
+                    state.energy = state.maxEnergy;
+                    triggerQuestionPhase();
+                    return; 
+                }
+            }
+          }
+          break; 
+        }
+      }
+      if (hit) state.bullets.splice(i, 1);
+    }
+
+    for (let i = state.enemyBullets.length - 1; i >= 0; i--) {
+        let b = state.enemyBullets[i];
+        if (Math.abs(b.x - state.player.x) < (state.player.w/2 + b.w/2) && Math.abs(b.y - state.player.y) < (state.player.h/2 + b.h/2)) {
+            state.player.hp -= b.dmg;
+            createParticle(state.player.x, state.player.y, '#ef4444', 15);
+            state.enemyBullets.splice(i, 1);
+            
+            if (state.player.hp <= 0) {
+                engine.current.isActive = false;
+                syncUI();
+                setGameState('gameover');
+                return;
+            }
+        }
+    }
+
+    for (let j = state.enemies.length - 1; j >= 0; j--) {
+        let e = state.enemies[j];
+        if (Math.abs(state.player.x - e.x) < (state.player.w/2 + e.w/2) && Math.abs(state.player.y - e.y) < (state.player.h/2 + e.h/2)) {
+            state.player.hp--;
+            createParticle(state.player.x, state.player.y, '#ef4444', 20);
+            state.enemies.splice(j, 1); 
+            
+            if (state.player.hp <= 0) {
+                engine.current.isActive = false;
+                syncUI();
+                setGameState('gameover');
+                return;
+            }
+        }
+    }
+
+    state.enemies = state.enemies.filter(e => e.y < state.height + 50);
+
+    // 2. DRAWING
+    ctx.fillStyle = '#020617'; 
+    ctx.fillRect(0, 0, state.width, state.height);
+
+    ctx.fillStyle = '#ffffff';
+    state.stars.forEach(s => {
+        s.y += s.speed;
+        if (s.y > state.height) { s.y = 0; s.x = Math.random() * state.width; }
+        ctx.globalAlpha = Math.random() * 0.5 + 0.2;
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+    });
+    ctx.globalAlpha = 1.0;
+
+    ctx.fillStyle = state.powerups.poison > 0 ? '#84cc16' : (state.powerups.damage > 0 ? '#fb923c' : '#22d3ee'); 
+    state.bullets.forEach(b => {
+        ctx.shadowBlur = 5;
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.fillRect(b.x - b.w/2, b.y - b.h/2, b.w, b.h);
+        ctx.shadowBlur = 0;
+    });
+
+    ctx.fillStyle = '#ef4444'; 
+    state.enemyBullets.forEach(b => {
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#ef4444';
+        ctx.fillRect(b.x - b.w/2, b.y - b.h/2, b.w, b.h);
+        ctx.shadowBlur = 0;
+    });
+
+    state.enemies.forEach(e => {
+        ctx.fillStyle = e.type === 'tank' ? '#991b1b' : '#6b21a8'; 
+        ctx.strokeStyle = e.type === 'tank' ? '#ef4444' : '#d8b4fe';
+        
+        if (e.poisoned && state.frameCount % 20 < 10) {
+            ctx.fillStyle = '#4d7c0f'; 
+            ctx.strokeStyle = '#84cc16'; 
+        }
+
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        if (e.type === 'tank') {
+            ctx.rect(e.x - e.w/2, e.y - e.h/2, e.w, e.h);
+        } else {
+            ctx.moveTo(e.x - e.w/2, e.y - e.h/2);
+            ctx.lineTo(e.x + e.w/2, e.y - e.h/2);
+            ctx.lineTo(e.x, e.y + e.h/2);
+            ctx.closePath();
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        if (e.type === 'tank' && e.hp < e.maxHp) {
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(e.x - e.w/2, e.y - e.h/2 - 8, e.w * (e.hp/e.maxHp), 4);
+        }
+    });
+
+    state.particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.life;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1.0;
+
+    // Player
+    ctx.save();
+    ctx.translate(state.player.x, state.player.y);
+    ctx.fillStyle = '#1e3a8a'; 
+    ctx.strokeStyle = '#60a5fa'; 
+    ctx.lineWidth = 2;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#60a5fa';
+    
+    ctx.beginPath();
+    ctx.moveTo(0, -state.player.h/2); 
+    ctx.lineTo(state.player.w/2, state.player.h/2); 
+    ctx.lineTo(-state.player.w/2, state.player.h/2); 
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath();
+    ctx.arc(0, state.player.h/2 + 5, 4 + Math.random()*2, 0, Math.PI*2);
+    ctx.fill();
+    
+    ctx.restore();
+
+    // 3. Throttle UI Syncs
+    if (state.frameCount % 6 === 0) {
+        syncUI();
+    }
+  }, [syncUI, triggerQuestionPhase, triggerGodModeUpgrades]);
+
+  // --- STABLE PERSISTENT GAME LOOP INITIATOR (Prevents duplicates and control freezing) ---
+  const gameLoopRef = useRef();
+  gameLoopRef.current = gameLoop;
+
+  useEffect(() => {
+    let animationFrameId;
+    const loop = () => {
+      if (engine.current.isActive) {
+        gameLoopRef.current();
+      }
+      animationFrameId = requestAnimationFrame(loop);
+    };
+    animationFrameId = requestAnimationFrame(loop);
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  // --- INPUT HANDLING ---
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const key = e.key.toLowerCase();
+      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(key)) {
+        e.preventDefault(); 
+      }
+      engine.current.keys[key] = true;
+      engine.current.keys[e.key] = true; // backward compatibility
+    };
+    const handleKeyUp = (e) => {
+      const key = e.key.toLowerCase();
+      engine.current.keys[key] = false;
+      engine.current.keys[e.key] = false;
+    };
+
+    window.addEventListener('keydown', handleKeyDown, { passive: false });
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  // --- EVENT HANDLERS ---
+  const handleStartSelectInit = () => {
+    // Generate 10 randomized non-duplicate starting powerups
+    const pool = [...AVAILABLE_POWERUPS];
+    const picked = [];
+    for (let i = 0; i < 10; i++) {
+      if (pool.length === 0) break;
+      const randIdx = Math.floor(Math.random() * pool.length);
+      picked.push(pool[randIdx]);
+      pool.splice(randIdx, 1);
+    }
+    setStartOfferedPowerUps(picked);
+    setGameState('start-select');
+  };
+
+  const handleStartPowerUpSelect = (powerUp) => {
+    // Initialize standard core game state
+    engine.current = {
+      ...engine.current,
+      score: 0,
+      energy: 0,
+      maxEnergy: 50,
+      level: 1,
+      enemiesToNextLevel: 10,
+      kills: 0,
+      player: { x: 400, y: 500, w: 30, h: 40, speed: 5, hp: 5, maxHp: 5, shootCooldown: 0, baseFireRate: 15 },
+      powerups: { 
+        damage: 0, rapid: 0, speed: 0, hull: 0, poison: 0, autoAim: 0,
+        bulletSize: 0, bulletSpeed: 0, spread: 0, backShot: 0, sideShot: 0, 
+        energyGain: 0, shrink: 0, regen: 0, slowEnemies: 0, weakEnemies: 0, 
+        slowEnemyBullets: 0, scoreMulti: 0, diagonal: 0, pacify: 0, leech: 0 
+      },
+      bullets: [],
+      enemyBullets: [],
+      enemies: [],
+      particles: [],
+      frameCount: 0,
+      questionQueue: [...allQuestions].sort(() => 0.5 - Math.random())
+    };
+
+    // Apply the chosen starting powerup
+    if (powerUp.id === 'hull') {
+      engine.current.player.maxHp += 1;
+      engine.current.player.hp = engine.current.player.maxHp;
+    }
+    engine.current.powerups[powerUp.id] = 1;
+
+    // Synchronize UI view of active upgrades
+    setActivePowerUps([{ ...powerUp, count: 1 }]);
+
+    syncUI();
+    setGameState('playing');
+    engine.current.isActive = true;
+  };
+
+  const initGame = () => {
+    handleStartSelectInit();
+  };
+
+  const handleAnswerSubmit = (index) => {
+    if (selectedAnswer !== null) return;
+    
+    setSelectedAnswer(index);
+    const isCorrect = index === currentQuestion.correctAnswer;
+    
+    if (isCorrect) {
+      engine.current.score += 500;
+      const newAnswered = questionsAnswered + 1;
+      setQuestionsAnswered(newAnswered);
+
+      if (newAnswered >= questionsNeeded) {
+          // Provide 3 random unique choices based on dynamic rarity weights scaling with current level (sector)
+          const currentLevel = engine.current.level;
+          
+          const dynamicChances = {
+            Common: Math.max(10, BASE_DROP_CHANCES.Common - (currentLevel - 1) * 7),
+            Uncommon: Math.max(15, BASE_DROP_CHANCES.Uncommon - (currentLevel - 1) * 2),
+            Rare: BASE_DROP_CHANCES.Rare + (currentLevel - 1) * 2,
+            Epic: BASE_DROP_CHANCES.Epic + (currentLevel - 1) * 2.5,
+            Legendary: BASE_DROP_CHANCES.Legendary + (currentLevel - 1) * 1.8,
+            Mythical: BASE_DROP_CHANCES.Mythical + (currentLevel - 1) * 1.5
+          };
+
+          let pool = [...AVAILABLE_POWERUPS];
+          let picked = [];
+          
+          for (let i = 0; i < 3; i++) {
+              if (pool.length === 0) break;
+              
+              let totalWeight = pool.reduce((sum, item) => sum + dynamicChances[item.rarity], 0);
+              let randomNum = Math.random() * totalWeight;
+              let currentWeight = 0;
+              
+              for (let j = 0; j < pool.length; j++) {
+                  currentWeight += dynamicChances[pool[j].rarity];
+                  if (randomNum <= currentWeight) {
+                      picked.push(pool[j]);
+                      pool.splice(j, 1); // Remove to prevent duplicates
+                      break;
+                  }
+              }
+          }
+          
+          setOfferedPowerUps(picked);
+          setGameState('powerup-select');
+      } else {
+          // Need to answer more questions to unlock!
+          setInterFeedback({
+              title: "CORRECT!",
+              desc: `Authorization partial. ${questionsNeeded - newAnswered} more correct answer(s) required.`,
+              type: 'success'
+          });
+          setGameState('inter-question');
+          setTimeout(loadNextQuestion, 1500);
+      }
+    } else {
+      // Wrong answer! Don't reset streak/answered progress, just delay them with a new question.
+      setInterFeedback({
+          title: "INCORRECT!",
+          desc: "Authorization denied. Safety protocols active: loading a different question...",
+          type: 'error'
+      });
+      setGameState('inter-question');
+      setTimeout(loadNextQuestion, 2200);
+    }
+  };
+
+  const handlePowerUpSelect = (powerUp) => {
+      setGrantedPowerUp(powerUp);
+      
+      // APPLY STACKING POWERUP LOGIC
+      if (powerUp.id === 'hull') {
+          engine.current.player.maxHp += 1;
+          engine.current.player.hp = Math.min(engine.current.player.hp + 1, engine.current.player.maxHp);
+      }
+      
+      engine.current.powerups[powerUp.id] = (engine.current.powerups[powerUp.id] || 0) + 1;
+
+      // Update UI state for HUD
+      setActivePowerUps(prev => {
+          const existing = prev.find(p => p.id === powerUp.id);
+          if (existing) {
+              return prev.map(p => p.id === powerUp.id ? {...p, count: p.count + 1} : p);
+          }
+          return [...prev, {...powerUp, count: 1}];
+      });
+      
+      if (playModeRef.current === 'normal') {
+          if (godPicks > 1) {
+              setGodPicks(prev => prev - 1);
+              generateGodPowerups();
+              return;
+          } else {
+              setGodPicks(0);
+              setGameState('playing');
+              engine.current.isActive = true;
+              return;
+          }
+      }
+
+      setFeedback({
+        title: "UPGRADE AUTHORIZED!",
+        desc: currentQuestion.explanation,
+        type: 'success'
+      });
+      setGameState('feedback');
+  };
+
+  const pauseGame = () => {
+    engine.current.isActive = false;
+    setGameState('paused');
+  };
+
+  const resumeGame = () => {
+    setGameState('playing');
+    engine.current.isActive = true;
+  };
+
+  // Add keyboard listener for pausing
+  useEffect(() => {
+    const handlePauseKey = (e) => {
+      const key = e.key.toLowerCase();
+      if (key === 'p' || e.key === 'Escape') {
+        if (gameState === 'playing') {
+          pauseGame();
+        } else if (gameState === 'paused') {
+          resumeGame();
+        }
+      }
+    };
+    window.addEventListener('keydown', handlePauseKey);
+    return () => window.removeEventListener('keydown', handlePauseKey);
+  }, [gameState]);
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans flex flex-col items-center justify-center p-2 relative">
+      
+      <div className="max-w-4xl w-full relative">
+        
+        {/* START SCREEN overlay */}
+        {gameState === 'start' && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm rounded-xl">
+            <div className="bg-slate-800 border-2 border-cyan-500/50 p-8 rounded-2xl shadow-2xl text-center max-w-xl w-full">
+              <Rocket size={64} className="mx-auto text-cyan-400 mb-4 animate-bounce" />
+              <h1 className="text-4xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 uppercase tracking-tight">
+                Astro-Quest ARCADE
+              </h1>
+              <p className="text-cyan-200 mb-6 text-lg">Use Arrow Keys (or WASD) to move and dodge lasers.</p>
+              
+              <div className="flex flex-col gap-3 mb-8 w-full max-w-sm mx-auto">
+                <button 
+                  onClick={() => handleModeChange('normal')}
+                  className={`py-3 px-6 rounded-xl font-bold border-2 transition-all flex items-center justify-between ${playMode === 'normal' ? 'bg-cyan-600/20 border-cyan-400 text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-slate-900 border-slate-700 text-slate-400 opacity-60 hover:opacity-100'}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Zap className={playMode === 'normal' ? 'text-yellow-400' : ''} />
+                    <span>NORMAL MODE</span>
+                  </div>
+                  {playMode === 'normal' && <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>}
+                </button>
+                <button 
+                  onClick={() => handleModeChange('study')}
+                  className={`py-3 px-6 rounded-xl font-bold border-2 transition-all flex items-center justify-between ${playMode === 'study' ? 'bg-purple-600/20 border-purple-400 text-purple-100 shadow-[0_0_15px_rgba(192,132,252,0.3)]' : 'bg-slate-900 border-slate-700 text-slate-400 opacity-60 hover:opacity-100'}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Globe2 className={playMode === 'study' ? 'text-cyan-400' : ''} />
+                    <span>STUDY MODE</span>
+                  </div>
+                  {playMode === 'study' && <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>}
+                </button>
+              </div>
+
+              <div className="text-left space-y-4 mb-8 bg-slate-900/50 p-4 rounded-xl border border-slate-700">
+                {playMode === 'normal' ? (
+                  <div className="flex items-center gap-3">
+                    <Zap className="text-yellow-400 shrink-0" />
+                    <span className="text-sm">Kill enemies to trigger <strong className="text-white">5 massive micro-upgrades</strong> instantly. No questions asked.</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <BatteryCharging className="text-purple-400 shrink-0" />
+                    <span className="text-sm">Charge your core to unlock upgrades by answering <strong className="text-white">Astro-Physics trivia</strong>.</span>
+                  </div>
+                )}
+              </div>
+
+              <button onClick={initGame} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 rounded-xl text-xl flex justify-center items-center gap-2 transition-all hover:scale-105">
+                <Play fill="currentColor" /> {playMode === 'normal' ? 'INITIALIZE COMBAT' : 'START STUDY MISSION'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* START SCREEN POWER-UP SELECTION */}
+        {gameState === 'start-select' && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/95 backdrop-blur-md rounded-xl">
+            <div className="bg-slate-800 border border-cyan-500 p-6 md:p-8 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.3)] max-w-4xl w-full animate-fade-in-up">
+              <div className="text-center mb-6">
+                <Rocket size={48} className="mx-auto text-cyan-400 mb-2 animate-pulse" />
+                <h2 className="text-2xl md:text-3xl font-black uppercase tracking-wider text-cyan-400">CHOOSE STARTING CHASSIS</h2>
+                <p className="text-slate-300 mt-1">Select one free micro-upgrade to initialize your spaceship's systems:</p>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 max-h-[420px] overflow-y-auto p-2 scrollbar-thin">
+                {startOfferedPowerUps.map(powerUp => {
+                  const style = RARITY_COLORS[powerUp.rarity];
+                  return (
+                    <button 
+                      key={powerUp.id}
+                      onClick={() => handleStartPowerUpSelect(powerUp)}
+                      className={`${style.bg} border-2 ${style.border} ${style.glow} p-3 rounded-lg flex flex-col items-center text-center transition-all duration-300 hover:scale-105 group relative`}
+                    >
+                      <span className={`absolute top-1 right-1 text-[8px] uppercase font-black px-1.5 py-0.5 rounded-full border ${style.border} ${style.text} bg-slate-950/80 shadow-md`}>
+                        {powerUp.rarity}
+                      </span>
+                      <div className="text-3xl mb-2 mt-2 group-hover:scale-110 transition-transform drop-shadow-lg">{powerUp.icon}</div>
+                      <h3 className={`font-bold text-xs mb-1 ${style.text} line-clamp-1 drop-shadow-sm`}>{powerUp.name}</h3>
+                      <p className="text-slate-300 text-[10px] leading-tight line-clamp-2">{powerUp.desc}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* QUESTION SCREEN */}
+        {gameState === 'question' && currentQuestion && (
+           <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/95 backdrop-blur-md rounded-xl">
+             <div className="bg-slate-800 border border-cyan-700 p-6 md:p-8 rounded-2xl shadow-2xl max-w-2xl w-full animate-fade-in-up">
+                
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3 text-yellow-400">
+                        <BatteryCharging size={28} className="animate-pulse" />
+                        <h2 className="text-xl font-bold uppercase tracking-widest">System Charged</h2>
+                    </div>
+                    {questionsNeeded > 1 && (
+                        <div className="bg-slate-900 px-3 py-1 rounded-lg border border-cyan-500/50 text-cyan-300 font-bold text-sm animate-bounce">
+                            Phase {questionsAnswered + 1} of {questionsNeeded}
+                        </div>
+                    )}
+                </div>
+                
+                <div className="mb-6">
+                    <span className="text-xs text-cyan-400 uppercase font-bold tracking-widest">{currentQuestion.topic}</span>
+                    <h3 className="text-2xl font-semibold mt-1 leading-snug">{currentQuestion.question}</h3>
+                </div>
+
+                <div className="space-y-3">
+                    {currentQuestion.options.map((opt, idx) => (
+                        <button 
+                            key={idx} 
+                            onClick={() => handleAnswerSubmit(idx)}
+                            className="w-full text-left p-4 rounded-xl border border-slate-600 bg-slate-900 hover:border-cyan-500 hover:bg-slate-700 transition-all text-lg font-medium"
+                        >
+                            {opt}
+                        </button>
+                    ))}
+                </div>
+             </div>
+           </div>
+        )}
+
+        {/* INTER-QUESTION FEEDBACK SCREEN */}
+        {gameState === 'inter-question' && interFeedback && (
+           <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/95 backdrop-blur-md rounded-xl">
+             <div className={`bg-slate-800 border ${interFeedback.type === 'success' ? 'border-cyan-500' : 'border-red-500'} p-8 rounded-2xl shadow-2xl text-center max-w-md w-full animate-fade-in-up`}>
+                 {interFeedback.type === 'success' ? (
+                     <CheckCircle2 size={64} className="mx-auto text-cyan-400 mb-4 animate-bounce" />
+                 ) : (
+                     <XCircle size={64} className="mx-auto text-red-500 mb-4 animate-pulse" />
+                 )}
+                 <h2 className={`text-3xl font-black uppercase tracking-wider mb-2 ${interFeedback.type === 'success' ? 'text-cyan-400' : 'text-red-500'}`}>
+                     {interFeedback.title}
+                 </h2>
+                 <p className="text-slate-300 text-lg leading-relaxed">{interFeedback.desc}</p>
+             </div>
+           </div>
+        )}
+
+        {/* POWER-UP SELECTION SCREEN */}
+        {gameState === 'powerup-select' && (
+           <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/95 backdrop-blur-md rounded-xl overflow-y-auto">
+             <div className="bg-slate-800 border border-green-500 p-6 md:p-8 rounded-2xl shadow-[0_0_30px_rgba(34,197,94,0.3)] max-w-5xl w-full animate-fade-in-up my-auto">
+                
+                <div className="text-center mb-4">
+                    <CheckCircle2 size={64} className="mx-auto text-green-400 mb-2" />
+                    <h2 className="text-3xl font-black uppercase tracking-wider text-green-400">
+                        {playMode === 'normal' ? `COMBAT UPGRADE: PICK ${godPicks} ITEMS` : "STUDY COMPLETE: PICK AN UPGRADE"}
+                    </h2>
+                    <p className="text-slate-300 mt-2">Select a micro-upgrade to stack onto your ship:</p>
+                    {uiStats.level > 1 && playMode !== 'normal' && (
+                      <p className="text-xs text-yellow-400 font-semibold uppercase tracking-wider mt-1 animate-pulse">
+                        ⭐ Sector {uiStats.level} Bonus Active: Better Power-up Chances Increased!
+                      </p>
+                    )}
+                </div>
+
+                <div className={`grid gap-4 mb-6 ${godMode ? 'grid-cols-2 md:grid-cols-5' : 'grid-cols-1 md:grid-cols-3'}`}>
+                    {offeredPowerUps.map(powerUp => {
+                        const currentStack = engine.current.powerups[powerUp.id] || 0;
+                        const style = RARITY_COLORS[powerUp.rarity];
+                        return (
+                        <button 
+                            key={powerUp.id}
+                            onClick={() => handlePowerUpSelect(powerUp)}
+                            className={`${style.bg} border-2 ${style.border} ${style.glow} p-6 rounded-xl flex flex-col items-center text-center transition-all duration-300 hover:scale-105 group relative`}
+                        >
+                            {currentStack > 0 && (
+                                <span className="absolute top-2 left-2 bg-slate-800/80 backdrop-blur text-xs px-2 py-1 rounded-full font-bold border border-slate-600 text-white">
+                                    Lvl {currentStack}
+                                </span>
+                            )}
+                            <span className={`absolute top-2 right-2 text-[10px] uppercase font-black px-2 py-1 rounded-full border ${style.border} ${style.text} bg-slate-950/80 shadow-md`}>
+                                {powerUp.rarity}
+                            </span>
+                            <div className="text-5xl mb-4 mt-4 group-hover:scale-110 transition-transform drop-shadow-2xl">{powerUp.icon}</div>
+                            <h3 className={`font-bold text-xl mb-2 ${style.text} drop-shadow-md`}>{powerUp.name}</h3>
+                            <p className="text-slate-300 text-sm font-medium">{powerUp.desc}</p>
+                        </button>
+                        );
+                    })}
+                </div>
+             </div>
+           </div>
+        )}
+
+        {/* FEEDBACK (AFTER UPGRADE) */}
+        {gameState === 'feedback' && feedback && (
+           <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/95 backdrop-blur-md rounded-xl">
+             <div className={`bg-slate-800 border border-green-500 p-6 md:p-8 rounded-2xl shadow-2xl max-w-2xl w-full animate-fade-in-up`}>
+                
+                <div className="text-center mb-6">
+                    <Zap size={64} className="mx-auto text-yellow-400 mb-2 animate-pulse" />
+                    <h2 className="text-3xl font-black uppercase tracking-wider text-green-400">
+                        {feedback.title}
+                    </h2>
+                </div>
+                
+                {grantedPowerUp && (
+                    <div className={`bg-slate-900 border ${RARITY_COLORS[grantedPowerUp.rarity].border} p-4 rounded-xl mb-6 flex items-center justify-center gap-4 shadow-lg`}>
+                        <div className="text-4xl drop-shadow-lg">{grantedPowerUp.icon}</div>
+                        <div>
+                            <h4 className={`font-bold text-lg ${RARITY_COLORS[grantedPowerUp.rarity].text} drop-shadow-sm`}>
+                              {grantedPowerUp.name} Installed!
+                            </h4>
+                        </div>
+                    </div>
+                )}
+
+                <div className="bg-slate-900 p-5 rounded-xl border-l-4 border-slate-500 mb-8">
+                    <span className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-1 block text-left">Study Database Review</span>
+                    <p className="text-lg leading-relaxed text-left">{feedback.desc}</p>
+                </div>
+
+                <button onClick={resumeGame} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 rounded-xl text-xl flex justify-center items-center gap-2 transition-all hover:scale-105">
+                    RESUME COMBAT <ChevronRight />
+                </button>
+
+             </div>
+           </div>
+        )}
+
+        {/* PAUSE SCREEN */}
+        {gameState === 'paused' && (
+           <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md rounded-xl">
+             <div className="bg-slate-800 border-2 border-cyan-500 p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full animate-fade-in-up">
+                <Pause size={64} className="mx-auto text-cyan-400 mb-4" />
+                <h2 className="text-4xl font-black text-white mb-8 tracking-widest uppercase">Paused</h2>
+                
+                <button onClick={resumeGame} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 rounded-xl text-xl flex justify-center items-center gap-2 transition-all hover:scale-105 mb-4">
+                  <Play fill="currentColor" /> RESUME
+                </button>
+                <button onClick={() => setGameState('start')} className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 transition-all">
+                  <RotateCcw size={18} /> QUIT TO MENU
+                </button>
+             </div>
+           </div>
+        )}
+
+        {/* GAME OVER SCREEN */}
+        {gameState === 'gameover' && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-red-950/90 backdrop-blur-sm rounded-xl">
+               <div className="bg-slate-900 border-2 border-red-500 p-8 rounded-2xl shadow-2xl text-center max-w-md w-full animate-fade-in-up">
+                  <AlertTriangle size={64} className="mx-auto text-red-500 mb-4 animate-pulse" />
+                  <h2 className="text-4xl font-black text-red-500 mb-2 uppercase">Hull Destroyed</h2>
+                  <p className="text-slate-300 mb-6">Your ship was overwhelmed by hostile forces.</p>
+                  
+                  <div className="bg-slate-800 p-4 rounded-xl mb-6">
+                      <div className="text-sm text-slate-400 uppercase font-bold">Final Score</div>
+                      <div className="text-3xl font-mono text-white">{uiStats.score.toLocaleString()}</div>
+                      <div className="text-xs text-slate-500 mt-2">Reached Sector {uiStats.level}</div>
+                  </div>
+
+                  <button onClick={initGame} className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-xl text-xl flex justify-center items-center gap-2 transition-all">
+                    <RotateCcw /> RESTART MISSION
+                  </button>
+               </div>
+            </div>
+        )}
+
+        {/* MAIN GAME CONTAINER */}
+        <div className="bg-slate-950 rounded-2xl overflow-hidden border border-slate-700 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative">
+            
+            {/* HUD Overlay */}
+            <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-10 pointer-events-none">
+                
+                {/* Left side: Health & Level */}
+                <div className="flex flex-col gap-2">
+                    <div className="bg-slate-900/80 backdrop-blur px-4 py-2 rounded-lg border border-slate-700 flex items-center gap-2 max-w-[250px] flex-wrap">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest w-12">HULL</span>
+                        <div className="flex gap-1 flex-wrap">
+                            {[...Array(uiStats.maxHp)].map((_, i) => (
+                                <Shield key={i} size={16} className={i < uiStats.hp ? "text-green-400" : "text-slate-700"} fill={i < uiStats.hp ? "currentColor" : "none"} />
+                            ))}
+                        </div>
+                    </div>
+                    <div className="bg-slate-900/80 backdrop-blur px-4 py-1.5 rounded-lg border border-slate-700 inline-block">
+                        <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest">SECTOR {uiStats.level}</span>
+                    </div>
+                </div>
+
+                {/* Center: Pause Button */}
+                {gameState === 'playing' && (
+                    <div className="pointer-events-auto">
+                        <button 
+                            onClick={pauseGame} 
+                            className="bg-slate-900/80 backdrop-blur p-2 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-cyan-500 hover:bg-slate-800 transition-all flex items-center justify-center"
+                            title="Pause Game (P or Esc)"
+                        >
+                            <Pause size={24} />
+                        </button>
+                    </div>
+                )}
+
+                {/* Right side: Score & Powerups */}
+                <div className="flex flex-col items-end gap-2 pointer-events-auto">
+                    <div className="bg-slate-900/80 backdrop-blur px-4 py-2 rounded-lg border border-slate-700 text-right min-w-[120px]">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block leading-none mb-1">SCORE</span>
+                        <span className="text-xl font-mono font-bold text-white leading-none">{uiStats.score.toLocaleString()}</span>
+                        <div className="h-px bg-slate-700 my-1.5"></div>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block leading-none mb-1">KILLS</span>
+                        <span className="text-lg font-mono font-bold text-red-400 leading-none">{uiStats.kills}</span>
+                    </div>
+                    {/* Active Micro-Upgrades View */}
+                    {activePowerUps.length > 0 && (
+                        <div className="flex flex-wrap justify-end gap-2 max-w-[300px]">
+                            {[...activePowerUps].sort((a, b) => RARITY_WEIGHT[b.rarity] - RARITY_WEIGHT[a.rarity]).map(p => {
+                                const style = RARITY_COLORS[p.rarity];
+                                return (
+                                <div key={p.id} className={`relative bg-slate-900/80 backdrop-blur p-1.5 rounded-lg border ${style.border} text-sm md:text-lg cursor-help group`}>
+                                    {p.icon}
+                                    <span className={`absolute -bottom-2 -right-2 ${style.bg} ${style.text} text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border ${style.border}`}>
+                                        {p.count}
+                                    </span>
+                                    {/* Custom Hover Tooltip */}
+                                    <div className="absolute top-full right-0 mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-max bg-slate-900/95 backdrop-blur-md border border-slate-700 p-3 rounded-lg shadow-2xl z-50 text-left pointer-events-none">
+                                        <div className={`font-bold text-sm ${style.text} drop-shadow-md`}>{p.name}</div>
+                                        <div className="text-xs text-slate-300 mt-0.5 font-bold">Level {p.count} • {p.rarity}</div>
+                                        <div className="text-xs text-slate-400 mt-1 max-w-[150px] whitespace-normal">{p.desc}</div>
+                                    </div>
+                                </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Bottom HUD: Energy Bar */}
+            <div className="absolute bottom-0 left-0 right-0 p-6 z-10 pointer-events-none">
+                <div className="max-w-md mx-auto">
+                    <div className="flex justify-between items-end mb-1">
+                        <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest drop-shadow-md">Energy Core Charge</span>
+                        <span className="text-xs font-bold text-yellow-400 font-mono drop-shadow-md">{Math.floor((uiStats.energy / uiStats.maxEnergy) * 100)}%</span>
+                    </div>
+                    <div className="h-4 bg-slate-900/80 backdrop-blur rounded-full border border-slate-700 overflow-hidden relative">
+                        <div 
+                            className="absolute top-0 left-0 bottom-0 bg-gradient-to-r from-yellow-500 to-yellow-300 transition-all duration-200"
+                            style={{ width: `${(uiStats.energy / uiStats.maxEnergy) * 100}%` }}
+                        >
+                            <div className="absolute top-0 bottom-0 left-0 right-0 bg-gradient-to-b from-white/30 to-transparent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* THE ACTUAL GAME CANVAS */}
+            <canvas 
+                ref={canvasRef} 
+                width={800} 
+                height={600} 
+                className="w-full max-w-[800px] h-auto aspect-[4/3] block bg-[#020617]"
+                style={{ imageRendering: 'pixelated' }}
+            />
+        </div>
+      </div>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes fade-in-up {
+          0% { opacity: 0; transform: translateY(10px) scale(0.95); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-fade-in-up { animation: fade-in-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: rgba(15, 23, 42, 0.6);
+          border-radius: 4px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background: rgba(6, 182, 212, 0.4);
+          border-radius: 4px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: rgba(6, 182, 212, 0.8);
+        }
+      `}} />
+    </div>
+  );
+}
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
