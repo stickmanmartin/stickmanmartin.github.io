@@ -63,9 +63,6 @@
         transform-origin: top;
     }
 
-    
-    
-    
     @keyframes rotatePointer {
         0% { transform: rotate(0deg) scale(1); }
         50% { transform: rotate(180deg) scale(1.1); }
@@ -77,33 +74,13 @@
         cursor: none !important;
     }
 
-        
-
-        
-
         /* Digital Vignette */
-        
 
         /* Noise Overlay */
-        
 
-        
-
-    
-
-    
-
-    
-
-    
-    
-    
-    
-    
         50% { transform: rotate(180deg) scale(1.2); }
         100% { transform: rotate(360deg) scale(1); }
     }
-
 
     h1 {
       font-size: 3rem;
@@ -207,45 +184,7 @@
     }
   </style>
 
-
-
-
-
-
-
-
-<style>
-    #neural-pointer {
-        position: fixed;
-        width: 32px;
-        height: 32px;
-        pointer-events: none;
-        z-index: 9999999;
-        transform: translate(0, 0);
-        display: block;
-        filter: 
-            drop-shadow(0 0 10px var(--rainbow-glow, #38bdf8))
-            drop-shadow(0 0 2px #fff) 
-            drop-shadow(1px 0 0 #000) 
-            drop-shadow(-1px 0 0 #000) 
-            drop-shadow(0 1px 0 #000) 
-            drop-shadow(0 -1px 0 #000);
-    }
-    #neural-pointer::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        clip-path: polygon(0% 0%, 100% 70%, 40% 70%, 40% 100%);
-        transition: background 0.3s ease;
-    }
-    
-    #neural-pointer.day-mode::before { background: #ffffff; }
-    #neural-pointer.night-mode::before { background: #000000; }
-
-    *, html, body, a, button, input, select, textarea, canvas {
-        cursor: none !important;
-    }
-</style>
+    <link rel="stylesheet" href="../hub-common.css">
 </head>
 <body>
   <header>
@@ -391,20 +330,11 @@
     resetBtn.addEventListener('click', startGame);
   </script>
 
-
-
 <style>
-        
-
-        
 
         /* Digital Vignette */
-        
 
         /* Noise Overlay */
-        
-
-        
 
     .facility-nav-btn {
         position: fixed;
@@ -434,13 +364,6 @@
 </style>
 <a href="tests.html" class="facility-nav-btn">Facility Dashboard</a>
 
-
-
-
-
-    
-
-
     <!-- Atmospheric Post-Processing Filters -->
     <svg style="display: none;">
         <filter id="noise">
@@ -454,120 +377,9 @@
         </filter>
     </svg>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div id="neural-pointer"></div>
-<script>
-    (function() {
-        const pointer = document.getElementById('neural-pointer');
-        if (!pointer) return;
-
-        let hue = 0;
-
-        function isDayTime() {
-            const hour = new Date().getHours();
-            return hour >= 6 && hour < 18;
-        }
-
-        function updatePointer() {
-            const isDay = isDayTime();
-            pointer.classList.toggle('day-mode', isDay);
-            pointer.classList.toggle('night-mode', !isDay);
-
-            hue = (hue + 2) % 360;
-            // High lightness for daytime to prevent "dark" feel, standard for night
-            const lightness = isDay ? 85 : 60; 
-            pointer.style.setProperty('--rainbow-glow', `hsl(${hue}, 100%, ${lightness}%)`);
-        }
-
-        window.addEventListener('mousemove', (e) => {
-            pointer.style.left = e.clientX + 'px';
-            pointer.style.top = e.clientY + 'px';
-        });
-
-        function animate() {
-            updatePointer();
-            requestAnimationFrame(animate);
-        }
-        animate();
-    })();
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <!-- Global Hub Navigation -->
-<style>
-    .global-hub-btn {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        background: linear-gradient(135deg, #475569 0%, #0f172a 100%);
-        color: white !important;
-        text-decoration: none !important;
-        padding: 14px 28px;
-        border-radius: 50px;
-        font-family: 'Poppins', 'Segoe UI', sans-serif;
-        font-weight: 700;
-        font-size: 13px;
-        letter-spacing: 1.2px;
-        box-shadow: 0 4px 15px rgba(71, 85, 105, 0.4);
-        z-index: 1000000;
-        border: 2px solid rgba(255, 255, 255, 0.6);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: flex;
-        align-items: center;
-        text-transform: uppercase;
-        cursor: pointer;
-    }
-    .global-hub-btn:hover {
-        transform: scale(1.08) translateY(-5px);
-        box-shadow: 0 12px 25px rgba(71, 85, 105, 0.5);
-        background: linear-gradient(135deg, #94a3b8 0%, #475569 100%);
-        border-color: #fff;
-    }
-</style>
 
-<a href="../index.html" class="global-hub-btn">Back to Hub</a>
+    <script src="../hub-common.js"></script>
+    <a href="../index.html" class="global-hub-btn">Back to Hub</a>
 </body>
 </html>

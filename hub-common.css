@@ -1,0 +1,93 @@
+#neural-pointer {
+    position: fixed;
+    width: 32px;
+    height: 32px;
+    pointer-events: none;
+    z-index: 9999999;
+    transform: translate(0, 0);
+    display: block;
+    filter: 
+        drop-shadow(0 0 10px var(--rainbow-glow, #38bdf8))
+        drop-shadow(0 0 2px #fff) 
+        drop-shadow(1px 0 0 #000) 
+        drop-shadow(-1px 0 0 #000) 
+        drop-shadow(0 1px 0 #000) 
+        drop-shadow(0 -1px 0 #000);
+}
+#neural-pointer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    clip-path: polygon(0% 0%, 100% 70%, 40% 70%, 40% 100%);
+    transition: background 0.3s ease;
+}
+
+#neural-pointer.day-mode::before { background: #ffffff; }
+#neural-pointer.night-mode::before { background: #000000; }
+
+*, html, body, a, button, input, select, textarea, canvas {
+    cursor: none !important;
+}
+
+/* Global Hub Button */
+.global-hub-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: var(--btn-bg, linear-gradient(135deg, #00f2ff 0%, #0077ff 100%));
+    color: white !important;
+    text-decoration: none !important;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    box-shadow: var(--btn-shadow, 0 0 20px rgba(0, 242, 255, 0.4));
+    z-index: 1000000;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.global-hub-btn:hover {
+    transform: scale(1.1) translateY(-5px);
+    box-shadow: var(--btn-shadow-hover, 0 15px 30px rgba(0, 242, 255, 0.6));
+    background: var(--btn-bg-hover, linear-gradient(135deg, #0077ff 0%, #00f2ff 100%));
+    border-color: #fff;
+}
+
+/* Theme: Action (Red/Orange) */
+.global-hub-btn.theme-action {
+    --btn-bg: linear-gradient(135deg, #ff4e50 0%, #f9d423 100%);
+    --btn-shadow: 0 0 20px rgba(255, 78, 80, 0.4);
+    --btn-bg-hover: linear-gradient(135deg, #f9d423 0%, #ff4e50 100%);
+    --btn-shadow-hover: 0 15px 30px rgba(255, 78, 80, 0.6);
+}
+
+/* Theme: Art (Purple/Pink) */
+.global-hub-btn.theme-art {
+    --btn-bg: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+    --btn-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+    --btn-bg-hover: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+    --btn-shadow-hover: 0 15px 30px rgba(168, 85, 247, 0.6);
+}
+
+/* Theme: Strategy (Emerald/Gold) */
+.global-hub-btn.theme-strategy {
+    --btn-bg: linear-gradient(135deg, #10b981 0%, #fbbf24 100%);
+    --btn-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    --btn-bg-hover: linear-gradient(135deg, #fbbf24 0%, #10b981 100%);
+    --btn-shadow-hover: 0 15px 30px rgba(16, 185, 129, 0.6);
+}
+
+/* Theme: Study (Indigo/Violet) */
+.global-hub-btn.theme-study {
+    --btn-bg: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    --btn-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    --btn-bg-hover: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+    --btn-shadow-hover: 0 15px 30px rgba(99, 102, 241, 0.6);
+}

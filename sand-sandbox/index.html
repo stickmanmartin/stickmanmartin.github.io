@@ -6,6 +6,7 @@
     <title>Universal Sandbox Engine - Particle Evolution</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../hub-common.css">
 </head>
 <body class="night-theme">
 
@@ -67,110 +68,11 @@
         </div>
     </div>
 
-    
-    <div id="neural-pointer"></div>
-
     <script src="sand.js"></script>
 
-    <script>
-        // Tab Management
-        function showCategory(id, btn) {
-            document.querySelectorAll('.element-grid').forEach(g => g.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            btn.classList.add('active');
-        }
-
-        // --- Standard Hub Circadian / Pointer Logic ---
-        (function() {
-            const pointer = document.getElementById('neural-pointer');
-            let hue = 0;
-            function update() {
-                const isDay = new Date().getHours() >= 6 && new Date().getHours() < 18;
-                document.body.classList.toggle('day-theme', isDay);
-                document.body.classList.toggle('night-theme', !isDay);
-                if (pointer) {
-                    pointer.classList.toggle('day-mode', isDay);
-                    pointer.classList.toggle('night-mode', !isDay);
-                    hue = (hue + 2) % 360;
-                    pointer.style.setProperty('--rainbow-glow', `hsl(${hue}, 100%, ${isDay?85:60}%)`);
-                }
-                requestAnimationFrame(update);
-            }
-            window.addEventListener('mousemove', e => { if(pointer) { pointer.style.left = e.clientX+'px'; pointer.style.top = e.clientY+'px'; }});
-            update();
-
-            // Reflex Check
-            const score = parseInt(localStorage.getItem('clickSpeedHighscore') || 0);
-            if (score >= 100) {
-                document.getElementById('nuclear-btn').style.display = 'block';
-                document.getElementById('lock-status').style.display = 'none';
-            } else {
-                document.getElementById('lock-status').style.display = 'block';
-            }
-        })();
-    </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <!-- Global Hub Navigation -->
-<style>
-    .global-hub-btn {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        background: linear-gradient(135deg, #00ff00 0%, #003300 100%);
-        color: white !important;
-        text-decoration: none !important;
-        padding: 14px 28px;
-        border-radius: 50px;
-        font-family: 'Poppins', 'Segoe UI', sans-serif;
-        font-weight: 700;
-        font-size: 13px;
-        letter-spacing: 1.2px;
-        box-shadow: 0 4px 15px rgba(0, 255, 0, 0.4);
-        z-index: 1000000;
-        border: 2px solid rgba(255, 255, 255, 0.6);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: flex;
-        align-items: center;
-        text-transform: uppercase;
-        cursor: pointer;
-    }
-    .global-hub-btn:hover {
-        transform: scale(1.08) translateY(-5px);
-        box-shadow: 0 12px 25px rgba(0, 255, 0, 0.5);
-        background: linear-gradient(135deg, #66ff66 0%, #00ff00 100%);
-        border-color: #fff;
-    }
-</style>
 
-<a href="../index.html" class="global-hub-btn">Back to Hub</a>
+    <script src="../hub-common.js"></script>
+    <a href="../index.html" class="global-hub-btn theme-art">Back to Hub</a>
 </body>
 </html>
